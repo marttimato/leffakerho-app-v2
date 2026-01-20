@@ -107,14 +107,16 @@ export default function Home() {
 
     if (!month) continue
 
-    entries.push({
-      id: `${title}-${currentYear}-${month}-${Math.random()}`,
-      title,
-      year: '', // julkaisuvuosi, ei katseluvuosi
-      watchDate: `${month}/${currentYear}`,
-      person,
-      createdAt: new Date().toISOString(),
-    })
+entries.push({
+  id: `${title}-${currentYear}-${month}-${Math.random()}`,
+  title,
+  year: currentYear,          // katseluvuosi
+  month: Number(month),       // 1–12 numerona järjestämistä varten
+  person,
+  source: 'seed',             // ⬅️ TÄRKEÄ
+  createdAt: new Date().toISOString(),
+})
+
   }
 
   return entries
@@ -146,14 +148,17 @@ export default function Home() {
       }
     }
 
-    const newEntry = {
-      id: `${title}-${Date.now()}`,
-      title: title.trim(),
-      year: year.trim(),
-      watchDate: formattedDate,
-      person,
-      createdAt: new Date().toISOString(),
-    }
+const newEntry = {
+  id: `${title}-${Date.now()}`,
+  title: title.trim(),
+  year: new Date(watchDate).getFullYear(),
+  month: new Date(watchDate).getMonth() + 1,
+  watchDate: formattedDate,   // pp.kk.vvvv
+  person,
+  source: 'ui',               // ⬅️ TÄRKEÄ
+  createdAt: new Date().toISOString(),
+}
+
 
     if (!newEntry.year) {
       setLookupInProgress(true)
