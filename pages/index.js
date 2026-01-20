@@ -3,6 +3,22 @@ import MovieList from '../components/MovieList'
 
 const PEOPLE = ['Aino', 'Mari', 'Mikkis', 'Tomi']
 
+// Kuukausien muunnos seed.txt:ää varten
+const MONTHS = {
+  tammikuu: '01',
+  helmikuu: '02',
+  maaliskuu: '03',
+  huhtikuu: '04',
+  toukokuu: '05',
+  kesäkuu: '06',
+  heinäkuu: '07',
+  elokuu: '08',
+  syyskuu: '09',
+  lokakuu: '10',
+  marraskuu: '11',
+  joulukuu: '12',
+}
+
 export default function Home() {
   const [movies, setMovies] = useState([])
   const [loading, setLoading] = useState(true)
@@ -48,15 +64,25 @@ export default function Home() {
     const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
     const entries = []
 
+    let currentYear = ''
+
     for (const line of lines) {
-      if (/^\d{4}$/.test(line)) continue
+      // Vuosi
+      if (/^\d{4}$/.test(line)) {
+        currentYear = line
+        continue
+      }
 
       const match = line.match(/^(.*?)(?:\s*\(([^)]+)\))?\s*-\s*(.*)$/)
       if (!match) continue
 
       const title = match[1].trim()
       const person = (match[2] || '').trim()
-      const watchDate = (match[3] || '').trim()
+      const monthName = match[3].trim().toLowerCase()
+      const month = MONTHS[monthName] || ''
+
+      const watchDate =
+        month && currentYear ? `${month}/${currentYear}` : ''
 
       entries.push({
         id: `${title}-${Date.now()}-${Math.random()}`,
@@ -64,7 +90,7 @@ export default function Home() {
         year: '',
         watchDate,
         person,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       })
     }
 
@@ -85,13 +111,24 @@ export default function Home() {
       return
     }
 
+    let formattedDate = ''
+    if (watchDate) {
+      const d = new Date(watchDate)
+      if (!isNaN(d)) {
+        const dd = String(d.getDate()).padStart(2, '0')
+        const mm = String(d.getMonth() + 1).padStart(2, '0')
+        const yyyy = d.getFullYear()
+        formattedDate = `${dd}.${mm}.${yyyy}`
+      }
+    }
+
     const newEntry = {
       id: `${title}-${Date.now()}`,
       title: title.trim(),
       year: year.trim(),
-      watchDate,
+      watchDate: formattedDate,
       person,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     }
 
     if (!newEntry.year) {
@@ -102,8 +139,7 @@ export default function Home() {
           const data = await r.json()
           if (data?.year) newEntry.year = data.year
         }
-      } catch {}
-      finally {
+      } finally {
         setLookupInProgress(false)
       }
     }
@@ -135,8 +171,8 @@ export default function Home() {
         />
 
         <input
+          type="date"
           className="w-full border p-2"
-          placeholder="Katselupäivä"
           value={watchDate}
           onChange={e => setWatchDate(e.target.value)}
         />
