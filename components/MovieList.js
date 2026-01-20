@@ -17,40 +17,21 @@ export default function MovieList({ movies, onDelete }) {
   if (!movies.length) return <div>Ei elokuvia.</div>
 
   /**
-   * Määritetään TUOREIN KATSOTTU elokuva:
-   * 1) vuosi
-   * 2) kuukausi
-   * 3) päivä (vain UI-elokuvilla)
+   * TUOREIN KATSOTTU ELOKUVA
+   * 1) suurin vuosi
+   * 2) sen vuoden suurin kuukausi
+   * 3) kuukauden viimeinen elokuva (listan järjestys)
    */
-  const latestMovie = movies.reduce((latest, m) => {
-    if (!latest) return m
+  const maxYear = Math.max(...movies.map(m => m.year))
+  const moviesOfMaxYear = movies.filter(m => m.year === maxYear)
 
-    // Vuosi
-    if (m.year !== latest.year) {
-      return m.year > latest.year ? m : latest
-    }
+  const maxMonth = Math.max(...moviesOfMaxYear.map(m => m.month))
+  const moviesOfMaxMonth = moviesOfMaxYear.filter(
+    m => m.month === maxMonth
+  )
 
-    // Kuukausi
-    if (m.month !== latest.month) {
-      return m.month > latest.month ? m : latest
-    }
-
-    // Sama vuosi ja kuukausi
-    // UI-elokuvilla on tarkempi päivämäärä
-    if (m.source === 'ui' && latest.source === 'ui') {
-      const mDate = new Date(m.watchDate.split('.').reverse().join('-'))
-      const lDate = new Date(latest.watchDate.split('.').reverse().join('-'))
-      return mDate > lDate ? m : latest
-    }
-
-    // UI-elokuva on aina seed-elokuvaa tuoreempi samassa kuukaudessa
-    if (m.source === 'ui' && latest.source !== 'ui') return m
-    if (latest.source === 'ui' && m.source !== 'ui') return latest
-
-    return latest
-  }, null)
-
-  const latestId = latestMovie?.id
+  const latestId =
+    moviesOfMaxMonth[moviesOfMaxMonth.length - 1]?.id
 
   // Ryhmitellään elokuvat vuosittain
   const byYear = movies.reduce((acc, movie) => {
@@ -69,7 +50,7 @@ export default function MovieList({ movies, onDelete }) {
       {years.map(year => {
         const moviesOfYear = byYear[year]
 
-        // Ryhmitellään kuukauden mukaan
+        // Ryhmitellään kuukauden mukaan (säilytetään järjestys)
         const byMonth = moviesOfYear.reduce((acc, movie) => {
           acc[movie.month] = acc[movie.month] || []
           acc[movie.month].push(movie)
