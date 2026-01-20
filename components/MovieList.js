@@ -16,7 +16,16 @@ const MONTHS = [
 export default function MovieList({ movies, onDelete }) {
   if (!movies.length) return <div>Ei elokuvia.</div>
 
-  // 1) Ryhmitellään vuodet
+  // Selvitetään uusin elokuva (vain tälle näytetään Poista)
+  const latestId = movies.reduce(
+    (latest, m) =>
+      !latest || new Date(m.createdAt) > new Date(latest.createdAt)
+        ? m
+        : latest,
+    null
+  )?.id
+
+  // Ryhmitellään elokuvat vuosittain
   const byYear = movies.reduce((acc, movie) => {
     acc[movie.year] = acc[movie.year] || []
     acc[movie.year].push(movie)
@@ -33,7 +42,7 @@ export default function MovieList({ movies, onDelete }) {
       {years.map(year => {
         const moviesOfYear = byYear[year]
 
-        // 2) Ryhmitellään kuukaudet vuoden sisällä
+        // Ryhmitellään kuukaudet vuoden sisällä
         const byMonth = moviesOfYear.reduce((acc, movie) => {
           acc[movie.month] = acc[movie.month] || []
           acc[movie.month].push(movie)
@@ -67,6 +76,7 @@ export default function MovieList({ movies, onDelete }) {
                             Vuoro: {movie.person}
                           </div>
 
+                          {/* Katselupäivä vain UI:sta lisätyille */}
                           {movie.source === 'ui' && movie.watchDate && (
                             <div className="text-xs text-gray-400 mt-1">
                               Katsottu {movie.watchDate}
@@ -74,12 +84,15 @@ export default function MovieList({ movies, onDelete }) {
                           )}
                         </div>
 
-                        <button
-                          onClick={() => onDelete(movie.id)}
-                          className="text-red-600 text-sm"
-                        >
-                          Poista
-                        </button>
+                        {/* Poista vain uusimmalle elokuvalle */}
+                        {movie.id === latestId && (
+                          <button
+                            onClick={() => onDelete(movie.id)}
+                            className="text-red-600 text-sm"
+                          >
+                            Poista
+                          </button>
+                        )}
                       </article>
                     ))}
                   </div>
