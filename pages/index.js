@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { useEffect, useState } from 'react'
 import MovieList from '../components/MovieList'
 
@@ -14,6 +16,7 @@ export default function Home() {
   const [error, setError] = useState('')
 
   useEffect(() => {
+  if (typeof window === 'undefined') return
     // Lataa seed-tiedosto ja paikalliset tallenteet
     async function init() {
       try {
@@ -59,7 +62,8 @@ export default function Home() {
         const month = (m[3] || '').trim()
         // arvioi katselupäivä vain kuukausi-syntaktisesti: käytetään YYYY tilalla tuntematon vuosi
         entries.push({
-          id: `${title}-${person || 'unknown'}-${entries.length}`,
+          id: `${title}-${person || 'unknown'}-${Date.now()}-${Math.random()}`,
+
           title,
           year: '', // ei ollut luotettavaa vuotta seedissä
           watchDate: month || '',
