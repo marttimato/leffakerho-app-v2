@@ -16,14 +16,41 @@ const MONTHS = [
 export default function MovieList({ movies, onDelete }) {
   if (!movies.length) return <div>Ei elokuvia.</div>
 
-  // Selvitetään uusin elokuva (vain tälle näytetään Poista)
-  const latestId = movies.reduce(
-    (latest, m) =>
-      !latest || new Date(m.createdAt) > new Date(latest.createdAt)
-        ? m
-        : latest,
-    null
-  )?.id
+  /**
+   * Määritetään TUOREIN KATSOTTU elokuva:
+   * 1) vuosi
+   * 2) kuukausi
+   * 3) päivä (vain UI-elokuvilla)
+   */
+  const latestMovie = movies.reduce((latest, m) => {
+    if (!latest) return m
+
+    // Vuosi
+    if (m.year !== latest.year) {
+      return m.year > latest.year ? m : latest
+    }
+
+    // Kuukausi
+    if (m.month !== latest.month) {
+      return m.month > latest.month ? m : latest
+    }
+
+    // Sama vuosi ja kuukausi
+    // UI-elokuvilla on tarkempi päivämäärä
+    if (m.source === 'ui' && latest.source === 'ui') {
+      const mDate = new Date(m.watchDate.split('.').reverse().join('-'))
+      const lDate = new Date(latest.watchDate.split('.').reverse().join('-'))
+      return mDate > lDate ? m : latest
+    }
+
+    // UI-elokuva on aina seed-elokuvaa tuoreempi samassa kuukaudessa
+    if (m.source === 'ui' && latest.source !== 'ui') return m
+    if (latest.source === 'ui' && m.source !== 'ui') return latest
+
+    return latest
+  }, null)
+
+  const latestId = latestMovie?.id
 
   // Ryhmitellään elokuvat vuosittain
   const byYear = movies.reduce((acc, movie) => {
@@ -42,7 +69,7 @@ export default function MovieList({ movies, onDelete }) {
       {years.map(year => {
         const moviesOfYear = byYear[year]
 
-        // Ryhmitellään kuukaudet vuoden sisällä
+        // Ryhmitellään kuukauden mukaan
         const byMonth = moviesOfYear.reduce((acc, movie) => {
           acc[movie.month] = acc[movie.month] || []
           acc[movie.month].push(movie)
@@ -84,7 +111,7 @@ export default function MovieList({ movies, onDelete }) {
                           )}
                         </div>
 
-                        {/* Poista vain uusimmalle elokuvalle */}
+                        {/* Poista vain TUOREIMMALLE katsotulle */}
                         {movie.id === latestId && (
                           <button
                             onClick={() => onDelete(movie.id)}
