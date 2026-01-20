@@ -9,7 +9,7 @@ Fantastic Mr. Fox (Mikkis) -Maaliskuu
 Ring (Aino) - Maaliskuu
 Spirited away (Mari) - Maaliskuu
 World War Z (Tomi) - Maaliskuu
-	10.	Leon (Mikkis) - Maaliskuu
+Leon (Mikkis) - Maaliskuu
 Harry Potter ja viisasten kivi (Aino) - Maaliskuu
 Step up (Mari) - Huhtikuu
 Fury (Tomi) - Huhtikuu
@@ -19,7 +19,7 @@ Rocketman (Mari) - Huhtikuu
 Kunniattomat paskiaiset (Tomi) - Huhtikuu
 The Budapest Grand Hotel (Mikkis) - Toukokuu
 Orpokoti (Aino) - Toukokuu
-	20.	Call Me by Your Name (Mari) - Toukokuu
+Call Me by Your Name (Mari) - Toukokuu
 Rango (Tomi) - Toukokuu
 Moonlight Kingdom (Mikkis) - Kesäkuu
 The Prestige (Aino) - Kesäkuu
@@ -29,7 +29,7 @@ Top Secret! (Mikkis) - Elokuu
 Teräsleidit (Aino) - Elokuu
 Suicide Squad 2 (Mari) - Syyskuu
 John Wick (Tomi) - Syyskuu
-	30.	Warrior (Mikkis) - Lokakuu
+Warrior (Mikkis) - Lokakuu
 Red notice (Aino) - Marraskuu
 Rita Hayworth - avain pakoon (Mari) - Marraskuu
 Austin Powers: Agentti joka tuuppasi minut (Tomi) - Marraskuu
@@ -39,11 +39,10 @@ Last Christmas (Mari) - Joulukuu
 The Terminal (Tomi) - Joulukuu 
 Klaus (Mikkis) - Joulukuu
 Kaunotar ja hirviö: lumottu joulu (Aino) - Joulukuu
-=39 leffaa
 
 2022
 
-	40.	Schindlerin lista (Mari) - Tammikuu
+Schindlerin lista (Mari) - Tammikuu
 Eddie the Eagle (Tomi) - Tammikuu
 Leffakerho 1v: Wayne’s world (Mikkis) - Tammikuu
 Forrest Gump (Aino) - Helmikuu
@@ -53,7 +52,7 @@ Avatar (Mikkis) - Helmikuu
 West side story (Aino) - Maaliskuu
 LEGO Batman elokuva (Mari) - Maaliskuu
 The Magnificent Seven (Tomi) - Maaliskuu
-	50.	What We Do in the Shadows (Mikkis) - Maaliskuu
+What We Do in the Shadows (Mikkis) - Maaliskuu
 The Tourist (Aino) - Huhtikuu
 Notting Hill (Mari) - Toukokuu
 Deepwater Horizon (Tomi) - Kesäkuu
@@ -63,7 +62,7 @@ Tikun ja Takun pelastuspartio (Mari) - Kesäkuu
 Full Metal Jacket (Tomi) - Heinäkuu
 Kätyrit - Grun tarina (Mikkis) - Elokuu
 Hitman’s Wife’s Bodyguard (Aino) - Syyskuu
-	60.	The Doors (Mari) - Syyskuu
+The Doors (Mari) - Syyskuu
 Studio 666 (Tomi) - Syyskuu
 Dog (Mikkis) - Syyskuu
 The Horse Whisperer (Aino) - Syyskuu
@@ -73,33 +72,35 @@ Elvis (Mikkis) - Lokakuu
 The trial of the Chicago 7 (Aino) - Lokakuu
 The Night Before Christmas (Mari) - Lokakuu
 Halloween (Tomi) - Lokakuu
-	70.	Suon villi laulu (Mikkis) - Marraskuu
+Suon villi laulu (Mikkis) - Marraskuu
+Black panther (Finnkino IMAX) - Marraskuu 
 Bullet Train (Aino) - Joulukuu
 Spirited (Mari) - Joulukuu
 Länsirintamalta ei mitään uutta (Tomi) - Joulukuu
 What’s Eating Gilbert Grape (Mikkis) - Joulukuu
 The Hypnotist (Aino) - Joulukuu
-=36 leffaa
 
 2023
 
 Zoolander (Mari) - Tammikuu
-	77.	The Truman Show (Tomi) - Tammikuu
+The Truman Show (Tomi) - Tammikuu
 Everything Everywhere All at Once (Mikkis) - Tammikuu
 Paras ystäväni Anne Frank (Aino) - Tammikuu
-	80.	Hair (Mari) - Tammikuu
+Hair (Mari) - Tammikuu
 Whiplash (Tomi) - Tammikuu
 Leffakerho 2v: The Menu (Mikkis) - Helmikuu
 Up - kohti korkeuksia (Aino) - Helmikuu
 Trainspotting (Mari) - Maaliskuu 
 Team America: World Police (Tomi) - Maaliskuu
+The Batman (Finnkino IMAX ennakkonäytös) - Maaliskuu
 Tetris (Mikkis) - Huhtikuu
 Kerro minulle jotain hyvää (Aino) - Huhtikuu
 Manchester by the Sea (Mari) - Huhtikuu 
 Tenacious D: Maailman paras rokkibändi (Tomi) - Huhtikuu
-	90.	The Banshees of Inisherin (Mikkis) - Toukokuu
+The Banshees of Inisherin (Mikkis) - Toukokuu
 Ylpeys ja ennakkoluulo (Aino) - Toukokuu
 DodgeBall: A True Underdog Story (Mari) - Toukokuu
+The guardians of the galaxy vol. 3 (Finnkino IMAX) - Toukokuu
 8 Mile (Tomi) - Toukokuu
 Spider-Man: Kohti Hämähäkkiversumia (Mikkis) - Kesäkuu
  E.T. (Aino) - Kesäkuu
@@ -107,7 +108,7 @@ Airplane! (Mari) - Kesäkuu
 Deadpool (Tomi) - Heinäkuu
 Naapurini Totoro (Mikkis) - Heinäkuu
 The Greatest Showman (Aino) - Heinäkuu
-	100.	Dirty Dancing (Mari) - Elokuu
+Dirty Dancing (Mari) - Elokuu
 Pulp Fiction (Tomi) - Elokuu
 M3gan (Mikkis) - Lokakuu
 The Rocky Horror Picture Show (Aino) - Marraskuu
@@ -116,12 +117,11 @@ The Gentlemen (Tomi) - Marraskuu
 Triangle of Sadness (Mikkis) - Joulukuu
 The Grinch (Aino) - Joulukuu
 Violent Night (Mari) - Joulukuu
-=33 leffaa
 
 2024
 
 The Covenant (Tomi) - Tammikuu
-	110.	Leave the world behind (Mikkis) - Tammikuu
+Leave the world behind (Mikkis) - Tammikuu
 Leffakerho 3v: The Family Plan (Aino) - Tammikuu
 Paddington (Mari) - Helmikuu
 The Highwaymen (Tomi) - Maaliskuu
@@ -131,7 +131,7 @@ Will Hunting - syntynyt neroksi - (Mari) Huhtikuu
 Road House (Tomi) - Huhtikuu
 Interstellar (Mari) - Toukokuu
 Yhdet häät ja muutama pankkiryöstö (Aino) - Toukokuu
-	120.	Saksikäsi Edward (Mikkis) - Toukokuu
+Saksikäsi Edward (Mikkis) - Toukokuu
 Moneyball (Tomi) - Toukokuu
 Parasite (Mikkis) - Heinäkuu
 Extremely Wicked, Shockingly Evil, and Vile (Aino) - Heinäkuu
@@ -141,7 +141,7 @@ Yksi lensi yli käenpesän (Mikkis) - Syyskuu
 Gremlins (Aino) - Syyskuu
 Tähtiin kirjoitettu virhe (Mari) - Lokakuu
 Wolfs (Tomi) - Lokakuu
-	130.	Beetlejuice (Mikkis) - Lokakuu
+Beetlejuice (Mikkis) - Lokakuu
 The Happiness of the Katakuris (Aino) - Marraskuu
 The Sound of Music (Mari) - Marraskuu
 The Mist (Tomi) - Marraskuu
@@ -149,13 +149,12 @@ The Imitation Game (Mikkis) - Joulukuu
 Elf (Aino) - Joulukuu
 Hohto (Mari) - Joulukuu
 Red One (Tomi) - Joulukuu
-=29 elokuvaa
 
 2025
 
 Wallace ja Gromit: Kosto kynittävänä (Mikkis) - Tammikuu
 Back in Action (Aino) - Tammikuu
-	140.	Leffakerho 4v: Kuolleiden runoilijoiden seura (Mari) - Tammikuu
+Kuolleiden runoilijoiden seura (Mari) - Tammikuu
 Weird: The Al Yankovic Story (Tomi) - Helmikuu
 Gifted (Mikkis) - Helmikuu
 Leijonakuningas (Aino) - Maaliskuu
@@ -165,7 +164,7 @@ Ohjus (Mikkis) - Toukokuu
 Pahat pojat (Aino) - Toukokuu
 Palm Springs (Mari) - Kesäkuu
 Uutisankkuri - legendan paluu (Tomi) - Heinäkuu
-	150.	Isle of Dogs (Mikkis) - Heinäkuu
+Isle of Dogs (Mikkis) - Heinäkuu
 Muumipeikko ja pyrstötähti (Aino) - Elokuu
 Tim Burton’s Corpse Bride (Mari) - Syyskuu
 Kraven - The Hunter (Tomi) - Lokakuu 
@@ -176,40 +175,3 @@ Kiinni jäit!? (Tomi) - Tammikuu
 Bugonia (Mikkis) - Tammikuu
 Pikku naisia (Aino)- Tammikuu
 Billy Elliot (Mari) - Tammikuu
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Leffateatteri-illat:
-The Batman 2.3.22 Finnkino IMAX (ennakkonäytös)
-Black panther 9.11.22 Finnkino IMAX 
-The guardians of the galaxy vol. 3 3.5.23 Finnkino IMAX
-
-
-
-
-
-
-
-
-
-
-
-
-
-

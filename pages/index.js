@@ -61,41 +61,65 @@ export default function Home() {
   }, [])
 
   function parseSeed(text) {
-    const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
-    const entries = []
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
+  const entries = []
 
-    let currentYear = ''
+  let currentYear = ''
 
-    for (const line of lines) {
-      // Vuosi
-      if (/^\d{4}$/.test(line)) {
-        currentYear = line
-        continue
-      }
+  const MONTHS = {
+    tammikuu: '01',
+    helmikuu: '02',
+    maaliskuu: '03',
+    huhtikuu: '04',
+    toukokuu: '05',
+    kesäkuu: '06',
+    heinäkuu: '07',
+    elokuu: '08',
+    syyskuu: '09',
+    lokakuu: '10',
+    marraskuu: '11',
+    joulukuu: '12',
+  }
 
-      const match = line.match(/^(.*?)(?:\s*\(([^)]+)\))?\s*-\s*(.*)$/)
-      if (!match) continue
-
-      const title = match[1].trim()
-      const person = (match[2] || '').trim()
-      const monthName = match[3].trim().toLowerCase()
-      const month = MONTHS[monthName] || ''
-
-      const watchDate =
-        month && currentYear ? `${month}/${currentYear}` : ''
-
-      entries.push({
-        id: `${title}-${Date.now()}-${Math.random()}`,
-        title,
-        year: '',
-        watchDate,
-        person,
-        createdAt: new Date().toISOString(),
-      })
+  for (const line of lines) {
+    // 1) Vuosiotsikko
+    if (/^\d{4}$/.test(line)) {
+      currentYear = line
+      continue
     }
 
-    return entries
+    // Jos ei olla vuoden alla, ohita
+    if (!currentYear) continue
+
+    // 2) Poista mahdollinen numerointi "10.", "110." jne.
+    const cleaned = line.replace(/^\d+\.\s*/, '')
+
+    // 3) Parsitaan elokuvan nimi, henkilö ja kuukausi
+    // Sallii useita "-" nimen sisällä
+    const match = cleaned.match(/^(.*?)(?:\s*\(([^)]+)\))?\s*-\s*(Tammikuu|Helmikuu|Maaliskuu|Huhtikuu|Toukokuu|Kesäkuu|Heinäkuu|Elokuu|Syyskuu|Lokakuu|Marraskuu|Joulukuu)$/i)
+
+    if (!match) continue
+
+    const title = match[1].trim()
+    const person = (match[2] || '').trim()
+    const monthName = match[3].toLowerCase()
+    const month = MONTHS[monthName]
+
+    if (!month) continue
+
+    entries.push({
+      id: `${title}-${currentYear}-${month}-${Math.random()}`,
+      title,
+      year: '', // julkaisuvuosi, ei katseluvuosi
+      watchDate: `${month}/${currentYear}`,
+      person,
+      createdAt: new Date().toISOString(),
+    })
   }
+
+  return entries
+}
+
 
   function persist(list) {
     setMovies(list)
