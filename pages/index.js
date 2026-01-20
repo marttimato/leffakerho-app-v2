@@ -185,9 +185,10 @@ export default function Home() {
         )}
       </section>
 
-      <footer className="mt-8 text-xs text-gray-500">
-        Alkuperäinen seed-lista on ladattu tiedostosta <code>/public/seed.txt</code>. Lähde: :contentReference[oaicite:2]{index=2}
-      </footer>
+<footer className="mt-8 text-xs text-gray-500">
+  Alkuperäinen seed-lista on ladattu tiedostosta <code>/public/seed.txt</code>.
+</footer>
+
     </main>
 	export async function getServerSideProps() {
   return {
