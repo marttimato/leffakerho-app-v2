@@ -21,16 +21,11 @@ export default function Home() {
   const [error, setError] = useState('')
 
   async function fetchReleaseYear(title) {
-    try {
-      const r = await fetch(
-        `/api/fetch-year?title=${encodeURIComponent(title)}`
-      )
-      if (!r.ok) return null
-      const data = await r.json()
-      return data?.year || null
-    } catch {
-      return null
-    }
+    const r = await fetch(
+      `/api/fetch-year?title=${encodeURIComponent(title)}`
+    )
+    const data = await r.json()
+    return data
   }
 
   useEffect(() => {
@@ -62,18 +57,9 @@ export default function Home() {
     let currentYear = null
 
     const MONTHS = {
-      tammikuu: 1,
-      helmikuu: 2,
-      maaliskuu: 3,
-      huhtikuu: 4,
-      toukokuu: 5,
-      kesäkuu: 6,
-      heinäkuu: 7,
-      elokuu: 8,
-      syyskuu: 9,
-      lokakuu: 10,
-      marraskuu: 11,
-      joulukuu: 12,
+      tammikuu: 1, helmikuu: 2, maaliskuu: 3, huhtikuu: 4,
+      toukokuu: 5, kesäkuu: 6, heinäkuu: 7, elokuu: 8,
+      syyskuu: 9, lokakuu: 10, marraskuu: 11, joulukuu: 12,
     }
 
     for (const line of lines) {
@@ -98,7 +84,6 @@ export default function Home() {
         source: 'seed',
       })
     }
-
     return entries
   }
 
@@ -107,9 +92,13 @@ export default function Home() {
 
     const enriched = await Promise.all(
       baseMovies.map(async m => {
-        if (m.source === 'seed' && !m.releaseYear) {
-          const y = await fetchReleaseYear(m.title)
-          if (y) return { ...m, releaseYear: y }
+        if (m.source === 'seed' && m.releaseYear === undefined) {
+          const result = await fetchReleaseYear(m.title)
+          return {
+            ...m,
+            releaseYear: result.year,
+            releaseYearSource: result.source,
+          }
         }
         return m
       })
@@ -147,10 +136,12 @@ export default function Home() {
 
     if (releaseYear) {
       newEntry.releaseYear = releaseYear
+      newEntry.releaseYearSource = 'manual'
     } else {
       setLookupInProgress(true)
-      const y = await fetchReleaseYear(title.trim())
-      if (y) newEntry.releaseYear = y
+      const result = await fetchReleaseYear(title.trim())
+      newEntry.releaseYear = result.year
+      newEntry.releaseYearSource = result.source
       setLookupInProgress(false)
     }
 
@@ -165,50 +156,20 @@ export default function Home() {
     <main className="min-h-screen max-w-xl mx-auto p-4">
       <h1 className="text-2xl font-semibold mb-4">Leffakerho</h1>
 
-      <form
-        onSubmit={handleAdd}
-        className="bg-white p-4 rounded shadow space-y-3 mb-6"
-      >
-        <input
-          className="w-full border p-2"
-          placeholder="Elokuvan nimi"
-          value={title}
-          onChange={e => setTitle(e.target.value)}
-        />
-
-        <input
-          className="w-full border p-2"
-          placeholder="Julkaisuvuosi (valinnainen)"
-          value={releaseYear}
-          onChange={e => setReleaseYear(e.target.value)}
-        />
-
-        <input
-          type="date"
-          className="w-full border p-2"
-          value={watchDate}
-          onChange={e => setWatchDate(e.target.value)}
-        />
+      <form onSubmit={handleAdd} className="bg-white p-4 rounded shadow space-y-3 mb-6">
+        <input className="w-full border p-2" placeholder="Elokuvan nimi" value={title} onChange={e => setTitle(e.target.value)} />
+        <input className="w-full border p-2" placeholder="Julkaisuvuosi (valinnainen)" value={releaseYear} onChange={e => setReleaseYear(e.target.value)} />
+        <input type="date" className="w-full border p-2" value={watchDate} onChange={e => setWatchDate(e.target.value)} />
 
         <div className="flex gap-3">
           {PEOPLE.map(p => (
             <label key={p}>
-              <input
-                type="radio"
-                checked={person === p}
-                onChange={() => setPerson(p)}
-              />{' '}
-              {p}
+              <input type="radio" checked={person === p} onChange={() => setPerson(p)} /> {p}
             </label>
           ))}
         </div>
 
-        {error && <div className="text-red-600 text-sm">{error}</div>}
-
-        <button
-          disabled={lookupInProgress}
-          className="bg-sky-600 text-white px-4 py-2 rounded"
-        >
+        <button disabled={lookupInProgress} className="bg-sky-600 text-white px-4 py-2 rounded">
           Lisää elokuva
         </button>
       </form>

@@ -3,7 +3,7 @@ export default async function handler(req, res) {
   const apiKey = process.env.OMDB_API_KEY
 
   if (!title || !apiKey) {
-    return res.status(200).json({})
+    return res.status(200).json({ year: null, source: 'missing' })
   }
 
   try {
@@ -13,7 +13,7 @@ export default async function handler(req, res) {
 
     const response = await fetch(url)
     if (!response.ok) {
-      return res.status(200).json({})
+      return res.status(200).json({ year: null, source: 'error' })
     }
 
     const data = await response.json()
@@ -21,12 +21,16 @@ export default async function handler(req, res) {
     if (data && data.Year) {
       const match = data.Year.match(/\d{4}/)
       if (match) {
-        return res.status(200).json({ year: match[0] })
+        return res.status(200).json({
+          year: match[0],
+          source: 'omdb',
+        })
       }
     }
 
-    return res.status(200).json({})
+    // OMDb ei löytänyt elokuvaa
+    return res.status(200).json({ year: null, source: 'not_found' })
   } catch {
-    return res.status(500).json({})
+    return res.status(200).json({ year: null, source: 'exception' })
   }
 }
