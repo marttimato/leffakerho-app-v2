@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-  const { title } = req.query
+  const { title, watchedYear } = req.query
   const apiKey = process.env.TMDB_API_KEY
 
   if (!title || !apiKey) {
@@ -19,19 +19,42 @@ export default async function handler(req, res) {
     }
 
     const data = await response.json()
-
-    if (data?.results?.length > 0) {
-      const movie = data.results[0]
-      if (movie.release_date) {
-        const year = movie.release_date.split('-')[0]
-        return res.status(200).json({
-          year,
-          source: 'tmdb',
-        })
-      }
+    if (!Array.isArray(data.results)) {
+      return res.status(200).json({ year: null, source: 'no_results' })
     }
 
-    return res.status(200).json({ year: null, source: 'not_found' })
+    const targetYear = watchedYear ? Number(watchedYear) : null
+
+    // Filtteröi kelvolliset elokuvat
+    const candidates = data.results
+      .filter(r => r.release_date && r.title)
+      .map(r => ({
+        title: r.title,
+        year: Number(r.release_date.split('-')[0]),
+      }))
+      .filter(r => !isNaN(r.year))
+
+    if (candidates.length === 0) {
+      return res.status(200).json({ year: null, source: 'no_valid_release' })
+    }
+
+    let chosen
+
+    if (targetYear) {
+      // Valitse lähinnä katseluvuotta oleva (<= watchedYear)
+      const past = candidates.filter(c => c.year <= targetYear)
+      chosen = past.length
+        ? past.sort((a, b) => b.year - a.year)[0]
+        : candidates.sort((a, b) => b.year - a.year)[0]
+    } else {
+      // fallback: uusin
+      chosen = candidates.sort((a, b) => b.year - a.year)[0]
+    }
+
+    return res.status(200).json({
+      year: String(chosen.year),
+      source: 'tmdb',
+    })
   } catch (err) {
     return res.status(200).json({
       year: null,
