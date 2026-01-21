@@ -7,13 +7,14 @@ export default async function handler(req, res) {
   }
 
   try {
-    const url = `http://www.omdbapi.com/?t=${encodeURIComponent(
+    // 🔑 TÄRKEÄ: HTTPS, ei HTTP
+    const url = `https://www.omdbapi.com/?t=${encodeURIComponent(
       title
     )}&apikey=${apiKey}`
 
     const response = await fetch(url)
     if (!response.ok) {
-      return res.status(200).json({ year: null, source: 'error' })
+      return res.status(200).json({ year: null, source: 'fetch_failed' })
     }
 
     const data = await response.json()
@@ -28,9 +29,12 @@ export default async function handler(req, res) {
       }
     }
 
-    // OMDb ei löytänyt elokuvaa
     return res.status(200).json({ year: null, source: 'not_found' })
-  } catch {
-    return res.status(200).json({ year: null, source: 'exception' })
+  } catch (err) {
+    return res.status(200).json({
+      year: null,
+      source: 'exception',
+      message: String(err),
+    })
   }
 }
