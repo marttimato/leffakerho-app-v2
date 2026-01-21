@@ -72,17 +72,6 @@ export default function Home() {
     return entries
   }
 
-  function saveMovie(movie) {
-    const updated = [...movies, movie]
-    setMovies(updated)
-    localStorage.setItem('leffakerho_movies', JSON.stringify(updated))
-    setTitle('')
-    setWatchDate(todayISO())
-    setPerson(PEOPLE[0])
-    setCandidates(null)
-    setPendingMovie(null)
-  }
-
   async function handleAdd(e) {
     e.preventDefault()
 
@@ -100,10 +89,8 @@ export default function Home() {
     const data = await r.json()
 
     if (data.results.length === 1) {
-      saveMovie({
-        ...newMovie,
-        releaseYear: data.results[0].releaseYear,
-      })
+      newMovie.releaseYear = data.results[0].releaseYear
+      saveMovie(newMovie)
     } else if (data.results.length > 1) {
       setPendingMovie(newMovie)
       setCandidates(data.results)
@@ -112,25 +99,24 @@ export default function Home() {
     }
   }
 
+  function saveMovie(movie) {
+    const updated = [...movies, movie]
+    setMovies(updated)
+    localStorage.setItem('leffakerho_movies', JSON.stringify(updated))
+    setTitle('')
+    setWatchDate(todayISO())
+    setPerson(PEOPLE[0])
+    setCandidates(null)
+    setPendingMovie(null)
+  }
+
   return (
     <main className="min-h-screen max-w-xl mx-auto p-4">
       <h1 className="text-2xl font-semibold mb-4">Leffakerho</h1>
 
       <form onSubmit={handleAdd} className="bg-white p-4 rounded shadow space-y-3 mb-6">
-        <input
-          className="w-full border p-2"
-          placeholder="Elokuvan nimi"
-          value={title}
-          onChange={e => setTitle(e.target.value)}
-        />
-
-        <input
-          type="date"
-          className="w-full border p-2"
-          value={watchDate}
-          onChange={e => setWatchDate(e.target.value)}
-        />
-
+        <input className="w-full border p-2" placeholder="Elokuvan nimi" value={title} onChange={e => setTitle(e.target.value)} />
+        <input type="date" className="w-full border p-2" value={watchDate} onChange={e => setWatchDate(e.target.value)} />
         <div className="flex gap-3">
           {PEOPLE.map(p => (
             <label key={p}>
@@ -138,10 +124,7 @@ export default function Home() {
             </label>
           ))}
         </div>
-
-        <button className="bg-sky-600 text-white px-4 py-2 rounded">
-          Lisää elokuva
-        </button>
+        <button className="bg-sky-600 text-white px-4 py-2 rounded">Lisää elokuva</button>
       </form>
 
       {candidates && (
@@ -153,16 +136,12 @@ export default function Home() {
                 <li key={c.id}>
                   <button
                     className="text-left w-full border p-2 rounded hover:bg-gray-100"
-                    onClick={() =>
-                      saveMovie({
-                        ...pendingMovie,
-                        releaseYear: c.releaseYear,
-                      })
-                    }
+                    onClick={() => {
+                      pendingMovie.releaseYear = c.releaseYear
+                      saveMovie(pendingMovie)
+                    }}
                   >
-                    <div className="font-medium">
-                      {c.title} ({c.releaseYear})
-                    </div>
+                    <div className="font-medium">{c.title} ({c.releaseYear})</div>
                     <div className="text-xs text-gray-500">{c.overview}</div>
                   </button>
                 </li>
@@ -172,16 +151,7 @@ export default function Home() {
         </div>
       )}
 
-      {loading ? (
-        <div>Luetaan…</div>
-      ) : (
-        <MovieList
-          movies={movies}
-          onDelete={id =>
-            saveMovie(movies.filter(m => m.id !== id))
-          }
-        />
-      )}
+      {loading ? <div>Luetaan…</div> : <MovieList movies={movies} onDelete={id => saveMovie(movies.filter(m => m.id !== id))} />}
     </main>
   )
 }
