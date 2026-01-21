@@ -3,125 +3,102 @@ import MovieList from '../components/MovieList'
 
 const PEOPLE = ['Aino', 'Mari', 'Mikkis', 'Tomi']
 
-// Kuukausien muunnos seed.txt:ää varten
-const MONTHS = {
-  tammikuu: '01',
-  helmikuu: '02',
-  maaliskuu: '03',
-  huhtikuu: '04',
-  toukokuu: '05',
-  kesäkuu: '06',
-  heinäkuu: '07',
-  elokuu: '08',
-  syyskuu: '09',
-  lokakuu: '10',
-  marraskuu: '11',
-  joulukuu: '12',
+// Palauttaa tämän päivän muodossa YYYY-MM-DD (HTML date input)
+function todayISO() {
+  const d = new Date()
+  const yyyy = d.getFullYear()
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  return `${yyyy}-${mm}-${dd}`
 }
 
 export default function Home() {
   const [movies, setMovies] = useState([])
   const [loading, setLoading] = useState(true)
+
   const [title, setTitle] = useState('')
   const [year, setYear] = useState('')
-  const [watchDate, setWatchDate] = useState('')
+  const [watchDate, setWatchDate] = useState(todayISO())
   const [person, setPerson] = useState(PEOPLE[0])
+
   const [lookupInProgress, setLookupInProgress] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    async function init() {
-      try {
-        const local = localStorage.getItem('leffakerho_movies')
-        if (local) {
-          setMovies(JSON.parse(local))
-          return
-        }
+    const local = localStorage.getItem('leffakerho_movies')
+    if (local) {
+      setMovies(JSON.parse(local))
+      setLoading(false)
+      return
+    }
 
-        const res = await fetch('/seed.txt')
-        if (!res.ok) {
-          setMovies([])
-          return
-        }
-
-        const txt = await res.text()
+    fetch('/seed.txt')
+      .then(res => res.text())
+      .then(txt => {
         const parsed = parseSeed(txt)
         setMovies(parsed)
         localStorage.setItem('leffakerho_movies', JSON.stringify(parsed))
-      } catch (e) {
-        console.error(e)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    init()
+      })
+      .finally(() => setLoading(false))
   }, [])
 
   function parseSeed(text) {
-  const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
-  const entries = []
+    const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
+    const entries = []
 
-  let currentYear = ''
+    let currentYear = ''
 
-  const MONTHS = {
-    tammikuu: '01',
-    helmikuu: '02',
-    maaliskuu: '03',
-    huhtikuu: '04',
-    toukokuu: '05',
-    kesäkuu: '06',
-    heinäkuu: '07',
-    elokuu: '08',
-    syyskuu: '09',
-    lokakuu: '10',
-    marraskuu: '11',
-    joulukuu: '12',
-  }
-
-  for (const line of lines) {
-    // 1) Vuosiotsikko
-    if (/^\d{4}$/.test(line)) {
-      currentYear = line
-      continue
+    const MONTHS = {
+      tammikuu: 1,
+      helmikuu: 2,
+      maaliskuu: 3,
+      huhtikuu: 4,
+      toukokuu: 5,
+      kesäkuu: 6,
+      heinäkuu: 7,
+      elokuu: 8,
+      syyskuu: 9,
+      lokakuu: 10,
+      marraskuu: 11,
+      joulukuu: 12,
     }
 
-    // Jos ei olla vuoden alla, ohita
-    if (!currentYear) continue
+    for (const line of lines) {
+      // Vuosiotsikko
+      if (/^\d{4}$/.test(line)) {
+        currentYear = Number(line)
+        continue
+      }
 
-    // 2) Poista mahdollinen numerointi "10.", "110." jne.
-    const cleaned = line.replace(/^\d+\.\s*/, '')
+      if (!currentYear) continue
 
-    // 3) Parsitaan elokuvan nimi, henkilö ja kuukausi
-    // Sallii useita "-" nimen sisällä
-    const match = cleaned.match(/^(.*?)(?:\s*\(([^)]+)\))?\s*-\s*(Tammikuu|Helmikuu|Maaliskuu|Huhtikuu|Toukokuu|Kesäkuu|Heinäkuu|Elokuu|Syyskuu|Lokakuu|Marraskuu|Joulukuu)$/i)
+      // Poista mahdollinen numerointi "10."
+      const cleaned = line.replace(/^\d+\.\s*/, '')
 
-    if (!match) continue
+      const match = cleaned.match(
+        /^(.*?)(?:\s*\(([^)]+)\))?\s*-\s*(Tammikuu|Helmikuu|Maaliskuu|Huhtikuu|Toukokuu|Kesäkuu|Heinäkuu|Elokuu|Syyskuu|Lokakuu|Marraskuu|Joulukuu)$/i
+      )
 
-    const title = match[1].trim()
-    const person = (match[2] || '').trim()
-    const monthName = match[3].toLowerCase()
-    const month = MONTHS[monthName]
+      if (!match) continue
 
-    if (!month) continue
+      const title = match[1].trim()
+      const person = (match[2] || '').trim()
+      const month = MONTHS[match[3].toLowerCase()]
 
-entries.push({
-  id: `${title}-${currentYear}-${month}-${Math.random()}`,
-  title,
-  year: currentYear,          // katseluvuosi
-  month: Number(month),       // 1–12 numerona järjestämistä varten
-  person,
-  source: 'seed',             // ⬅️ TÄRKEÄ
-  createdAt: new Date().toISOString(),
-})
+      entries.push({
+        id: `${title}-${currentYear}-${month}-${Math.random()}`,
+        title,
+        year: currentYear,
+        month,
+        person,
+        source: 'seed',
+      })
+    }
 
+    return entries
   }
-
-  return entries
-}
-
 
   function persist(list) {
     setMovies(list)
@@ -137,46 +114,44 @@ entries.push({
       return
     }
 
-    let formattedDate = ''
-    if (watchDate) {
-      const d = new Date(watchDate)
-      if (!isNaN(d)) {
-        const dd = String(d.getDate()).padStart(2, '0')
-        const mm = String(d.getMonth() + 1).padStart(2, '0')
-        const yyyy = d.getFullYear()
-        formattedDate = `${dd}.${mm}.${yyyy}`
-      }
+    const d = new Date(watchDate)
+    const yyyy = d.getFullYear()
+    const mm = d.getMonth() + 1
+    const dd = String(d.getDate()).padStart(2, '0')
+    const mm2 = String(mm).padStart(2, '0')
+    const formattedDate = `${dd}.${mm2}.${yyyy}`
+
+    const newEntry = {
+      id: `${title}-${Date.now()}`,
+      title: title.trim(),
+      year: yyyy,
+      month: mm,
+      watchDate: formattedDate,
+      person,
+      source: 'ui',
     }
 
-const newEntry = {
-  id: `${title}-${Date.now()}`,
-  title: title.trim(),
-  year: new Date(watchDate).getFullYear(),
-  month: new Date(watchDate).getMonth() + 1,
-  watchDate: formattedDate,   // pp.kk.vvvv
-  person,
-  source: 'ui',               // ⬅️ TÄRKEÄ
-  createdAt: new Date().toISOString(),
-}
-
-
-    if (!newEntry.year) {
+    if (!year) {
       setLookupInProgress(true)
       try {
-        const r = await fetch(`/api/fetch-year?title=${encodeURIComponent(newEntry.title)}`)
+        const r = await fetch(
+          `/api/fetch-year?title=${encodeURIComponent(title.trim())}`
+        )
         if (r.ok) {
           const data = await r.json()
-          if (data?.year) newEntry.year = data.year
+          if (data?.year) newEntry.releaseYear = data.year
         }
       } finally {
         setLookupInProgress(false)
       }
     }
 
+    // LISÄYS AINA LISTAN LOPPUUN
     persist([...movies, newEntry])
+
     setTitle('')
     setYear('')
-    setWatchDate('')
+    setWatchDate(todayISO())
     setPerson(PEOPLE[0])
   }
 
@@ -184,7 +159,10 @@ const newEntry = {
     <main className="min-h-screen max-w-xl mx-auto p-4">
       <h1 className="text-2xl font-semibold mb-4">Leffakerho</h1>
 
-      <form onSubmit={handleAdd} className="bg-white p-4 rounded shadow space-y-3 mb-6">
+      <form
+        onSubmit={handleAdd}
+        className="bg-white p-4 rounded shadow space-y-3 mb-8"
+      >
         <input
           className="w-full border p-2"
           placeholder="Elokuvan nimi"
@@ -208,21 +186,24 @@ const newEntry = {
 
         <div className="flex gap-3">
           {PEOPLE.map(p => (
-            <label key={p}>
+            <label key={p} className="flex items-center gap-1">
               <input
                 type="radio"
                 checked={person === p}
                 onChange={() => setPerson(p)}
-              />{' '}
+              />
               {p}
             </label>
           ))}
         </div>
 
-        {error && <div className="text-red-600">{error}</div>}
+        {error && <div className="text-red-600 text-sm">{error}</div>}
 
-        <button className="bg-sky-600 text-white px-4 py-2 rounded">
-          {lookupInProgress ? 'Haetaan...' : 'Lisää elokuva'}
+        <button
+          disabled={lookupInProgress}
+          className="bg-sky-600 text-white px-4 py-2 rounded"
+        >
+          Lisää elokuva
         </button>
       </form>
 
@@ -236,8 +217,4 @@ const newEntry = {
       )}
     </main>
   )
-}
-
-export async function getServerSideProps() {
-  return { props: {} }
 }
