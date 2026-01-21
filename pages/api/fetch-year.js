@@ -1,9 +1,9 @@
 export default async function handler(req, res) {
-  const { title, watchedYear } = req.query
+  const { title } = req.query
   const apiKey = process.env.TMDB_API_KEY
 
   if (!title || !apiKey) {
-    return res.status(200).json({ year: null, source: 'missing' })
+    return res.status(200).json({ results: [] })
   }
 
   try {
@@ -15,51 +15,22 @@ export default async function handler(req, res) {
 
     const response = await fetch(url)
     if (!response.ok) {
-      return res.status(200).json({ year: null, source: 'fetch_failed' })
+      return res.status(200).json({ results: [] })
     }
 
     const data = await response.json()
-    if (!Array.isArray(data.results)) {
-      return res.status(200).json({ year: null, source: 'no_results' })
-    }
 
-    const targetYear = watchedYear ? Number(watchedYear) : null
-
-    // Filtteröi kelvolliset elokuvat
-    const candidates = data.results
-      .filter(r => r.release_date && r.title)
+    const results = (data.results || [])
+      .filter(r => r.release_date)
       .map(r => ({
+        id: r.id,
         title: r.title,
-        year: Number(r.release_date.split('-')[0]),
+        releaseYear: r.release_date.split('-')[0],
+        overview: r.overview,
       }))
-      .filter(r => !isNaN(r.year))
 
-    if (candidates.length === 0) {
-      return res.status(200).json({ year: null, source: 'no_valid_release' })
-    }
-
-    let chosen
-
-    if (targetYear) {
-      // Valitse lähinnä katseluvuotta oleva (<= watchedYear)
-      const past = candidates.filter(c => c.year <= targetYear)
-      chosen = past.length
-        ? past.sort((a, b) => b.year - a.year)[0]
-        : candidates.sort((a, b) => b.year - a.year)[0]
-    } else {
-      // fallback: uusin
-      chosen = candidates.sort((a, b) => b.year - a.year)[0]
-    }
-
-    return res.status(200).json({
-      year: String(chosen.year),
-      source: 'tmdb',
-    })
-  } catch (err) {
-    return res.status(200).json({
-      year: null,
-      source: 'exception',
-      message: String(err),
-    })
+    return res.status(200).json({ results })
+  } catch {
+    return res.status(200).json({ results: [] })
   }
 }
