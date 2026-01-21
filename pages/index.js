@@ -18,11 +18,12 @@ export default function Home() {
   const [candidates, setCandidates] = useState(null)
   const [pendingMovie, setPendingMovie] = useState(null)
 
+  /* ---------- INIT ---------- */
   useEffect(() => {
     const local = localStorage.getItem('leffakerho_movies')
     if (local) {
-      setMovies(JSON.parse(local))
-      setLoading(false)
+      const parsed = JSON.parse(local)
+      enrichSeedMovies(parsed)
       return
     }
 
@@ -30,12 +31,11 @@ export default function Home() {
       .then(r => r.text())
       .then(text => {
         const parsed = parseSeed(text)
-        setMovies(parsed)
-        localStorage.setItem('leffakerho_movies', JSON.stringify(parsed))
+        enrichSeedMovies(parsed)
       })
-      .finally(() => setLoading(false))
   }, [])
 
+  /* ---------- SEED PARSER ---------- */
   function parseSeed(text) {
     const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
     const entries = []
@@ -72,6 +72,39 @@ export default function Home() {
     return entries
   }
 
+  /* ---------- TMDB RIKASTUS SEEDILLE ---------- */
+  async function enrichSeedMovies(seedMovies) {
+    const enriched = []
+
+    for (const m of seedMovies) {
+      const r = await fetch(`/api/fetch-year?title=${encodeURIComponent(m.title)}`)
+      const data = await r.json()
+
+      if (data.results.length === 1) {
+        enriched.push({ ...m, releaseYear: data.results[0].releaseYear })
+      } else {
+        enriched.push(m)
+      }
+    }
+
+    setMovies(enriched)
+    localStorage.setItem('leffakerho_movies', JSON.stringify(enriched))
+    setLoading(false)
+  }
+
+  /* ---------- SAVE ---------- */
+  function saveMovie(movie) {
+    const updated = [...movies, movie]
+    setMovies(updated)
+    localStorage.setItem('leffakerho_movies', JSON.stringify(updated))
+    setTitle('')
+    setWatchDate(todayISO())
+    setPerson(PEOPLE[0])
+    setCandidates(null)
+    setPendingMovie(null)
+  }
+
+  /* ---------- ADD ---------- */
   async function handleAdd(e) {
     e.preventDefault()
 
@@ -89,25 +122,13 @@ export default function Home() {
     const data = await r.json()
 
     if (data.results.length === 1) {
-      newMovie.releaseYear = data.results[0].releaseYear
-      saveMovie(newMovie)
+      saveMovie({ ...newMovie, releaseYear: data.results[0].releaseYear })
     } else if (data.results.length > 1) {
       setPendingMovie(newMovie)
       setCandidates(data.results)
     } else {
       saveMovie(newMovie)
     }
-  }
-
-  function saveMovie(movie) {
-    const updated = [...movies, movie]
-    setMovies(updated)
-    localStorage.setItem('leffakerho_movies', JSON.stringify(updated))
-    setTitle('')
-    setWatchDate(todayISO())
-    setPerson(PEOPLE[0])
-    setCandidates(null)
-    setPendingMovie(null)
   }
 
   return (
@@ -131,27 +152,20 @@ export default function Home() {
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
           <div className="bg-white p-4 rounded max-w-md w-full">
             <h2 className="font-semibold mb-2">Valitse elokuva</h2>
-            <ul className="space-y-2 max-h-80 overflow-auto">
-              {candidates.map(c => (
-                <li key={c.id}>
-                  <button
-                    className="text-left w-full border p-2 rounded hover:bg-gray-100"
-                    onClick={() => {
-                      pendingMovie.releaseYear = c.releaseYear
-                      saveMovie(pendingMovie)
-                    }}
-                  >
-                    <div className="font-medium">{c.title} ({c.releaseYear})</div>
-                    <div className="text-xs text-gray-500">{c.overview}</div>
-                  </button>
-                </li>
-              ))}
-            </ul>
+            {candidates.map(c => (
+              <button
+                key={c.id}
+                className="w-full border p-2 mb-2 text-left"
+                onClick={() => saveMovie({ ...pendingMovie, releaseYear: c.releaseYear })}
+              >
+                <b>{c.title}</b> ({c.releaseYear})
+              </button>
+            ))}
           </div>
         </div>
       )}
 
-      {loading ? <div>Luetaan…</div> : <MovieList movies={movies} onDelete={id => saveMovie(movies.filter(m => m.id !== id))} />}
+      {loading ? <div>Luetaan…</div> : <MovieList movies={movies} />}
     </main>
   )
 }
