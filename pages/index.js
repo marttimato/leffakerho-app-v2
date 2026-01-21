@@ -29,10 +29,7 @@ export default function Home() {
 
     fetch('/seed.txt')
       .then(r => r.text())
-      .then(text => {
-        const parsed = parseSeed(text)
-        enrichSeedMovies(parsed)
-      })
+      .then(text => enrichSeedMovies(parseSeed(text)))
   }, [])
 
   /* ---------- SEED PARSER ---------- */
@@ -80,8 +77,14 @@ export default function Home() {
       const r = await fetch(`/api/fetch-year?title=${encodeURIComponent(m.title)}`)
       const data = await r.json()
 
-      if (data.results.length === 1) {
-        enriched.push({ ...m, releaseYear: data.results[0].releaseYear })
+      if (data.results.length > 0) {
+        const best =
+          data.results
+            .filter(r => r.releaseYear <= m.year)
+            .sort((a, b) => b.releaseYear - a.releaseYear)[0] ||
+          data.results.sort((a, b) => b.releaseYear - a.releaseYear)[0]
+
+        enriched.push({ ...m, releaseYear: best.releaseYear })
       } else {
         enriched.push(m)
       }
@@ -156,7 +159,9 @@ export default function Home() {
               <button
                 key={c.id}
                 className="w-full border p-2 mb-2 text-left"
-                onClick={() => saveMovie({ ...pendingMovie, releaseYear: c.releaseYear })}
+                onClick={() =>
+                  saveMovie({ ...pendingMovie, releaseYear: c.releaseYear })
+                }
               >
                 <b>{c.title}</b> ({c.releaseYear})
               </button>
