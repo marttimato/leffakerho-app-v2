@@ -20,8 +20,6 @@ export default function Home() {
   const [lookupInProgress, setLookupInProgress] = useState(false)
   const [error, setError] = useState('')
 
-  /* ---------- OMDB ---------- */
-
   async function fetchReleaseYear(title) {
     try {
       const r = await fetch(
@@ -34,8 +32,6 @@ export default function Home() {
       return null
     }
   }
-
-  /* ---------- INIT ---------- */
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -59,8 +55,6 @@ export default function Home() {
       })
       .finally(() => setLoading(false))
   }, [])
-
-  /* ---------- SEED PARSER ---------- */
 
   function parseSeed(text) {
     const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
@@ -108,30 +102,23 @@ export default function Home() {
     return entries
   }
 
-  /* ---------- OMDB RIKASTUS (KORJATTU) ---------- */
-
   async function enrichSeedMovies(baseMovies) {
     setEnriching(true)
 
-    const enriched = []
-
-    for (const m of baseMovies) {
-      if (m.source === 'seed' && !m.releaseYear) {
-        const y = await fetchReleaseYear(m.title)
-        if (y) {
-          enriched.push({ ...m, releaseYear: y })
-          continue
+    const enriched = await Promise.all(
+      baseMovies.map(async m => {
+        if (m.source === 'seed' && !m.releaseYear) {
+          const y = await fetchReleaseYear(m.title)
+          if (y) return { ...m, releaseYear: y }
         }
-      }
-      enriched.push(m)
-    }
+        return m
+      })
+    )
 
     setMovies(enriched)
     localStorage.setItem('leffakerho_movies', JSON.stringify(enriched))
     setEnriching(false)
   }
-
-  /* ---------- ADD MOVIE ---------- */
 
   function persist(list) {
     setMovies(list)
@@ -174,8 +161,6 @@ export default function Home() {
     setPerson(PEOPLE[0])
   }
 
-  /* ---------- RENDER ---------- */
-
   return (
     <main className="min-h-screen max-w-xl mx-auto p-4">
       <h1 className="text-2xl font-semibold mb-4">Leffakerho</h1>
@@ -189,3 +174,59 @@ export default function Home() {
           placeholder="Elokuvan nimi"
           value={title}
           onChange={e => setTitle(e.target.value)}
+        />
+
+        <input
+          className="w-full border p-2"
+          placeholder="Julkaisuvuosi (valinnainen)"
+          value={releaseYear}
+          onChange={e => setReleaseYear(e.target.value)}
+        />
+
+        <input
+          type="date"
+          className="w-full border p-2"
+          value={watchDate}
+          onChange={e => setWatchDate(e.target.value)}
+        />
+
+        <div className="flex gap-3">
+          {PEOPLE.map(p => (
+            <label key={p}>
+              <input
+                type="radio"
+                checked={person === p}
+                onChange={() => setPerson(p)}
+              />{' '}
+              {p}
+            </label>
+          ))}
+        </div>
+
+        {error && <div className="text-red-600 text-sm">{error}</div>}
+
+        <button
+          disabled={lookupInProgress}
+          className="bg-sky-600 text-white px-4 py-2 rounded"
+        >
+          Lisää elokuva
+        </button>
+      </form>
+
+      {enriching && (
+        <div className="text-sm text-gray-500 mb-3">
+          Haetaan julkaisuvuosia OMDb:stä…
+        </div>
+      )}
+
+      {loading ? (
+        <div>Luetaan…</div>
+      ) : (
+        <MovieList
+          movies={movies}
+          onDelete={id => persist(movies.filter(m => m.id !== id))}
+        />
+      )}
+    </main>
+  )
+}
