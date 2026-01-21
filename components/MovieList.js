@@ -16,19 +16,16 @@ const MONTHS = [
 export default function MovieList({ movies, onDelete }) {
   if (!movies.length) return <div>Ei elokuvia.</div>
 
-  // Ryhmitellään elokuvat vuosittain
   const byYear = movies.reduce((acc, movie) => {
     acc[movie.year] = acc[movie.year] || []
     acc[movie.year].push(movie)
     return acc
   }, {})
 
-  // Vuodet nousevassa järjestyksessä
   const years = Object.keys(byYear)
     .map(Number)
     .sort((a, b) => a - b)
 
-  // Selvitetään viimeksi katsottu elokuva (renderöintijärjestyksen mukaan)
   const lastYear = years[years.length - 1]
   const moviesOfLastYear = byYear[lastYear]
 
@@ -44,7 +41,6 @@ export default function MovieList({ movies, onDelete }) {
 
   const lastMonth = monthsWithMovies[monthsWithMovies.length - 1]
   const moviesOfLastMonth = byMonthLastYear[lastMonth]
-
   const latestId =
     moviesOfLastMonth[moviesOfLastMonth.length - 1]?.id
 
@@ -78,15 +74,20 @@ export default function MovieList({ movies, onDelete }) {
                         className="bg-white p-3 rounded shadow flex justify-between items-start"
                       >
                         <div>
-                          <h4 className="font-medium">{movie.title}</h4>
+                          <h4 className="font-medium">
+                            {movie.title}
+                            {movie.releaseYear && (
+                              <span className="text-gray-500 font-normal">
+                                {' '}({movie.releaseYear})
+                              </span>
+                            )}
+                          </h4>
 
-                          {/* Näytetään vain nimi */}
                           <div className="text-sm text-gray-600">
                             {movie.person}
                           </div>
                         </div>
 
-                        {/* Poista vain viimeksi katsotulle */}
                         {movie.id === latestId && (
                           <button
                             onClick={() => onDelete(movie.id)}

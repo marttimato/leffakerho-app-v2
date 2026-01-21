@@ -17,7 +17,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
 
   const [title, setTitle] = useState('')
-  const [year, setYear] = useState('')
+  const [releaseYear, setReleaseYear] = useState('')
   const [watchDate, setWatchDate] = useState(todayISO())
   const [person, setPerson] = useState(PEOPLE[0])
 
@@ -66,7 +66,6 @@ export default function Home() {
     }
 
     for (const line of lines) {
-      // Vuosiotsikko
       if (/^\d{4}$/.test(line)) {
         currentYear = Number(line)
         continue
@@ -74,7 +73,6 @@ export default function Home() {
 
       if (!currentYear) continue
 
-      // Poista mahdollinen numerointi "10."
       const cleaned = line.replace(/^\d+\.\s*/, '')
 
       const match = cleaned.match(
@@ -83,16 +81,12 @@ export default function Home() {
 
       if (!match) continue
 
-      const title = match[1].trim()
-      const person = (match[2] || '').trim()
-      const month = MONTHS[match[3].toLowerCase()]
-
       entries.push({
-        id: `${title}-${currentYear}-${month}-${Math.random()}`,
-        title,
+        id: `${match[1]}-${currentYear}-${Math.random()}`,
+        title: match[1].trim(),
         year: currentYear,
-        month,
-        person,
+        month: MONTHS[match[3].toLowerCase()],
+        person: (match[2] || '').trim(),
         source: 'seed',
       })
     }
@@ -131,7 +125,9 @@ export default function Home() {
       source: 'ui',
     }
 
-    if (!year) {
+    if (releaseYear) {
+      newEntry.releaseYear = releaseYear
+    } else {
       setLookupInProgress(true)
       try {
         const r = await fetch(
@@ -150,7 +146,7 @@ export default function Home() {
     persist([...movies, newEntry])
 
     setTitle('')
-    setYear('')
+    setReleaseYear('')
     setWatchDate(todayISO())
     setPerson(PEOPLE[0])
   }
@@ -173,8 +169,8 @@ export default function Home() {
         <input
           className="w-full border p-2"
           placeholder="Julkaisuvuosi (valinnainen)"
-          value={year}
-          onChange={e => setYear(e.target.value)}
+          value={releaseYear}
+          onChange={e => setReleaseYear(e.target.value)}
         />
 
         <input
