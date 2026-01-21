@@ -16,41 +16,46 @@ const MONTHS = [
 export default function MovieList({ movies, onDelete }) {
   if (!movies.length) return <div>Ei elokuvia.</div>
 
-  /**
-   * TUOREIN KATSOTTU ELOKUVA
-   * 1) suurin vuosi
-   * 2) sen vuoden suurin kuukausi
-   * 3) kuukauden viimeinen elokuva (listan järjestys)
-   */
-  const maxYear = Math.max(...movies.map(m => m.year))
-  const moviesOfMaxYear = movies.filter(m => m.year === maxYear)
-
-  const maxMonth = Math.max(...moviesOfMaxYear.map(m => m.month))
-  const moviesOfMaxMonth = moviesOfMaxYear.filter(
-    m => m.month === maxMonth
-  )
-
-  const latestId =
-    moviesOfMaxMonth[moviesOfMaxMonth.length - 1]?.id
-
-  // Ryhmitellään elokuvat vuosittain
+  // 1) Ryhmitellään elokuvat vuosittain
   const byYear = movies.reduce((acc, movie) => {
     acc[movie.year] = acc[movie.year] || []
     acc[movie.year].push(movie)
     return acc
   }, {})
 
-  // Vuodet nousevassa järjestyksessä
+  // 2) Vuodet nousevassa järjestyksessä
   const years = Object.keys(byYear)
     .map(Number)
     .sort((a, b) => a - b)
 
+  // 3) Selvitetään TUOREIN KATSOTTU elokuva renderöintijärjestyksen perusteella
+  let latestId = null
+
+  const lastYear = years[years.length - 1]
+  const moviesOfLastYear = byYear[lastYear]
+
+  const byMonthLastYear = moviesOfLastYear.reduce((acc, movie) => {
+    acc[movie.month] = acc[movie.month] || []
+    acc[movie.month].push(movie)
+    return acc
+  }, {})
+
+  const monthsWithMovies = Object.keys(byMonthLastYear)
+    .map(Number)
+    .sort((a, b) => a - b)
+
+  const lastMonth = monthsWithMovies[monthsWithMovies.length - 1]
+  const moviesOfLastMonth = byMonthLastYear[lastMonth]
+
+  // Viimeinen elokuva kuukauden listassa = viimeksi katsottu
+  latestId = moviesOfLastMonth[moviesOfLastMonth.length - 1]?.id
+
+  // 4) Renderöinti
   return (
     <div className="space-y-10">
       {years.map(year => {
         const moviesOfYear = byYear[year]
 
-        // Ryhmitellään kuukauden mukaan (säilytetään järjestys)
         const byMonth = moviesOfYear.reduce((acc, movie) => {
           acc[movie.month] = acc[movie.month] || []
           acc[movie.month].push(movie)
@@ -59,7 +64,6 @@ export default function MovieList({ movies, onDelete }) {
 
         return (
           <section key={year}>
-            {/* Vuosiotsikko */}
             <h2 className="text-2xl font-semibold mb-4">{year}</h2>
 
             {MONTHS.map(({ num, name }) => {
@@ -68,7 +72,6 @@ export default function MovieList({ movies, onDelete }) {
 
               return (
                 <div key={num} className="mb-6">
-                  {/* Kuukausiotsikko */}
                   <h3 className="text-lg font-medium mb-2">{name}</h3>
 
                   <div className="space-y-2">
@@ -80,19 +83,13 @@ export default function MovieList({ movies, onDelete }) {
                         <div>
                           <h4 className="font-medium">{movie.title}</h4>
 
+                          {/* Näytetään vain vuoro */}
                           <div className="text-sm text-gray-600">
                             Vuoro: {movie.person}
                           </div>
-
-                          {/* Katselupäivä vain UI:sta lisätyille */}
-                          {movie.source === 'ui' && movie.watchDate && (
-                            <div className="text-xs text-gray-400 mt-1">
-                              Katsottu {movie.watchDate}
-                            </div>
-                          )}
                         </div>
 
-                        {/* Poista vain TUOREIMMALLE katsotulle */}
+                        {/* Poista vain viimeksi katsotulle */}
                         {movie.id === latestId && (
                           <button
                             onClick={() => onDelete(movie.id)}
