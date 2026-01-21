@@ -173,7 +173,7 @@ const newEntry = {
       }
     }
 
-    persist([newEntry, ...movies])
+    persist([...movies, newEntry])
     setTitle('')
     setYear('')
     setWatchDate('')
