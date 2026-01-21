@@ -1,16 +1,17 @@
 export default async function handler(req, res) {
   const { title } = req.query
-  const apiKey = process.env.OMDB_API_KEY
+  const apiKey = process.env.TMDB_API_KEY
 
   if (!title || !apiKey) {
     return res.status(200).json({ year: null, source: 'missing' })
   }
 
   try {
-    // 🔑 TÄRKEÄ: HTTPS, ei HTTP
-    const url = `https://www.omdbapi.com/?t=${encodeURIComponent(
-      title
-    )}&apikey=${apiKey}`
+    const url =
+      `https://api.themoviedb.org/3/search/movie` +
+      `?api_key=${apiKey}` +
+      `&query=${encodeURIComponent(title)}` +
+      `&language=fi-FI`
 
     const response = await fetch(url)
     if (!response.ok) {
@@ -19,12 +20,13 @@ export default async function handler(req, res) {
 
     const data = await response.json()
 
-    if (data && data.Year) {
-      const match = data.Year.match(/\d{4}/)
-      if (match) {
+    if (data?.results?.length > 0) {
+      const movie = data.results[0]
+      if (movie.release_date) {
+        const year = movie.release_date.split('-')[0]
         return res.status(200).json({
-          year: match[0],
-          source: 'omdb',
+          year,
+          source: 'tmdb',
         })
       }
     }
