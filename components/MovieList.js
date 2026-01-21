@@ -16,21 +16,19 @@ const MONTHS = [
 export default function MovieList({ movies, onDelete }) {
   if (!movies.length) return <div>Ei elokuvia.</div>
 
-  // 1) Ryhmitellään elokuvat vuosittain
+  // Ryhmitellään elokuvat vuosittain
   const byYear = movies.reduce((acc, movie) => {
     acc[movie.year] = acc[movie.year] || []
     acc[movie.year].push(movie)
     return acc
   }, {})
 
-  // 2) Vuodet nousevassa järjestyksessä
+  // Vuodet nousevassa järjestyksessä
   const years = Object.keys(byYear)
     .map(Number)
     .sort((a, b) => a - b)
 
-  // 3) Selvitetään TUOREIN KATSOTTU elokuva renderöintijärjestyksen perusteella
-  let latestId = null
-
+  // Selvitetään viimeksi katsottu elokuva (renderöintijärjestyksen mukaan)
   const lastYear = years[years.length - 1]
   const moviesOfLastYear = byYear[lastYear]
 
@@ -47,10 +45,9 @@ export default function MovieList({ movies, onDelete }) {
   const lastMonth = monthsWithMovies[monthsWithMovies.length - 1]
   const moviesOfLastMonth = byMonthLastYear[lastMonth]
 
-  // Viimeinen elokuva kuukauden listassa = viimeksi katsottu
-  latestId = moviesOfLastMonth[moviesOfLastMonth.length - 1]?.id
+  const latestId =
+    moviesOfLastMonth[moviesOfLastMonth.length - 1]?.id
 
-  // 4) Renderöinti
   return (
     <div className="space-y-10">
       {years.map(year => {
@@ -83,9 +80,9 @@ export default function MovieList({ movies, onDelete }) {
                         <div>
                           <h4 className="font-medium">{movie.title}</h4>
 
-                          {/* Näytetään vain vuoro */}
+                          {/* Näytetään vain nimi */}
                           <div className="text-sm text-gray-600">
-                            Vuoro: {movie.person}
+                            {movie.person}
                           </div>
                         </div>
 
