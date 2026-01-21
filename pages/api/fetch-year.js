@@ -14,10 +14,6 @@ export default async function handler(req, res) {
       `&language=fi-FI`
 
     const response = await fetch(url)
-    if (!response.ok) {
-      return res.status(200).json({ results: [] })
-    }
-
     const data = await response.json()
 
     const results = (data.results || [])
@@ -25,7 +21,7 @@ export default async function handler(req, res) {
       .map(r => ({
         id: r.id,
         title: r.title,
-        releaseYear: r.release_date.split('-')[0],
+        releaseYear: Number(r.release_date.split('-')[0]),
         overview: r.overview,
       }))
 

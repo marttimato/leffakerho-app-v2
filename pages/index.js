@@ -20,16 +20,24 @@ export default function Home() {
 
   /* ---------- INIT ---------- */
   useEffect(() => {
-    const local = localStorage.getItem('leffakerho_movies')
-    if (local) {
-      const parsed = JSON.parse(local)
-      enrichSeedMovies(parsed)
-      return
+    async function init() {
+      const local = localStorage.getItem('leffakerho_movies')
+      if (local) {
+        setMovies(JSON.parse(local))
+        setLoading(false)
+        return
+      }
+
+      const text = await fetch('/seed.txt').then(r => r.text())
+      const parsed = parseSeed(text)
+      const enriched = await enrichSeedMovies(parsed)
+
+      setMovies(enriched)
+      localStorage.setItem('leffakerho_movies', JSON.stringify(enriched))
+      setLoading(false)
     }
 
-    fetch('/seed.txt')
-      .then(r => r.text())
-      .then(text => enrichSeedMovies(parseSeed(text)))
+    init()
   }, [])
 
   /* ---------- SEED PARSER ---------- */
@@ -69,7 +77,7 @@ export default function Home() {
     return entries
   }
 
-  /* ---------- TMDB RIKASTUS SEEDILLE ---------- */
+  /* ---------- TMDB RIKASTUS (SEED) ---------- */
   async function enrichSeedMovies(seedMovies) {
     const enriched = []
 
@@ -84,15 +92,16 @@ export default function Home() {
             .sort((a, b) => b.releaseYear - a.releaseYear)[0] ||
           data.results.sort((a, b) => b.releaseYear - a.releaseYear)[0]
 
-        enriched.push({ ...m, releaseYear: best.releaseYear })
+        enriched.push({
+          ...m,
+          releaseYear: best.releaseYear,
+        })
       } else {
         enriched.push(m)
       }
     }
 
-    setMovies(enriched)
-    localStorage.setItem('leffakerho_movies', JSON.stringify(enriched))
-    setLoading(false)
+    return enriched
   }
 
   /* ---------- SAVE ---------- */
@@ -107,7 +116,7 @@ export default function Home() {
     setPendingMovie(null)
   }
 
-  /* ---------- ADD ---------- */
+  /* ---------- ADD (UI) ---------- */
   async function handleAdd(e) {
     e.preventDefault()
 
@@ -125,7 +134,10 @@ export default function Home() {
     const data = await r.json()
 
     if (data.results.length === 1) {
-      saveMovie({ ...newMovie, releaseYear: data.results[0].releaseYear })
+      saveMovie({
+        ...newMovie,
+        releaseYear: data.results[0].releaseYear,
+      })
     } else if (data.results.length > 1) {
       setPendingMovie(newMovie)
       setCandidates(data.results)
@@ -139,8 +151,20 @@ export default function Home() {
       <h1 className="text-2xl font-semibold mb-4">Leffakerho</h1>
 
       <form onSubmit={handleAdd} className="bg-white p-4 rounded shadow space-y-3 mb-6">
-        <input className="w-full border p-2" placeholder="Elokuvan nimi" value={title} onChange={e => setTitle(e.target.value)} />
-        <input type="date" className="w-full border p-2" value={watchDate} onChange={e => setWatchDate(e.target.value)} />
+        <input
+          className="w-full border p-2"
+          placeholder="Elokuvan nimi"
+          value={title}
+          onChange={e => setTitle(e.target.value)}
+        />
+
+        <input
+          type="date"
+          className="w-full border p-2"
+          value={watchDate}
+          onChange={e => setWatchDate(e.target.value)}
+        />
+
         <div className="flex gap-3">
           {PEOPLE.map(p => (
             <label key={p}>
@@ -148,7 +172,10 @@ export default function Home() {
             </label>
           ))}
         </div>
-        <button className="bg-sky-600 text-white px-4 py-2 rounded">Lisää elokuva</button>
+
+        <button className="bg-sky-600 text-white px-4 py-2 rounded">
+          Lisää elokuva
+        </button>
       </form>
 
       {candidates && (
@@ -160,7 +187,10 @@ export default function Home() {
                 key={c.id}
                 className="w-full border p-2 mb-2 text-left"
                 onClick={() =>
-                  saveMovie({ ...pendingMovie, releaseYear: c.releaseYear })
+                  saveMovie({
+                    ...pendingMovie,
+                    releaseYear: c.releaseYear,
+                  })
                 }
               >
                 <b>{c.title}</b> ({c.releaseYear})
