@@ -20,13 +20,44 @@ export default function Home() {
   const [lookupInProgress, setLookupInProgress] = useState(false)
   const [error, setError] = useState('')
 
+  // 🔍 OMDb DEBUG
+  const [omdbDebug, setOmdbDebug] = useState([])
+
+  /* ---------- OMDB ---------- */
+
   async function fetchReleaseYear(title) {
-    const r = await fetch(
-      `/api/fetch-year?title=${encodeURIComponent(title)}`
-    )
-    const data = await r.json()
-    return data
+    const url = `/api/fetch-year?title=${encodeURIComponent(title)}`
+
+    try {
+      const r = await fetch(url)
+      const data = await r.json()
+
+      setOmdbDebug(prev => [
+        ...prev,
+        {
+          title,
+          url,
+          response: data,
+          time: new Date().toLocaleTimeString(),
+        },
+      ])
+
+      return data
+    } catch (err) {
+      setOmdbDebug(prev => [
+        ...prev,
+        {
+          title,
+          url,
+          error: String(err),
+          time: new Date().toLocaleTimeString(),
+        },
+      ])
+      return { year: null }
+    }
   }
+
+  /* ---------- INIT ---------- */
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -51,15 +82,26 @@ export default function Home() {
       .finally(() => setLoading(false))
   }, [])
 
+  /* ---------- SEED PARSER ---------- */
+
   function parseSeed(text) {
     const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
     const entries = []
     let currentYear = null
 
     const MONTHS = {
-      tammikuu: 1, helmikuu: 2, maaliskuu: 3, huhtikuu: 4,
-      toukokuu: 5, kesäkuu: 6, heinäkuu: 7, elokuu: 8,
-      syyskuu: 9, lokakuu: 10, marraskuu: 11, joulukuu: 12,
+      tammikuu: 1,
+      helmikuu: 2,
+      maaliskuu: 3,
+      huhtikuu: 4,
+      toukokuu: 5,
+      kesäkuu: 6,
+      heinäkuu: 7,
+      elokuu: 8,
+      syyskuu: 9,
+      lokakuu: 10,
+      marraskuu: 11,
+      joulukuu: 12,
     }
 
     for (const line of lines) {
@@ -84,30 +126,36 @@ export default function Home() {
         source: 'seed',
       })
     }
+
     return entries
   }
+
+  /* ---------- OMDB RIKASTUS ---------- */
 
   async function enrichSeedMovies(baseMovies) {
     setEnriching(true)
 
-    const enriched = await Promise.all(
-      baseMovies.map(async m => {
-        if (m.source === 'seed' && m.releaseYear === undefined) {
-          const result = await fetchReleaseYear(m.title)
-          return {
-            ...m,
-            releaseYear: result.year,
-            releaseYearSource: result.source,
-          }
-        }
-        return m
-      })
-    )
+    const enriched = []
+
+    for (const m of baseMovies) {
+      if (m.source === 'seed' && m.releaseYear === undefined) {
+        const result = await fetchReleaseYear(m.title)
+        enriched.push({
+          ...m,
+          releaseYear: result.year,
+          releaseYearSource: result.source,
+        })
+      } else {
+        enriched.push(m)
+      }
+    }
 
     setMovies(enriched)
     localStorage.setItem('leffakerho_movies', JSON.stringify(enriched))
     setEnriching(false)
   }
+
+  /* ---------- ADD MOVIE ---------- */
 
   function persist(list) {
     setMovies(list)
@@ -152,24 +200,56 @@ export default function Home() {
     setPerson(PEOPLE[0])
   }
 
+  /* ---------- RENDER ---------- */
+
   return (
     <main className="min-h-screen max-w-xl mx-auto p-4">
       <h1 className="text-2xl font-semibold mb-4">Leffakerho</h1>
 
-      <form onSubmit={handleAdd} className="bg-white p-4 rounded shadow space-y-3 mb-6">
-        <input className="w-full border p-2" placeholder="Elokuvan nimi" value={title} onChange={e => setTitle(e.target.value)} />
-        <input className="w-full border p-2" placeholder="Julkaisuvuosi (valinnainen)" value={releaseYear} onChange={e => setReleaseYear(e.target.value)} />
-        <input type="date" className="w-full border p-2" value={watchDate} onChange={e => setWatchDate(e.target.value)} />
+      <form
+        onSubmit={handleAdd}
+        className="bg-white p-4 rounded shadow space-y-3 mb-6"
+      >
+        <input
+          className="w-full border p-2"
+          placeholder="Elokuvan nimi"
+          value={title}
+          onChange={e => setTitle(e.target.value)}
+        />
+
+        <input
+          className="w-full border p-2"
+          placeholder="Julkaisuvuosi (valinnainen)"
+          value={releaseYear}
+          onChange={e => setReleaseYear(e.target.value)}
+        />
+
+        <input
+          type="date"
+          className="w-full border p-2"
+          value={watchDate}
+          onChange={e => setWatchDate(e.target.value)}
+        />
 
         <div className="flex gap-3">
           {PEOPLE.map(p => (
             <label key={p}>
-              <input type="radio" checked={person === p} onChange={() => setPerson(p)} /> {p}
+              <input
+                type="radio"
+                checked={person === p}
+                onChange={() => setPerson(p)}
+              />{' '}
+              {p}
             </label>
           ))}
         </div>
 
-        <button disabled={lookupInProgress} className="bg-sky-600 text-white px-4 py-2 rounded">
+        {error && <div className="text-red-600 text-sm">{error}</div>}
+
+        <button
+          disabled={lookupInProgress}
+          className="bg-sky-600 text-white px-4 py-2 rounded"
+        >
           Lisää elokuva
         </button>
       </form>
@@ -187,6 +267,25 @@ export default function Home() {
           movies={movies}
           onDelete={id => persist(movies.filter(m => m.id !== id))}
         />
+      )}
+
+      {/* 🔍 OMDb DEBUG PANEELI */}
+      {omdbDebug.length > 0 && (
+        <div className="mt-8 bg-gray-100 border rounded p-3 text-xs">
+          <div className="font-semibold mb-2">OMDb debug</div>
+          <ul className="space-y-2 max-h-64 overflow-auto">
+            {omdbDebug.map((d, i) => (
+              <li key={i}>
+                <div><strong>Elokuva:</strong> {d.title}</div>
+                <div><strong>Aika:</strong> {d.time}</div>
+                <div><strong>URL:</strong> {d.url}</div>
+                <pre className="whitespace-pre-wrap">
+                  {JSON.stringify(d.response ?? d.error, null, 2)}
+                </pre>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </main>
   )
