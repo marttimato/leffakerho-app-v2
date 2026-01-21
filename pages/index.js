@@ -10,6 +10,7 @@ function todayISO() {
 export default function Home() {
   const [movies, setMovies] = useState([])
   const [loading, setLoading] = useState(true)
+  const [enriching, setEnriching] = useState(false)
 
   const [title, setTitle] = useState('')
   const [releaseYear, setReleaseYear] = useState('')
@@ -19,7 +20,7 @@ export default function Home() {
   const [lookupInProgress, setLookupInProgress] = useState(false)
   const [error, setError] = useState('')
 
-  /* ---------- API ---------- */
+  /* ---------- OMDB ---------- */
 
   async function fetchReleaseYear(title) {
     try {
@@ -34,7 +35,7 @@ export default function Home() {
     }
   }
 
-  /* ---------- SEED LOAD ---------- */
+  /* ---------- INIT ---------- */
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -67,9 +68,18 @@ export default function Home() {
     let currentYear = null
 
     const MONTHS = {
-      tammikuu: 1, helmikuu: 2, maaliskuu: 3, huhtikuu: 4,
-      toukokuu: 5, kesäkuu: 6, heinäkuu: 7, elokuu: 8,
-      syyskuu: 9, lokakuu: 10, marraskuu: 11, joulukuu: 12,
+      tammikuu: 1,
+      helmikuu: 2,
+      maaliskuu: 3,
+      huhtikuu: 4,
+      toukokuu: 5,
+      kesäkuu: 6,
+      heinäkuu: 7,
+      elokuu: 8,
+      syyskuu: 9,
+      lokakuu: 10,
+      marraskuu: 11,
+      joulukuu: 12,
     }
 
     for (const line of lines) {
@@ -94,24 +104,31 @@ export default function Home() {
         source: 'seed',
       })
     }
+
     return entries
   }
 
   /* ---------- OMDB RIKASTUS (KORJATTU) ---------- */
 
   async function enrichSeedMovies(baseMovies) {
-    const enriched = await Promise.all(
-      baseMovies.map(async m => {
-        if (m.source === 'seed' && !m.releaseYear) {
-          const y = await fetchReleaseYear(m.title)
-          if (y) return { ...m, releaseYear: y }
+    setEnriching(true)
+
+    const enriched = []
+
+    for (const m of baseMovies) {
+      if (m.source === 'seed' && !m.releaseYear) {
+        const y = await fetchReleaseYear(m.title)
+        if (y) {
+          enriched.push({ ...m, releaseYear: y })
+          continue
         }
-        return m
-      })
-    )
+      }
+      enriched.push(m)
+    }
 
     setMovies(enriched)
     localStorage.setItem('leffakerho_movies', JSON.stringify(enriched))
+    setEnriching(false)
   }
 
   /* ---------- ADD MOVIE ---------- */
@@ -163,27 +180,12 @@ export default function Home() {
     <main className="min-h-screen max-w-xl mx-auto p-4">
       <h1 className="text-2xl font-semibold mb-4">Leffakerho</h1>
 
-      <form onSubmit={handleAdd} className="bg-white p-4 rounded shadow space-y-3 mb-8">
-        <input className="w-full border p-2" placeholder="Elokuvan nimi" value={title} onChange={e => setTitle(e.target.value)} />
-        <input className="w-full border p-2" placeholder="Julkaisuvuosi (valinnainen)" value={releaseYear} onChange={e => setReleaseYear(e.target.value)} />
-        <input type="date" className="w-full border p-2" value={watchDate} onChange={e => setWatchDate(e.target.value)} />
-
-        <div className="flex gap-3">
-          {PEOPLE.map(p => (
-            <label key={p}>
-              <input type="radio" checked={person === p} onChange={() => setPerson(p)} /> {p}
-            </label>
-          ))}
-        </div>
-
-        {error && <div className="text-red-600 text-sm">{error}</div>}
-
-        <button disabled={lookupInProgress} className="bg-sky-600 text-white px-4 py-2 rounded">
-          Lisää elokuva
-        </button>
-      </form>
-
-      {loading ? <div>Luetaan...</div> : <MovieList movies={movies} onDelete={id => persist(movies.filter(m => m.id !== id))} />}
-    </main>
-  )
-}
+      <form
+        onSubmit={handleAdd}
+        className="bg-white p-4 rounded shadow space-y-3 mb-6"
+      >
+        <input
+          className="w-full border p-2"
+          placeholder="Elokuvan nimi"
+          value={title}
+          onChange={e => setTitle(e.target.value)}
