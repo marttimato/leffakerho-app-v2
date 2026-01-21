@@ -4,8 +4,7 @@ import MovieList from '../components/MovieList'
 const PEOPLE = ['Aino', 'Mari', 'Mikkis', 'Tomi']
 
 function todayISO() {
-  const d = new Date()
-  return d.toISOString().slice(0, 10)
+  return new Date().toISOString().slice(0, 10)
 }
 
 export default function Home() {
@@ -16,10 +15,26 @@ export default function Home() {
   const [releaseYear, setReleaseYear] = useState('')
   const [watchDate, setWatchDate] = useState(todayISO())
   const [person, setPerson] = useState(PEOPLE[0])
+
   const [lookupInProgress, setLookupInProgress] = useState(false)
   const [error, setError] = useState('')
 
-  /* ---------------- SEED LOAD ---------------- */
+  /* ---------- API ---------- */
+
+  async function fetchReleaseYear(title) {
+    try {
+      const r = await fetch(
+        `/api/fetch-year?title=${encodeURIComponent(title)}`
+      )
+      if (!r.ok) return null
+      const data = await r.json()
+      return data?.year || null
+    } catch {
+      return null
+    }
+  }
+
+  /* ---------- SEED LOAD ---------- */
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -44,7 +59,7 @@ export default function Home() {
       .finally(() => setLoading(false))
   }, [])
 
-  /* ---------------- SEED PARSER ---------------- */
+  /* ---------- SEED PARSER ---------- */
 
   function parseSeed(text) {
     const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
@@ -52,18 +67,9 @@ export default function Home() {
     let currentYear = null
 
     const MONTHS = {
-      tammikuu: 1,
-      helmikuu: 2,
-      maaliskuu: 3,
-      huhtikuu: 4,
-      toukokuu: 5,
-      kesäkuu: 6,
-      heinäkuu: 7,
-      elokuu: 8,
-      syyskuu: 9,
-      lokakuu: 10,
-      marraskuu: 11,
-      joulukuu: 12,
+      tammikuu: 1, helmikuu: 2, maaliskuu: 3, huhtikuu: 4,
+      toukokuu: 5, kesäkuu: 6, heinäkuu: 7, elokuu: 8,
+      syyskuu: 9, lokakuu: 10, marraskuu: 11, joulukuu: 12,
     }
 
     for (const line of lines) {
@@ -91,40 +97,24 @@ export default function Home() {
     return entries
   }
 
-  /* ---------------- OMDB ENRICH ---------------- */
+  /* ---------- OMDB RIKASTUS (KORJATTU) ---------- */
 
-  async function fetchReleaseYear(title) {
-    try {
-      const r = await fetch(`/api/fetch-year?title=${encodeURIComponent(title)}`)
-      if (!r.ok) return null
-      const data = await r.json()
-      return data?.year || null
-    } catch {
-      return null
-    }
-  }
-
-  async function enrichSeedMovies(currentMovies) {
-    const updated = [...currentMovies]
-    let changed = false
-
-    for (const m of updated) {
-      if (m.source === 'seed' && !m.releaseYear) {
-        const y = await fetchReleaseYear(m.title)
-        if (y) {
-          m.releaseYear = y
-          changed = true
+  async function enrichSeedMovies(baseMovies) {
+    const enriched = await Promise.all(
+      baseMovies.map(async m => {
+        if (m.source === 'seed' && !m.releaseYear) {
+          const y = await fetchReleaseYear(m.title)
+          if (y) return { ...m, releaseYear: y }
         }
-      }
-    }
+        return m
+      })
+    )
 
-    if (changed) {
-      setMovies(updated)
-      localStorage.setItem('leffakerho_movies', JSON.stringify(updated))
-    }
+    setMovies(enriched)
+    localStorage.setItem('leffakerho_movies', JSON.stringify(enriched))
   }
 
-  /* ---------------- ADD MOVIE ---------------- */
+  /* ---------- ADD MOVIE ---------- */
 
   function persist(list) {
     setMovies(list)
@@ -134,21 +124,20 @@ export default function Home() {
   async function handleAdd(e) {
     e.preventDefault()
     setError('')
+
     if (!title.trim()) {
       setError('Anna elokuvan nimi.')
       return
     }
 
     const d = new Date(watchDate)
-    const yyyy = d.getFullYear()
-    const mm = d.getMonth() + 1
 
     const newEntry = {
       id: `${title}-${Date.now()}`,
       title: title.trim(),
       person,
-      year: yyyy,
-      month: mm,
+      year: d.getFullYear(),
+      month: d.getMonth() + 1,
       source: 'ui',
     }
 
@@ -168,7 +157,7 @@ export default function Home() {
     setPerson(PEOPLE[0])
   }
 
-  /* ---------------- RENDER ---------------- */
+  /* ---------- RENDER ---------- */
 
   return (
     <main className="min-h-screen max-w-xl mx-auto p-4">
