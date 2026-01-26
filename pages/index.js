@@ -20,95 +20,44 @@ export default function Home() {
 
   /* ---------- INIT ---------- */
   useEffect(() => {
-    async function init() {
-      const local = localStorage.getItem('leffakerho_movies')
-      if (local) {
-        setMovies(JSON.parse(local))
-        setLoading(false)
-        return
-      }
-
-      const text = await fetch('/seed.txt').then(r => r.text())
-      const parsed = parseSeed(text)
-      const enriched = await enrichSeedMovies(parsed)
-
-      setMovies(enriched)
-      localStorage.setItem('leffakerho_movies', JSON.stringify(enriched))
-      setLoading(false)
-    }
-
-    init()
+    fetchMovies()
   }, [])
 
-  /* ---------- SEED PARSER ---------- */
-  function parseSeed(text) {
-    const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
-    const entries = []
-    let currentYear = null
-
-    const MONTHS = {
-      tammikuu: 1, helmikuu: 2, maaliskuu: 3, huhtikuu: 4,
-      toukokuu: 5, kesäkuu: 6, heinäkuu: 7, elokuu: 8,
-      syyskuu: 9, lokakuu: 10, marraskuu: 11, joulukuu: 12,
+  async function fetchMovies() {
+    try {
+      const res = await fetch('/api/movies')
+      if (!res.ok) throw new Error('Failed to fetch')
+      const data = await res.json()
+      // Sort manually or rely on DB sort (DB sort added in API)
+      setMovies(data)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
     }
+  }
 
-    for (const line of lines) {
-      if (/^\d{4}$/.test(line)) {
-        currentYear = Number(line)
-        continue
-      }
-      if (!currentYear) continue
+  /* ---------- ADD (API) ---------- */
+  async function saveMovie(movie) {
+    // Optimistic update
+    const previous = movies
+    setMovies(prev => [...prev, movie])
 
-      const cleaned = line.replace(/^\d+\.\s*/, '')
-      const m = cleaned.match(
-        /^(.*?)(?:\s*\(([^)]+)\))?\s*-\s*(Tammikuu|Helmikuu|Maaliskuu|Huhtikuu|Toukokuu|Kesäkuu|Heinäkuu|Elokuu|Syyskuu|Lokakuu|Marraskuu|Joulukuu)$/i
-      )
-      if (!m) continue
-
-      entries.push({
-        id: `${m[1]}-${Math.random()}`,
-        title: m[1].trim(),
-        person: (m[2] || '').trim(),
-        year: currentYear,
-        month: MONTHS[m[3].toLowerCase()],
-        source: 'seed',
+    try {
+      const res = await fetch('/api/movies', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(movie),
       })
-    }
-    return entries
-  }
+      if (!res.ok) throw new Error('Failed to save')
 
-  /* ---------- TMDB RIKASTUS (SEED) ---------- */
-  async function enrichSeedMovies(seedMovies) {
-    const enriched = []
-
-    for (const m of seedMovies) {
-      const r = await fetch(`/api/fetch-year?title=${encodeURIComponent(m.title)}`)
-      const data = await r.json()
-
-      if (data.results.length > 0) {
-        const best =
-          data.results
-            .filter(r => r.releaseYear <= m.year)
-            .sort((a, b) => b.releaseYear - a.releaseYear)[0] ||
-          data.results.sort((a, b) => b.releaseYear - a.releaseYear)[0]
-
-        enriched.push({
-          ...m,
-          releaseYear: best.releaseYear,
-        })
-      } else {
-        enriched.push(m)
-      }
+      // Optionally re-fetch to be sure, or just trust optimistic
+    } catch (err) {
+      console.error(err)
+      setMovies(previous) // Rollback
+      alert('Tallennus epäonnistui')
     }
 
-    return enriched
-  }
-
-  /* ---------- SAVE ---------- */
-  function saveMovie(movie) {
-    const updated = [...movies, movie]
-    setMovies(updated)
-    localStorage.setItem('leffakerho_movies', JSON.stringify(updated))
     setTitle('')
     setWatchDate(todayISO())
     setPerson(PEOPLE[0])
@@ -130,6 +79,7 @@ export default function Home() {
       source: 'ui',
     }
 
+    // Check year from TMDB
     const r = await fetch(`/api/fetch-year?title=${encodeURIComponent(title)}`)
     const data = await r.json()
 
@@ -143,6 +93,23 @@ export default function Home() {
       setCandidates(data.results)
     } else {
       saveMovie(newMovie)
+    }
+  }
+
+  /* ---------- DELETE (API) ---------- */
+  async function handleDelete(id) {
+    if (!confirm('Haluatko varmasti poistaa elokuvan?')) return
+
+    const previous = movies
+    setMovies(prev => prev.filter(m => m.id !== id))
+
+    try {
+      const res = await fetch(`/api/movies/${id}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('Failed to delete')
+    } catch (err) {
+      console.error(err)
+      setMovies(previous)
+      alert('Poisto epäonnistui')
     }
   }
 
@@ -244,7 +211,7 @@ export default function Home() {
           {loading ? (
             <div className="text-center py-10 text-slate-400">Ladataan elokuvia...</div>
           ) : (
-            <MovieList movies={movies} />
+            <MovieList movies={movies} onDelete={handleDelete} />
           )}
         </div>
       </div>
