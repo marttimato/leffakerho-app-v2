@@ -26,7 +26,8 @@ export default async function handler(req, res) {
       }))
 
     return res.status(200).json({ results })
-  } catch {
+  } catch (e) {
+    console.error(e)
     return res.status(200).json({ results: [] })
   }
 }
