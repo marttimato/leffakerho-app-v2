@@ -398,50 +398,12 @@ export default function Home() {
   return (
     <main className="min-h-screen pb-20 selection:bg-blue-500/30">
       <div className="max-w-md mx-auto min-h-screen bg-slate-950/20 backdrop-blur-3xl shadow-[0_0_100px_rgba(0,0,0,0.5)] relative overflow-hidden border-x border-white/5">
-        <div className="sticky top-0 z-30 glass border-b border-white/5 p-4 pt-12">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-black tracking-tight bg-gradient-to-br from-white to-slate-400 bg-clip-text text-transparent">Leffakerho</h1>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => {
-                  setIsSearchOpen(!isSearchOpen)
-                  if (isSearchOpen) setSearchQuery('')
-                }}
-                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${isSearchOpen ? 'bg-blue-600 text-white shadow-[0_0_15px_rgba(37,99,235,0.4)]' : 'bg-white/5 text-slate-400 hover:text-white border border-white/10'}`}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                </svg>
-              </button>
-              <div className="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs h-10">
-                {movies.length} <span className="ml-1 opacity-50 font-normal">leffaa</span>
-              </div>
-            </div>
+        {/* Header / Top Bar */}
+        <div className="sticky top-0 z-30 glass border-b border-white/5 p-4 pt-12 flex items-center justify-between">
+          <h1 className="text-2xl font-black tracking-tight bg-gradient-to-br from-white to-slate-400 bg-clip-text text-transparent">Leffakerho</h1>
+          <div className="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs h-7">
+            {movies.length} <span className="ml-1 opacity-50 font-normal">leffaa</span>
           </div>
-
-          {isSearchOpen && (
-            <div className="animate-in slide-in-from-top-2 duration-300 pb-2">
-              <div className="relative">
-                <input
-                  autoFocus
-                  className="w-full glass-input rounded-2xl px-4 py-3 placeholder-slate-500 text-white transition-all ring-0 border-white/10 focus:border-blue-500/50 text-sm"
-                  placeholder="Etsi katsotuista..."
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
-                      <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-                    </svg>
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
         </div>
 
         <div className="p-4 space-y-8">
@@ -504,6 +466,48 @@ export default function Home() {
               </button>
             </form>
           </section>
+
+          {/* Search Bar */}
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between px-1">
+              <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Katsotut elokuvat</h2>
+              <button
+                onClick={() => {
+                  setIsSearchOpen(!isSearchOpen)
+                  if (isSearchOpen) setSearchQuery('')
+                }}
+                className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${isSearchOpen ? 'bg-blue-600 text-white shadow-[0_0_15px_rgba(37,99,235,0.4)]' : 'bg-white/5 text-slate-500 hover:text-white border border-white/5'}`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+              </button>
+            </div>
+
+            {isSearchOpen && (
+              <div className="animate-in zoom-in-95 duration-200">
+                <div className="relative">
+                  <input
+                    autoFocus
+                    className="w-full glass-input rounded-2xl px-5 py-4 placeholder-slate-500 text-white transition-all ring-0 border-white/10 focus:border-blue-500/50"
+                    placeholder="Etsi elokuvaa tai katsojaa..."
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white p-2"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+                        <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* List */}
           {loading ? (
