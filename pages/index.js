@@ -26,6 +26,92 @@ export default function Home() {
   const [editWatchDate, setEditWatchDate] = useState('')
   const [editPerson, setEditPerson] = useState('')
 
+  const [suggestions, setSuggestions] = useState([])
+  const [isSearching, setIsSearching] = useState(false)
+  const [editSuggestions, setEditSuggestions] = useState([])
+  const [isEditSearching, setIsEditSearching] = useState(false)
+
+  /* ---------- SEARCH (Debounced) ---------- */
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (title.trim().length >= 3) {
+        setIsSearching(true)
+        try {
+          const r = await fetch(`/api/fetch-year?title=${encodeURIComponent(title)}`)
+          const data = await r.json()
+          setSuggestions(data.results || [])
+        } catch (err) {
+          console.error(err)
+        } finally {
+          setIsSearching(false)
+        }
+      } else {
+        setSuggestions([])
+      }
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [title])
+
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      // Only search for edit if title actually changed from original
+      if (editingMovie && editTitle.trim().length >= 3 && editTitle.trim().toLowerCase() !== editingMovie.title.toLowerCase()) {
+        setIsEditSearching(true)
+        try {
+          const r = await fetch(`/api/fetch-year?title=${encodeURIComponent(editTitle)}`)
+          const data = await r.json()
+          setEditSuggestions(data.results || [])
+        } catch (err) {
+          console.error(err)
+        } finally {
+          setIsEditSearching(false)
+        }
+      } else {
+        setEditSuggestions([])
+      }
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [editTitle, editingMovie])
+
+  /* ---------- SUGGESTION SELECT ---------- */
+  function handleSelectSuggestion(s, isEdit = false) {
+    if (isEdit) {
+      setEditTitle(s.title)
+      setEditSuggestions([])
+      setEditingMovie(prev => ({ ...prev, tmdbId: s.id, releaseYear: s.releaseYear }))
+    } else {
+      setTitle(s.title)
+      setSuggestions([])
+      setPendingMovie(prev => ({ ...prev, title: s.title, tmdbId: s.id, releaseYear: s.releaseYear }))
+    }
+  }
+
+  function SuggestionList({ items, onSelect, isSearching }) {
+    if (!isSearching && items.length === 0) return null
+    return (
+      <div className="absolute top-full left-0 right-0 z-[110] mt-2 glass-card rounded-2xl overflow-hidden shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
+        {isSearching && (
+          <div className="p-4 text-center">
+            <div className="inline-block w-4 h-4 border-2 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
+          </div>
+        )}
+        <div className="max-h-60 overflow-y-auto custom-scrollbar">
+          {items.map(s => (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => onSelect(s)}
+              className="w-full text-left px-5 py-3 hover:bg-white/5 border-b border-white/5 last:border-0 transition-colors group"
+            >
+              <div className="font-bold text-slate-100 group-hover:text-blue-400 transition-colors">{s.title}</div>
+              <div className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">{s.releaseYear}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   /* ---------- INIT ---------- */
   useEffect(() => {
     fetchMovies()
@@ -118,6 +204,18 @@ export default function Home() {
       source: 'ui',
     }
 
+    // If we already have TMDB data (from selection) and the title hasn't changed
+    if (pendingMovie?.tmdbId && pendingMovie?.title.trim().toLowerCase() === title.trim().toLowerCase()) {
+      if (!confirmAdd(pendingMovie.title)) return
+      saveMovie({
+        ...baseMovie,
+        title: pendingMovie.title,
+        releaseYear: pendingMovie.releaseYear,
+        tmdbId: pendingMovie.tmdbId,
+      })
+      return
+    }
+
     // Check year/title from TMDB
     const r = await fetch(`/api/fetch-year?title=${encodeURIComponent(title)}`)
     const data = await r.json()
@@ -159,8 +257,13 @@ export default function Home() {
       watchDate: editWatchDate,
     }
 
-    // If title changed, check TMDB again
+    // If title changed, check if we already have the suggestion data
     if (editTitle.trim().toLowerCase() !== editingMovie.title.toLowerCase()) {
+      if (editingMovie.tmdbId && editingMovie.title.trim().toLowerCase() === editTitle.trim().toLowerCase()) {
+        updateMovie(baseUpdate)
+        return
+      }
+
       const r = await fetch(`/api/fetch-year?title=${encodeURIComponent(editTitle)}`)
       const data = await r.json()
 
@@ -260,6 +363,12 @@ export default function Home() {
                   placeholder="Elokuvan nimi..."
                   value={title}
                   onChange={e => setTitle(e.target.value)}
+                  onBlur={() => setTimeout(() => setSuggestions([]), 200)}
+                />
+                <SuggestionList
+                  items={suggestions}
+                  isSearching={isSearching}
+                  onSelect={(s) => handleSelectSuggestion(s, false)}
                 />
               </div>
 
@@ -329,12 +438,18 @@ export default function Home() {
             </div>
 
             <form onSubmit={handleUpdate} className="space-y-6">
-              <div className="space-y-2">
+              <div className="space-y-2 relative">
                 <label className="text-[10px] font-black uppercase tracking-widest text-blue-400/80 ml-1">Elokuvan nimi</label>
                 <input
                   className="w-full glass-input rounded-2xl px-4 py-4 placeholder-slate-500 text-white transition-all ring-0 border-white/10 focus:border-blue-500/50"
                   value={editTitle}
                   onChange={e => setEditTitle(e.target.value)}
+                  onBlur={() => setTimeout(() => setEditSuggestions([]), 200)}
+                />
+                <SuggestionList
+                  items={editSuggestions}
+                  isSearching={isEditSearching}
+                  onSelect={(s) => handleSelectSuggestion(s, true)}
                 />
               </div>
 
