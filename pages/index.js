@@ -31,6 +31,8 @@ export default function Home() {
   const [editSuggestions, setEditSuggestions] = useState([])
   const [isEditSearching, setIsEditSearching] = useState(false)
 
+  const [confirmConfig, setConfirmConfig] = useState(null) // { title, message, onConfirm }
+
   /* ---------- SEARCH (Debounced) ---------- */
   useEffect(() => {
     const timer = setTimeout(async () => {
@@ -196,12 +198,17 @@ export default function Home() {
   }
 
   /* ---------- DUPLICATE CHECK ---------- */
-  function confirmAdd(candidateTitle, currentId = null) {
+  function checkDuplicate(candidateTitle, currentId, onOk) {
     const exists = movies.some(m => m.title.toLowerCase() === candidateTitle.toLowerCase() && m.id !== currentId)
     if (exists) {
-      return confirm(`Elokuva "${candidateTitle}" on jo listalla. Haluatko varmasti jatkaa?`)
+      setConfirmConfig({
+        title: 'Tuplakappale?',
+        message: `Elokuva "${candidateTitle}" on jo listalla. Haluatko varmasti jatkaa?`,
+        onConfirm: onOk
+      })
+    } else {
+      onOk()
     }
-    return true
   }
 
   /* ---------- ADD (UI) ---------- */
@@ -224,12 +231,13 @@ export default function Home() {
       pendingMovie?.title?.trim().toLowerCase() === title.trim().toLowerCase()
 
     if (isMatched) {
-      if (!confirmAdd(pendingMovie.title)) return
-      saveMovie({
-        ...baseMovie,
-        title: pendingMovie.title,
-        releaseYear: pendingMovie.releaseYear,
-        tmdbId: pendingMovie.tmdbId,
+      checkDuplicate(pendingMovie.title, null, () => {
+        saveMovie({
+          ...baseMovie,
+          title: pendingMovie.title,
+          releaseYear: pendingMovie.releaseYear,
+          tmdbId: pendingMovie.tmdbId,
+        })
       })
       return
     }
@@ -240,20 +248,21 @@ export default function Home() {
 
     if (data.results.length === 1) {
       const match = data.results[0]
-      if (!confirmAdd(match.title)) return
-
-      saveMovie({
-        ...baseMovie,
-        title: match.title,
-        releaseYear: match.releaseYear,
-        tmdbId: match.id,
+      checkDuplicate(match.title, null, () => {
+        saveMovie({
+          ...baseMovie,
+          title: match.title,
+          releaseYear: match.releaseYear,
+          tmdbId: match.id,
+        })
       })
     } else if (data.results.length > 1) {
       setPendingMovie(baseMovie)
       setCandidates(data.results)
     } else {
-      if (!confirmAdd(baseMovie.title)) return
-      saveMovie(baseMovie)
+      checkDuplicate(baseMovie.title, null, () => {
+        saveMovie(baseMovie)
+      })
     }
   }
 
@@ -287,14 +296,16 @@ export default function Home() {
 
       if (data.results.length === 1) {
         const match = data.results[0]
-        if (!confirmAdd(match.title, editingMovie.id)) return
-        updateMovie({ ...baseUpdate, title: match.title, releaseYear: match.releaseYear, tmdbId: match.id })
+        checkDuplicate(match.title, editingMovie.id, () => {
+          updateMovie({ ...baseUpdate, title: match.title, releaseYear: match.releaseYear, tmdbId: match.id })
+        })
       } else if (data.results.length > 1) {
         setPendingMovie(baseUpdate)
         setCandidates(data.results)
       } else {
-        if (!confirmAdd(baseUpdate.title, editingMovie.id)) return
-        updateMovie(baseUpdate)
+        checkDuplicate(baseUpdate.title, editingMovie.id, () => {
+          updateMovie(baseUpdate)
+        })
       }
     } else {
       updateMovie(baseUpdate)
@@ -303,19 +314,23 @@ export default function Home() {
 
   /* ---------- DELETE (API) ---------- */
   async function handleDelete(id) {
-    if (!confirm('Haluatko varmasti poistaa elokuvan?')) return
+    setConfirmConfig({
+      title: 'Poista elämys?',
+      message: 'Haluatko varmasti poistaa tämän elokuvan listalta?',
+      onConfirm: async () => {
+        const previous = movies
+        setMovies(prev => prev.filter(m => m.id !== id))
 
-    const previous = movies
-    setMovies(prev => prev.filter(m => m.id !== id))
-
-    try {
-      const res = await fetch(`/api/movies/${id}`, { method: 'DELETE' })
-      if (!res.ok) throw new Error('Failed to delete')
-    } catch (err) {
-      console.error(err)
-      setMovies(previous)
-      alert('Poisto epäonnistui')
-    }
+        try {
+          const res = await fetch(`/api/movies/${id}`, { method: 'DELETE' })
+          if (!res.ok) throw new Error('Failed to delete')
+        } catch (err) {
+          console.error(err)
+          setMovies(previous)
+          alert('Poisto epäonnistui')
+        }
+      }
+    })
   }
 
   /* ---------- DETAILS (API) ---------- */
@@ -344,7 +359,7 @@ export default function Home() {
 
   /* ---------- SCROLL LOCK ---------- */
   useEffect(() => {
-    if (selectedMovieId || candidates || editingMovie) {
+    if (selectedMovieId || candidates || editingMovie || confirmConfig) {
       const scrollY = window.scrollY
       document.body.style.top = `-${scrollY}px`
       document.body.classList.add('no-scroll')
@@ -356,7 +371,7 @@ export default function Home() {
         window.scrollTo(0, parseInt(scrollY || '0') * -1)
       }
     }
-  }, [selectedMovieId, candidates, editingMovie])
+  }, [selectedMovieId, candidates, editingMovie, confirmConfig])
 
   return (
     <main className="min-h-screen pb-20 selection:bg-blue-500/30">
@@ -544,20 +559,20 @@ export default function Home() {
                   className="w-full text-left p-5 rounded-2xl hover:bg-white/5 border border-white/5 hover:border-blue-500/30 flex items-start flex-col transition-all group"
                   onClick={() => {
                     const isEdit = pendingMovie.id && !pendingMovie.id.startsWith('temp-')
-                    if (!confirmAdd(c.title, isEdit ? pendingMovie.id : null)) return
+                    checkDuplicate(c.title, isEdit ? pendingMovie.id : null, () => {
+                      const finalMovie = {
+                        ...pendingMovie,
+                        title: c.title,
+                        releaseYear: c.releaseYear,
+                        tmdbId: c.id,
+                      }
 
-                    const finalMovie = {
-                      ...pendingMovie,
-                      title: c.title,
-                      releaseYear: c.releaseYear,
-                      tmdbId: c.id,
-                    }
-
-                    if (isEdit) {
-                      updateMovie(finalMovie)
-                    } else {
-                      saveMovie(finalMovie)
-                    }
+                      if (isEdit) {
+                        updateMovie(finalMovie)
+                      } else {
+                        saveMovie(finalMovie)
+                      }
+                    })
                   }}
                 >
                   <span className="font-bold text-slate-100 text-lg group-hover:text-blue-400 transition-colors">{c.title}</span>
@@ -663,6 +678,32 @@ export default function Home() {
                 <div className="text-slate-500">Tietojen haku epäonnistui. Kokeile myöhemmin uudelleen.</div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+      {/* Confirm Modal */}
+      {confirmConfig && (
+        <div className="fixed inset-0 z-[150] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in duration-200 overscroll-behavior-contain">
+          <div className="bg-slate-900 w-full max-w-sm p-8 rounded-[2rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] border border-white/10 animate-in zoom-in-95 duration-300">
+            <h2 className="text-xl font-black text-white mb-2 tracking-tight">{confirmConfig.title}</h2>
+            <p className="text-slate-400 mb-8 leading-relaxed font-medium">{confirmConfig.message}</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmConfig(null)}
+                className="flex-1 px-4 py-3.5 rounded-xl border border-white/10 text-slate-400 font-bold hover:bg-white/5 transition-all text-sm"
+              >
+                Peruuta
+              </button>
+              <button
+                onClick={() => {
+                  confirmConfig.onConfirm();
+                  setConfirmConfig(null);
+                }}
+                className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl shadow-xl shadow-blue-950/20 transition-all border border-blue-400/20 active:scale-[0.98] text-sm"
+              >
+                Kyllä
+              </button>
+            </div>
           </div>
         </div>
       )}
