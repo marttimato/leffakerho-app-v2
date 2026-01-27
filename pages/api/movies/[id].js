@@ -1,4 +1,4 @@
-import { sql } from '@vercel/postgres'
+import pool from '../../../lib/db'
 
 export default async function handler(req, res) {
     if (req.method === 'DELETE') {
@@ -6,7 +6,7 @@ export default async function handler(req, res) {
             const { id } = req.query
             if (!id) return res.status(400).json({ error: 'ID required' })
 
-            await sql`DELETE FROM movies WHERE id = ${id};`
+            await pool.query('DELETE FROM movies WHERE id = $1', [id])
             return res.status(200).json({ success: true })
         } catch (error) {
             console.error(error)
