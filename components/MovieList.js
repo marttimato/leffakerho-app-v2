@@ -7,8 +7,24 @@ const MONTHS = [
   { num: 11, name: 'Marraskuu' }, { num: 12, name: 'Joulukuu' },
 ]
 
-export default function MovieList({ movies, onDelete, onSelect, onEdit }) {
-  if (!movies || !movies.length) return <div className="text-center py-10 text-slate-400">Ei elokuvia.</div>
+export default function MovieList({ movies, onDelete, onSelect, onEdit, isFiltered }) {
+  if (!movies || !movies.length) {
+    return (
+      <div className="text-center py-20 px-6">
+        <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/5">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-slate-600">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+          </svg>
+        </div>
+        <div className="text-slate-400 font-bold mb-1">
+          {isFiltered ? 'Ei hakuun sopivia elokuvia.' : 'Ei katsottuja elokuvia vielä.'}
+        </div>
+        <p className="text-slate-600 text-xs">
+          {isFiltered ? 'Kokeile eri hakusanaa.' : 'Lisää ensimmäinen elokuva yläpuolelta!'}
+        </p>
+      </div>
+    )
+  }
 
   // Group by year, prioritize watchedAt
   const byYear = movies.reduce((acc, movie) => {
