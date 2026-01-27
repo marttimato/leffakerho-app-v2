@@ -8,25 +8,37 @@ const MONTHS = [
 ]
 
 export default function MovieList({ movies, onDelete }) {
-  if (!movies.length) return <div>Ei elokuvia.</div>
+  if (!movies || !movies.length) return <div className="text-center py-10 text-slate-400">Ei elokuvia.</div>
 
+  // Group by year, with fallback to current year if missing
+  const currentYear = new Date().getFullYear()
   const byYear = movies.reduce((acc, movie) => {
-    acc[movie.year] = acc[movie.year] || []
-    acc[movie.year].push(movie)
+    const y = movie.year || movie.releaseYear || currentYear
+    acc[y] = acc[y] || []
+    acc[y].push({ ...movie, year: y })
     return acc
   }, {})
 
-  const years = Object.keys(byYear).map(Number).sort((a, b) => a - b)
+  const years = Object.keys(byYear)
+    .map(Number)
+    .filter(y => !isNaN(y))
+    .sort((a, b) => b - a) // Latest year first
 
-  const lastYear = years[years.length - 1]
-  const byMonthLastYear = byYear[lastYear].reduce((acc, m) => {
-    acc[m.month] = acc[m.month] || []
-    acc[m.month].push(m)
+  if (years.length === 0) return <div className="text-center py-10 text-slate-400">Ei elokuvia.</div>
+
+  const lastYear = years[0]
+  const lastYearMovies = byYear[lastYear] || []
+
+  const byMonthLastYear = lastYearMovies.reduce((acc, m) => {
+    const mon = m.month || 1
+    acc[mon] = acc[mon] || []
+    acc[mon].push(m)
     return acc
   }, {})
 
-  const lastMonth = Math.max(...Object.keys(byMonthLastYear))
-  const latestId = byMonthLastYear[lastMonth].slice(-1)[0]?.id
+  const monthKeys = Object.keys(byMonthLastYear).map(Number).filter(m => !isNaN(m))
+  const lastMonth = monthKeys.length > 0 ? Math.max(...monthKeys) : 1
+  const latestId = byMonthLastYear[lastMonth]?.slice(-1)[0]?.id
 
   return (
     <div className="space-y-8 pb-10">

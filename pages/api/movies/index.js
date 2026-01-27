@@ -7,6 +7,7 @@ export default async function handler(req, res) {
 
             const movies = rows.map(r => ({
                 ...r,
+                year: r.year || (r.created_at ? new Date(r.created_at).getFullYear() : 0),
                 releaseYear: r.release_year,
             }))
             return res.status(200).json(movies)
@@ -22,9 +23,9 @@ export default async function handler(req, res) {
             if (!title) return res.status(400).json({ error: 'Title required' })
 
             await pool.query(
-                `INSERT INTO movies (id, title, person, release_year, month, source)
-         VALUES ($1, $2, $3, $4, $5, $6)`,
-                [id, title, person, releaseYear || 0, month, source]
+                `INSERT INTO movies (id, title, person, year, release_year, month, source)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+                [id, title, person, year, releaseYear || 0, month, source]
             )
             return res.status(201).json({ success: true })
         } catch (error) {

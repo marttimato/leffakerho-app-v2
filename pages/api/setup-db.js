@@ -7,11 +7,19 @@ export default async function handler(req, res) {
         id VARCHAR(255) PRIMARY KEY,
         title VARCHAR(255) NOT NULL,
         person VARCHAR(255),
+        year INT,
         release_year INT,
         month INT,
         source VARCHAR(50),
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
+      
+      DO $$ 
+      BEGIN 
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='movies' AND column_name='year') THEN
+          ALTER TABLE movies ADD COLUMN year INT;
+        END IF;
+      END $$;
     `
     const result = await pool.query(query)
     return res.status(200).json({ result })
