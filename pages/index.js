@@ -1,10 +1,17 @@
 import { useEffect, useState } from 'react'
 import MovieList from '../components/MovieList'
+import FinnishDatePicker from '../components/FinnishDatePicker'
 
 const PEOPLE = ['Tomi', 'Mikkis', 'Aino', 'Mari']
 
 function todayISO() {
   return new Date().toISOString().slice(0, 10)
+}
+
+function formatDateFi(iso) {
+  if (!iso) return ''
+  const [y, m, d] = iso.split('-')
+  return `${parseInt(d)}.${parseInt(m)}.${y}`
 }
 
 export default function Home() {
@@ -14,6 +21,7 @@ export default function Home() {
   const [title, setTitle] = useState('')
   const [watchDate, setWatchDate] = useState(todayISO())
   const [person, setPerson] = useState(PEOPLE[0])
+  const [showDatePicker, setShowDatePicker] = useState(false)
 
   const [candidates, setCandidates] = useState(null)
   const [pendingMovie, setPendingMovie] = useState(null)
@@ -25,6 +33,7 @@ export default function Home() {
   const [editTitle, setEditTitle] = useState('')
   const [editWatchDate, setEditWatchDate] = useState('')
   const [editPerson, setEditPerson] = useState('')
+  const [showEditDatePicker, setShowEditDatePicker] = useState(false)
 
   const [suggestions, setSuggestions] = useState([])
   const [isSearching, setIsSearching] = useState(false)
@@ -369,7 +378,7 @@ export default function Home() {
 
   /* ---------- SCROLL LOCK ---------- */
   useEffect(() => {
-    if (selectedMovieId || candidates || editingMovie || confirmConfig) {
+    if (selectedMovieId || candidates || editingMovie || confirmConfig || showDatePicker || showEditDatePicker) {
       const scrollY = window.scrollY
       document.body.style.top = `-${scrollY}px`
       document.body.classList.add('no-scroll')
@@ -381,7 +390,7 @@ export default function Home() {
         window.scrollTo(0, parseInt(scrollY || '0') * -1)
       }
     }
-  }, [selectedMovieId, candidates, editingMovie, confirmConfig])
+  }, [selectedMovieId, candidates, editingMovie, confirmConfig, showDatePicker, showEditDatePicker])
 
   return (
     <main className="min-h-screen pb-20 selection:bg-blue-500/30">
@@ -416,13 +425,25 @@ export default function Home() {
               </div>
 
               <div className="flex gap-3">
-                <input
-                  type="date"
-                  className="w-full glass-input rounded-2xl px-4 py-3.5 text-slate-300 transition-all border-white/10 focus:border-blue-500/50 [color-scheme:dark]"
-                  value={watchDate}
-                  onChange={e => setWatchDate(e.target.value)}
-                />
+                <button
+                  type="button"
+                  onClick={() => setShowDatePicker(true)}
+                  className="w-full glass-input rounded-2xl px-4 py-3.5 text-left text-slate-300 transition-all border-white/10 focus:border-blue-500/50 flex justify-between items-center group/btn"
+                >
+                  <span>{formatDateFi(watchDate)}</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-slate-500 group-hover/btn:text-blue-400 transition-colors">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                  </svg>
+                </button>
               </div>
+
+              {showDatePicker && (
+                <FinnishDatePicker
+                  value={watchDate}
+                  onChange={setWatchDate}
+                  onClose={() => setShowDatePicker(false)}
+                />
+              )}
 
               <div className="grid grid-cols-4 gap-2 p-1 bg-white/5 rounded-2xl border border-white/5">
                 {PEOPLE.map(p => (
@@ -498,13 +519,25 @@ export default function Home() {
 
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-blue-400/80 ml-1">Katselupäivä</label>
-                <input
-                  type="date"
-                  className="w-full glass-input rounded-2xl px-4 py-4 text-slate-300 transition-all border-white/10 focus:border-blue-500/50 [color-scheme:dark]"
-                  value={editWatchDate}
-                  onChange={e => setEditWatchDate(e.target.value)}
-                />
+                <button
+                  type="button"
+                  onClick={() => setShowEditDatePicker(true)}
+                  className="w-full glass-input rounded-2xl px-4 py-4 text-left text-slate-300 transition-all border-white/10 focus:border-blue-500/50 flex justify-between items-center group/btn"
+                >
+                  <span>{formatDateFi(editWatchDate)}</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-slate-500 group-hover/btn:text-blue-400 transition-colors">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                  </svg>
+                </button>
               </div>
+
+              {showEditDatePicker && (
+                <FinnishDatePicker
+                  value={editWatchDate}
+                  onChange={setEditWatchDate}
+                  onClose={() => setShowEditDatePicker(false)}
+                />
+              )}
 
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-blue-400/80 ml-1">Valitsija</label>

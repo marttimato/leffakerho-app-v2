@@ -28,6 +28,13 @@ export default function MovieList({ movies, onDelete, onSelect, onEdit }) {
 
   function formatDate(dateStr) {
     if (!dateStr) return ''
+    // Handle YYYY-MM-DD ISO strings directly to avoid TZ shifts
+    if (typeof dateStr === 'string' && dateStr.includes('-')) {
+      const parts = dateStr.split('T')[0].split('-')
+      if (parts.length === 3) {
+        return `${parseInt(parts[2])}.${parseInt(parts[1])}.${parts[0]}`
+      }
+    }
     const d = new Date(dateStr)
     return `${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()}`
   }
