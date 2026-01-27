@@ -7,7 +7,7 @@ const MONTHS = [
   { num: 11, name: 'Marraskuu' }, { num: 12, name: 'Joulukuu' },
 ]
 
-export default function MovieList({ movies, onDelete, onSelect }) {
+export default function MovieList({ movies, onDelete, onSelect, onEdit }) {
   if (!movies || !movies.length) return <div className="text-center py-10 text-slate-400">Ei elokuvia.</div>
 
   // Group by year, prioritize watchedAt
@@ -90,6 +90,15 @@ export default function MovieList({ movies, onDelete, onSelect }) {
                         </div>
 
                         <div className="flex items-center gap-2 pl-4">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); onEdit(movie); }}
+                            className="p-2 rounded-full text-slate-600 hover:text-blue-400 hover:bg-blue-400/10 transition-all opacity-0 group-hover:opacity-100"
+                            aria-label="Muokkaa"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                            </svg>
+                          </button>
                           <button
                             onClick={(e) => { e.stopPropagation(); onDelete(movie.id); }}
                             className={`p-2 rounded-full text-slate-600 hover:text-red-400 hover:bg-red-400/10 transition-all ${movie.id === latestId ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}

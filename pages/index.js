@@ -21,6 +21,11 @@ export default function Home() {
   const [details, setDetails] = useState(null)
   const [loadingDetails, setLoadingDetails] = useState(false)
 
+  const [editingMovie, setEditingMovie] = useState(null)
+  const [editTitle, setEditTitle] = useState('')
+  const [editWatchDate, setEditWatchDate] = useState('')
+  const [editPerson, setEditPerson] = useState('')
+
   /* ---------- INIT ---------- */
   useEffect(() => {
     fetchMovies()
@@ -54,7 +59,8 @@ export default function Home() {
       })
       if (!res.ok) throw new Error('Failed to save')
 
-      // Optionally re-fetch to be sure, or just trust optimistic
+      // Refresh to get real IDs and sorting
+      fetchMovies()
     } catch (err) {
       console.error(err)
       setMovies(previous) // Rollback
@@ -68,11 +74,31 @@ export default function Home() {
     setPendingMovie(null)
   }
 
+  /* ---------- UPDATE (API) ---------- */
+  async function updateMovie(movie) {
+    try {
+      const res = await fetch(`/api/movies/${movie.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(movie),
+      })
+      if (!res.ok) throw new Error('Failed to update')
+
+      fetchMovies()
+      setEditingMovie(null)
+    } catch (err) {
+      console.error(err)
+      alert('Päivitys epäonnistui')
+    }
+    setCandidates(null)
+    setPendingMovie(null)
+  }
+
   /* ---------- DUPLICATE CHECK ---------- */
-  function confirmAdd(candidateTitle) {
-    const exists = movies.some(m => m.title.toLowerCase() === candidateTitle.toLowerCase())
+  function confirmAdd(candidateTitle, currentId = null) {
+    const exists = movies.some(m => m.title.toLowerCase() === candidateTitle.toLowerCase() && m.id !== currentId)
     if (exists) {
-      return confirm(`Elokuva "${candidateTitle}" on jo listalla. Haluatko varmasti lisätä sen uudelleen?`)
+      return confirm(`Elokuva "${candidateTitle}" on jo listalla. Haluatko varmasti jatkaa?`)
     }
     return true
   }
@@ -83,7 +109,7 @@ export default function Home() {
 
     const d = new Date(watchDate)
     const baseMovie = {
-      id: `temp-${Date.now()}`, // Temporary ID, will be replaced by DB or kept unique
+      id: `temp-${Date.now()}`,
       title: title.trim(),
       person,
       year: d.getFullYear(),
@@ -97,7 +123,6 @@ export default function Home() {
     const data = await r.json()
 
     if (data.results.length === 1) {
-      // 1 match: Use TMDB title & year
       const match = data.results[0]
       if (!confirmAdd(match.title)) return
 
@@ -108,13 +133,50 @@ export default function Home() {
         tmdbId: match.id,
       })
     } else if (data.results.length > 1) {
-      // Multiple matches: Let user choose
       setPendingMovie(baseMovie)
       setCandidates(data.results)
     } else {
-      // No match: Use user input
       if (!confirmAdd(baseMovie.title)) return
       saveMovie(baseMovie)
+    }
+  }
+
+  /* ---------- EDIT (UI) ---------- */
+  function handleStartEdit(movie) {
+    setEditingMovie(movie)
+    setEditTitle(movie.title)
+    setEditWatchDate(movie.watchedAt ? movie.watchedAt.slice(0, 10) : (movie.watchDate ? movie.watchDate.slice(0, 10) : ''))
+    setEditPerson(movie.person)
+  }
+
+  async function handleUpdate(e) {
+    e.preventDefault()
+
+    const baseUpdate = {
+      ...editingMovie,
+      title: editTitle.trim(),
+      person: editPerson,
+      watchDate: editWatchDate,
+    }
+
+    // If title changed, check TMDB again
+    if (editTitle.trim().toLowerCase() !== editingMovie.title.toLowerCase()) {
+      const r = await fetch(`/api/fetch-year?title=${encodeURIComponent(editTitle)}`)
+      const data = await r.json()
+
+      if (data.results.length === 1) {
+        const match = data.results[0]
+        if (!confirmAdd(match.title, editingMovie.id)) return
+        updateMovie({ ...baseUpdate, title: match.title, releaseYear: match.releaseYear, tmdbId: match.id })
+      } else if (data.results.length > 1) {
+        setPendingMovie(baseUpdate)
+        setCandidates(data.results)
+      } else {
+        if (!confirmAdd(baseUpdate.title, editingMovie.id)) return
+        updateMovie(baseUpdate)
+      }
+    } else {
+      updateMovie(baseUpdate)
     }
   }
 
@@ -161,7 +223,7 @@ export default function Home() {
 
   /* ---------- SCROLL LOCK ---------- */
   useEffect(() => {
-    if (selectedMovieId || candidates) {
+    if (selectedMovieId || candidates || editingMovie) {
       const scrollY = window.scrollY
       document.body.style.top = `-${scrollY}px`
       document.body.classList.add('no-scroll')
@@ -173,7 +235,7 @@ export default function Home() {
         window.scrollTo(0, parseInt(scrollY || '0') * -1)
       }
     }
-  }, [selectedMovieId, candidates])
+  }, [selectedMovieId, candidates, editingMovie])
 
   return (
     <main className="min-h-screen pb-20 selection:bg-blue-500/30">
@@ -243,14 +305,91 @@ export default function Home() {
               <div className="text-slate-500 font-bold text-xs uppercase tracking-widest">Ladataan elämyksiä...</div>
             </div>
           ) : (
-            <MovieList movies={movies} onDelete={handleDelete} onSelect={handleSelectMovie} />
+            <MovieList movies={movies} onDelete={handleDelete} onSelect={handleSelectMovie} onEdit={handleStartEdit} />
           )}
         </div>
       </div>
 
       {/* MODALS - Moved outside max-w-md to escape backdrop-blur positioning context */}
 
-      {/* Candidates Modal */}
+      {/* Edit Modal */}
+      {editingMovie && (
+        <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-0 sm:p-4 animate-in fade-in duration-300 overscroll-behavior-contain">
+          <div className="bg-slate-900 w-full max-w-md p-8 sm:rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] border border-white/10 animate-in zoom-in-95 duration-500">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-2xl font-black text-white tracking-tight">Muokkaa tietoja</h2>
+              <button
+                onClick={() => setEditingMovie(null)}
+                className="w-10 h-10 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white rounded-full flex items-center justify-center transition-all border border-white/10"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdate} className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-blue-400/80 ml-1">Elokuvan nimi</label>
+                <input
+                  className="w-full glass-input rounded-2xl px-4 py-4 placeholder-slate-500 text-white transition-all ring-0 border-white/10 focus:border-blue-500/50"
+                  value={editTitle}
+                  onChange={e => setEditTitle(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-blue-400/80 ml-1">Katselupäivä</label>
+                <input
+                  type="date"
+                  className="w-full glass-input rounded-2xl px-4 py-4 text-slate-300 transition-all border-white/10 focus:border-blue-500/50 [color-scheme:dark]"
+                  value={editWatchDate}
+                  onChange={e => setEditWatchDate(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-blue-400/80 ml-1">Valitsija</label>
+                <div className="grid grid-cols-4 gap-2 p-1 bg-white/5 rounded-2xl border border-white/5">
+                  {PEOPLE.map(p => (
+                    <label
+                      key={p}
+                      className={`
+                        text-center py-3 rounded-xl text-xs font-bold transition-all cursor-pointer truncate
+                        ${editPerson === p ? 'bg-blue-600 text-white shadow-[0_0_20px_rgba(37,99,235,0.4)]' : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'}
+                      `}
+                    >
+                      <input
+                        type="radio"
+                        className="hidden"
+                        checked={editPerson === p}
+                        onChange={() => setEditPerson(p)}
+                      />
+                      {p}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setEditingMovie(null)}
+                  className="flex-1 px-4 py-4 rounded-2xl border border-white/10 text-slate-400 font-bold hover:bg-white/5 transition-all"
+                >
+                  Peruuta
+                </button>
+                <button
+                  type="submit"
+                  className="flex-[2] bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white font-bold py-4 rounded-2xl shadow-xl shadow-blue-950/20 transition-all border border-blue-400/20"
+                >
+                  Tallenna
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       {candidates && (
         <div className="fixed inset-0 z-[100] bg-slate-950/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200 overscroll-behavior-contain">
           <div className="bg-slate-900/90 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300 border border-white/10 overscroll-contain">
@@ -271,13 +410,21 @@ export default function Home() {
                   key={c.id}
                   className="w-full text-left p-5 rounded-2xl hover:bg-white/5 border border-white/5 hover:border-blue-500/30 flex items-start flex-col transition-all group"
                   onClick={() => {
-                    if (!confirmAdd(c.title)) return
-                    saveMovie({
+                    const isEdit = pendingMovie.id && !pendingMovie.id.startsWith('temp-')
+                    if (!confirmAdd(c.title, isEdit ? pendingMovie.id : null)) return
+
+                    const finalMovie = {
                       ...pendingMovie,
                       title: c.title,
                       releaseYear: c.releaseYear,
                       tmdbId: c.id,
-                    })
+                    }
+
+                    if (isEdit) {
+                      updateMovie(finalMovie)
+                    } else {
+                      saveMovie(finalMovie)
+                    }
                   }}
                 >
                   <span className="font-bold text-slate-100 text-lg group-hover:text-blue-400 transition-colors">{c.title}</span>
