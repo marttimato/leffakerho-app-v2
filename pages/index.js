@@ -437,13 +437,6 @@ export default function Home() {
                 </button>
               </div>
 
-              {showDatePicker && (
-                <FinnishDatePicker
-                  value={watchDate}
-                  onChange={setWatchDate}
-                  onClose={() => setShowDatePicker(false)}
-                />
-              )}
 
               <div className="grid grid-cols-4 gap-2 p-1 bg-white/5 rounded-2xl border border-white/5">
                 {PEOPLE.map(p => (
@@ -531,13 +524,6 @@ export default function Home() {
                 </button>
               </div>
 
-              {showEditDatePicker && (
-                <FinnishDatePicker
-                  value={editWatchDate}
-                  onChange={setEditWatchDate}
-                  onClose={() => setShowEditDatePicker(false)}
-                />
-              )}
 
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-blue-400/80 ml-1">Valitsija</label>
@@ -724,6 +710,22 @@ export default function Home() {
           </div>
         </div>
       )}
+      {/* Date Pickers */}
+      {showDatePicker && (
+        <FinnishDatePicker
+          value={watchDate}
+          onChange={setWatchDate}
+          onClose={() => setShowDatePicker(false)}
+        />
+      )}
+      {showEditDatePicker && (
+        <FinnishDatePicker
+          value={editWatchDate}
+          onChange={setEditWatchDate}
+          onClose={() => setShowEditDatePicker(false)}
+        />
+      )}
+
       {/* Confirm Modal */}
       {confirmConfig && (
         <div className="fixed inset-0 z-[150] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in duration-200 overscroll-behavior-contain">
