@@ -106,7 +106,7 @@ export default function Home() {
   function SuggestionList({ items, onSelect, isSearching }) {
     if (!isSearching && items.length === 0) return null
     return (
-      <div className="absolute top-full left-0 right-0 z-[110] mt-2 glass-card rounded-2xl overflow-hidden shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
+      <div className="absolute top-full left-0 right-0 z-[110] mt-2 bg-slate-900/95 backdrop-blur-2xl rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/20 animate-in fade-in slide-in-from-top-2 duration-200">
         {isSearching && (
           <div className="p-4 text-center">
             <div className="inline-block w-4 h-4 border-2 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
@@ -118,10 +118,10 @@ export default function Home() {
               key={s.id}
               type="button"
               onClick={() => onSelect(s)}
-              className="w-full text-left px-5 py-3 hover:bg-white/5 border-b border-white/5 last:border-0 transition-colors group"
+              className="w-full text-left px-5 py-4 hover:bg-white/10 border-b border-white/5 last:border-0 transition-all group"
             >
-              <div className="font-bold text-slate-100 group-hover:text-blue-400 transition-colors">{s.title}</div>
-              <div className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">{s.releaseYear}</div>
+              <div className="font-bold text-white group-hover:text-blue-400 transition-colors text-base">{s.title}</div>
+              <div className="text-[10px] text-slate-400 font-black uppercase tracking-[0.1em] mt-0.5">{s.releaseYear}</div>
             </button>
           ))}
         </div>
