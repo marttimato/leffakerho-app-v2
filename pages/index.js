@@ -78,11 +78,11 @@ export default function Home() {
     if (isEdit) {
       setEditTitle(s.title)
       setEditSuggestions([])
-      setEditingMovie(prev => ({ ...prev, tmdbId: s.id, releaseYear: s.releaseYear }))
+      setEditingMovie(prev => ({ ...prev, title: s.title, tmdbId: s.id, releaseYear: s.releaseYear }))
     } else {
       setTitle(s.title)
       setSuggestions([])
-      setPendingMovie(prev => ({ ...prev, title: s.title, tmdbId: s.id, releaseYear: s.releaseYear }))
+      setPendingMovie({ title: s.title, tmdbId: s.id, releaseYear: s.releaseYear })
     }
   }
 
@@ -204,8 +204,11 @@ export default function Home() {
       source: 'ui',
     }
 
-    // If we already have TMDB data (from selection) and the title hasn't changed
-    if (pendingMovie?.tmdbId && pendingMovie?.title.trim().toLowerCase() === title.trim().toLowerCase()) {
+    // If we already have TMDB data (from selection) and the title matches
+    const isMatched = pendingMovie?.tmdbId &&
+      pendingMovie?.title?.trim().toLowerCase() === title.trim().toLowerCase()
+
+    if (isMatched) {
       if (!confirmAdd(pendingMovie.title)) return
       saveMovie({
         ...baseMovie,
