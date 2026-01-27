@@ -55,10 +55,10 @@ export default function MovieList({ movies, onDelete, onSelect, onEdit }) {
 
         return (
           <section key={year} className="relative">
-            <div className="sticky top-[4.5rem] z-20 bg-slate-950/80 backdrop-blur-md py-4 mb-6 border-b border-white/5 flex items-center justify-between gap-4">
+            <div className="sticky top-[4.5rem] z-20 bg-slate-950/80 backdrop-blur-md py-4 mb-6 border-b border-white/5 flex items-center justify-between gap-4 pr-5">
               <h2 className="text-xl font-black text-white/90 tracking-tighter">{year}</h2>
               <div className="h-px flex-1 bg-gradient-to-r from-white/10 via-white/5 to-transparent" />
-              <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] font-black text-slate-500/80 tabular-nums">
+              <span className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-[11px] font-black text-slate-500 tabular-nums">
                 {byYear[year].length}
               </span>
             </div>
