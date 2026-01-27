@@ -56,7 +56,12 @@ export default function MovieList({ movies, onDelete, onSelect, onEdit }) {
         return (
           <section key={year} className="relative">
             <div className="sticky top-[4.5rem] z-20 bg-slate-950/80 backdrop-blur-md py-4 mb-6 border-b border-white/5 flex items-center gap-4">
-              <h2 className="text-xl font-black text-white/90 tracking-tighter">{year}</h2>
+              <h2 className="text-xl font-black text-white/90 tracking-tighter flex items-center gap-3">
+                {year}
+                <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                  {byYear[year].length} {byYear[year].length === 1 ? 'leffa' : 'leffaa'}
+                </span>
+              </h2>
               <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent" />
             </div>
 
