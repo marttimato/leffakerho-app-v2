@@ -85,6 +85,7 @@ export default function Home() {
       person,
       year: d.getFullYear(),
       month: d.getMonth() + 1,
+      watchDate: watchDate,
       source: 'ui',
     }
 
