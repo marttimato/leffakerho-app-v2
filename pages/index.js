@@ -65,13 +65,22 @@ export default function Home() {
     setPendingMovie(null)
   }
 
+  /* ---------- DUPLICATE CHECK ---------- */
+  function confirmAdd(candidateTitle) {
+    const exists = movies.some(m => m.title.toLowerCase() === candidateTitle.toLowerCase())
+    if (exists) {
+      return confirm(`Elokuva "${candidateTitle}" on jo listalla. Haluatko varmasti lisätä sen uudelleen?`)
+    }
+    return true
+  }
+
   /* ---------- ADD (UI) ---------- */
   async function handleAdd(e) {
     e.preventDefault()
 
     const d = new Date(watchDate)
-    const newMovie = {
-      id: `${title}-${Date.now()}`,
+    const baseMovie = {
+      id: `temp-${Date.now()}`, // Temporary ID, will be replaced by DB or kept unique
       title: title.trim(),
       person,
       year: d.getFullYear(),
@@ -79,20 +88,28 @@ export default function Home() {
       source: 'ui',
     }
 
-    // Check year from TMDB
+    // Check year/title from TMDB
     const r = await fetch(`/api/fetch-year?title=${encodeURIComponent(title)}`)
     const data = await r.json()
 
     if (data.results.length === 1) {
+      // 1 match: Use TMDB title & year
+      const match = data.results[0]
+      if (!confirmAdd(match.title)) return
+
       saveMovie({
-        ...newMovie,
-        releaseYear: data.results[0].releaseYear,
+        ...baseMovie,
+        title: match.title,
+        releaseYear: match.releaseYear,
       })
     } else if (data.results.length > 1) {
-      setPendingMovie(newMovie)
+      // Multiple matches: Let user choose
+      setPendingMovie(baseMovie)
       setCandidates(data.results)
     } else {
-      saveMovie(newMovie)
+      // No match: Use user input
+      if (!confirmAdd(baseMovie.title)) return
+      saveMovie(baseMovie)
     }
   }
 
@@ -191,12 +208,14 @@ export default function Home() {
                     <button
                       key={c.id}
                       className="w-full text-left p-4 rounded-xl hover:bg-slate-50 border border-slate-100 flex items-start flex-col transition-colors"
-                      onClick={() =>
+                      onClick={() => {
+                        if (!confirmAdd(c.title)) return
                         saveMovie({
                           ...pendingMovie,
+                          title: c.title,
                           releaseYear: c.releaseYear,
                         })
-                      }
+                      }}
                     >
                       <span className="font-bold text-slate-900 text-lg">{c.title}</span>
                       <span className="text-slate-500">{c.releaseYear}</span>
