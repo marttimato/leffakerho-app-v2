@@ -17,6 +17,9 @@ export default function Home() {
 
   const [candidates, setCandidates] = useState(null)
   const [pendingMovie, setPendingMovie] = useState(null)
+  const [selectedMovieId, setSelectedMovieId] = useState(null)
+  const [details, setDetails] = useState(null)
+  const [loadingDetails, setLoadingDetails] = useState(false)
 
   /* ---------- INIT ---------- */
   useEffect(() => {
@@ -102,6 +105,7 @@ export default function Home() {
         ...baseMovie,
         title: match.title,
         releaseYear: match.releaseYear,
+        tmdbId: match.id,
       })
     } else if (data.results.length > 1) {
       // Multiple matches: Let user choose
@@ -128,6 +132,30 @@ export default function Home() {
       console.error(err)
       setMovies(previous)
       alert('Poisto epäonnistui')
+    }
+  }
+
+  /* ---------- DETAILS (API) ---------- */
+  async function handleSelectMovie(movie) {
+    if (!movie.tmdbId) {
+      alert('Elokuvalla ei ole TMDB-tunnistetta, tietoja ei voida hakea.')
+      return
+    }
+
+    setSelectedMovieId(movie.id)
+    setLoadingDetails(true)
+    setDetails(null)
+
+    try {
+      const res = await fetch(`/api/movies/details?id=${movie.tmdbId}`)
+      if (!res.ok) throw new Error('Failed to fetch details')
+      const data = await res.json()
+      setDetails(data)
+    } catch (err) {
+      console.error(err)
+      alert('Tietojen haku epäonnistui')
+    } finally {
+      setLoadingDetails(false)
     }
   }
 
@@ -215,6 +243,7 @@ export default function Home() {
                           ...pendingMovie,
                           title: c.title,
                           releaseYear: c.releaseYear,
+                          tmdbId: c.id,
                         })
                       }}
                     >
@@ -231,9 +260,101 @@ export default function Home() {
           {loading ? (
             <div className="text-center py-10 text-slate-400">Ladataan elokuvia...</div>
           ) : (
-            <MovieList movies={movies} onDelete={handleDelete} />
+            <MovieList movies={movies} onDelete={handleDelete} onSelect={handleSelectMovie} />
           )}
         </div>
+
+        {/* Detail Modal */}
+        {selectedMovieId && (
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-0 sm:p-4 animate-in fade-in duration-300">
+            <div className="bg-white w-full max-w-2xl h-full sm:h-auto sm:max-h-[85vh] sm:rounded-3xl shadow-2xl overflow-y-auto relative animate-in zoom-in-95 duration-300">
+              {/* Close Button */}
+              <button
+                onClick={() => { setSelectedMovieId(null); setDetails(null); }}
+                className="absolute top-4 right-4 z-20 w-10 h-10 bg-black/20 hover:bg-black/40 text-white rounded-full flex items-center justify-center transition-colors backdrop-blur-md"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              {loadingDetails ? (
+                <div className="p-20 text-center text-slate-400">Haetaan tietoja...</div>
+              ) : details ? (
+                <div className="flex flex-col">
+                  {/* Backdrop */}
+                  <div className="relative aspect-video sm:aspect-[21/9] w-full bg-slate-200">
+                    {details.backdropPath ? (
+                      <img
+                        src={`https://image.tmdb.org/t/p/w1280${details.backdropPath}`}
+                        alt=""
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-slate-400">Ei taustakuvaa</div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-white via-white/20 to-transparent" />
+                  </div>
+
+                  {/* Content */}
+                  <div className="px-6 pb-12 -mt-16 relative z-10">
+                    <div className="flex flex-col sm:flex-row gap-6">
+                      {/* Poster */}
+                      <div className="w-32 sm:w-40 shrink-0 mx-auto sm:mx-0 -mt-10 sm:-mt-20">
+                        {details.posterPath ? (
+                          <img
+                            src={`https://image.tmdb.org/t/p/w500${details.posterPath}`}
+                            alt={details.title}
+                            className="w-full rounded-2xl shadow-2xl border-4 border-white object-cover aspect-[2/3]"
+                          />
+                        ) : (
+                          <div className="w-full aspect-[2/3] bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400 border-4 border-white">Ei kuvaa</div>
+                        )}
+                      </div>
+
+                      {/* Info */}
+                      <div className="flex-1 space-y-4 text-center sm:text-left pt-4">
+                        <h2 className="text-3xl font-black text-slate-900 leading-tight">{details.title}</h2>
+                        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
+                          {details.releaseDate && (
+                            <span className="text-sm font-bold text-slate-500">{new Date(details.releaseDate).getFullYear()}</span>
+                          )}
+                          {details.runtime > 0 && (
+                            <span className="text-sm font-medium text-slate-400">{details.runtime} min</span>
+                          )}
+                          {details.voteAverage > 0 && (
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-yellow-50 text-yellow-700 text-xs font-bold border border-yellow-100">
+                              ★ {details.voteAverage.toFixed(1)}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex flex-wrap justify-center sm:justify-start gap-2 pt-1">
+                          {details.genres.map(g => (
+                            <span key={g} className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-semibold">
+                              {g}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-8 space-y-6">
+                      <div>
+                        <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-3">Yleiskatsaus</h3>
+                        <p className="text-slate-600 leading-relaxed text-lg">
+                          {details.overview || 'Ei kuvausta saatavilla.'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-20 text-center text-slate-400">Virhe tietoja haettaessa</div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </main>
   )

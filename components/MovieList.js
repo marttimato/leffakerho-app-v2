@@ -7,7 +7,7 @@ const MONTHS = [
   { num: 11, name: 'Marraskuu' }, { num: 12, name: 'Joulukuu' },
 ]
 
-export default function MovieList({ movies, onDelete }) {
+export default function MovieList({ movies, onDelete, onSelect }) {
   if (!movies || !movies.length) return <div className="text-center py-10 text-slate-400">Ei elokuvia.</div>
 
   // Group by year, prioritize watchedAt
@@ -65,7 +65,8 @@ export default function MovieList({ movies, onDelete }) {
                     {byMonth[monNum].sort((a, b) => b.internalDate - a.internalDate).map(movie => (
                       <article
                         key={movie.id}
-                        className="group bg-white p-4 rounded-2xl border border-slate-100 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] hover:shadow-md transition-all flex justify-between items-start"
+                        onClick={() => onSelect(movie)}
+                        className="group bg-white p-4 rounded-2xl border border-slate-100 shadow-[0_2px_8_px_-2px_rgba(0,0,0,0.05)] hover:shadow-md transition-all flex justify-between items-start cursor-pointer active:scale-[0.99]"
                       >
                         <div className="flex-1">
                           <h4
@@ -96,7 +97,7 @@ export default function MovieList({ movies, onDelete }) {
                         </div>
 
                         <button
-                          onClick={() => onDelete(movie.id)}
+                          onClick={(e) => { e.stopPropagation(); onDelete(movie.id); }}
                           className={`text-slate-300 hover:text-red-500 transition-colors p-1 -mr-2 -mt-2 group-hover:opacity-100 focus:opacity-100 ${movie.id === latestId ? 'opacity-100 text-slate-400' : 'opacity-0'}`}
                           aria-label="Poista"
                         >

@@ -11,6 +11,7 @@ export default async function handler(req, res) {
         release_year INT,
         month INT,
         watched_at DATE,
+        tmdb_id INT,
         source VARCHAR(50),
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
@@ -22,6 +23,9 @@ export default async function handler(req, res) {
         END IF;
         IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='movies' AND column_name='watched_at') THEN
           ALTER TABLE movies ADD COLUMN watched_at DATE;
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='movies' AND column_name='tmdb_id') THEN
+          ALTER TABLE movies ADD COLUMN tmdb_id INT;
         END IF;
       END $$;
     `

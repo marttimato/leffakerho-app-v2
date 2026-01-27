@@ -10,7 +10,8 @@ export default async function handler(req, res) {
                 year: r.year || (r.watched_at ? new Date(r.watched_at).getFullYear() : (r.created_at ? new Date(r.created_at).getFullYear() : 0)),
                 month: r.month || (r.watched_at ? new Date(r.watched_at).getMonth() + 1 : (r.created_at ? new Date(r.created_at).getMonth() + 1 : 1)),
                 releaseYear: r.release_year,
-                watchedAt: r.watched_at
+                watchedAt: r.watched_at,
+                tmdbId: r.tmdb_id
             }))
             return res.status(200).json(movies)
         } catch (error) {
@@ -21,13 +22,13 @@ export default async function handler(req, res) {
 
     if (req.method === 'POST') {
         try {
-            const { id, title, person, year, month, source, releaseYear, watchDate } = req.body
+            const { id, title, person, year, month, source, releaseYear, watchDate, tmdbId } = req.body
             if (!title) return res.status(400).json({ error: 'Title required' })
 
             await pool.query(
-                `INSERT INTO movies (id, title, person, year, release_year, month, source, watched_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-                [id, title, person, year, releaseYear || 0, month, source, watchDate]
+                `INSERT INTO movies (id, title, person, year, release_year, month, source, watched_at, tmdb_id)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+                [id, title, person, year, releaseYear || 0, month, source, watchDate, tmdbId]
             )
             return res.status(201).json({ success: true })
         } catch (error) {
