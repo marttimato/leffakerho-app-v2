@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import MovieList from '../components/MovieList'
 
-const PEOPLE = ['Aino', 'Mari', 'Mikkis', 'Tomi']
+const PEOPLE = ['Tomi', 'Mikkis', 'Aino', 'Mari']
 
 function todayISO() {
   return new Date().toISOString().slice(0, 10)
@@ -141,6 +141,16 @@ export default function Home() {
       const data = await res.json()
       // Sort manually or rely on DB sort (DB sort added in API)
       setMovies(data)
+
+      // Automatic Turn Rotation
+      if (data.length > 0) {
+        const lastPerson = data[0].person
+        const currentIndex = PEOPLE.indexOf(lastPerson)
+        if (currentIndex !== -1) {
+          const nextIndex = (currentIndex + 1) % PEOPLE.length
+          setPerson(PEOPLE[nextIndex])
+        }
+      }
     } catch (err) {
       console.error(err)
     } finally {
