@@ -14,8 +14,8 @@ export default async function handler(req, res) {
             }))
             return res.status(200).json(movies)
         } catch (error) {
-            console.error(error)
-            return res.status(500).json({ error: error.message })
+            console.error('API [GET /api/movies] error:', error)
+            return res.status(500).json({ error: 'Tietojen haku epäonnistui' })
         }
     }
 
@@ -31,8 +31,8 @@ export default async function handler(req, res) {
             )
             return res.status(201).json({ success: true })
         } catch (error) {
-            console.error(error)
-            return res.status(500).json({ error: error.message })
+            console.error('API [POST /api/movies] error:', error)
+            return res.status(500).json({ error: 'Tallennus epäonnistui' })
         }
     }
 
