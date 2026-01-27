@@ -4,7 +4,9 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body, #__next {
+html,
+body,
+#__next {
   height: 100%;
 }
 
@@ -12,6 +14,21 @@ body {
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-  color: #0f172a;
+  background: radial-gradient(circle at top center, #1e293b 0%, #0f172a 100%);
+  color: #f8fafc;
+  background-attachment: fixed;
+}
+
+@layer components {
+  .glass {
+    @apply bg-slate-900/40 backdrop-blur-xl border border-white/10;
+  }
+
+  .glass-card {
+    @apply bg-slate-800/20 backdrop-blur-md border border-white/5 shadow-xl;
+  }
+
+  .glass-input {
+    @apply bg-white/5 border border-white/10 backdrop-blur-sm focus:bg-white/10 focus:border-blue-500/50 outline-none transition-all;
+  }
 }

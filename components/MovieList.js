@@ -33,7 +33,7 @@ export default function MovieList({ movies, onDelete, onSelect }) {
   }
 
   return (
-    <div className="space-y-8 pb-10">
+    <div className="space-y-12 pb-20">
       {years.map(year => {
         const byMonth = byYear[year].reduce((acc, m) => {
           const mon = m.internalDate.getMonth() + 1
@@ -42,69 +42,69 @@ export default function MovieList({ movies, onDelete, onSelect }) {
           return acc
         }, {})
 
-        // Sort months descending
         const monthsInYear = Object.keys(byMonth)
           .map(Number)
           .sort((a, b) => b - a)
 
         return (
           <section key={year} className="relative">
-            <div className="sticky top-[4.5rem] z-0 bg-white/90 backdrop-blur-sm py-2 mb-2 border-b border-dashed border-slate-200">
-              <h2 className="text-sm font-bold text-slate-400 uppercase tracking-widest">{year}</h2>
+            <div className="sticky top-[4.5rem] z-20 bg-slate-950/80 backdrop-blur-md py-4 mb-6 border-b border-white/5 flex items-center gap-4">
+              <h2 className="text-xl font-black text-white/90 tracking-tighter">{year}</h2>
+              <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent" />
             </div>
 
             {monthsInYear.map(monNum => {
               const monthData = MONTHS.find(m => m.num === monNum)
               return (
-                <div key={monNum} className="mb-6 last:mb-0">
-                  <h3 className="text-xs font-semibold text-slate-400 mb-3 pl-1 uppercase tracking-wider">
+                <div key={monNum} className="mb-8 last:mb-0">
+                  <h3 className="text-[10px] font-black text-blue-400/60 mb-4 pl-1 uppercase tracking-[0.3em]">
                     {monthData ? monthData.name : ''}
                   </h3>
 
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {byMonth[monNum].sort((a, b) => b.internalDate - a.internalDate).map(movie => (
                       <article
                         key={movie.id}
                         onClick={() => onSelect(movie)}
-                        className="group bg-white p-4 rounded-2xl border border-slate-100 shadow-[0_2px_8_px_-2px_rgba(0,0,0,0.05)] hover:shadow-md transition-all flex justify-between items-start cursor-pointer active:scale-[0.99]"
+                        className="group glass-card p-5 rounded-[2rem] flex justify-between items-center cursor-pointer active:scale-[0.98] transition-all hover:bg-white/[0.03] hover:border-white/10"
                       >
-                        <div className="flex-1">
-                          <h4
-                            className="font-semibold text-slate-800 text-lg leading-tight"
-                            title={
-                              movie.releaseYear
-                                ? `Julkaisuvuosi: ${movie.releaseYear}`
-                                : 'Julkaisuvuotta ei löytynyt'
-                            }
-                          >
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-bold text-slate-100 text-lg leading-tight truncate">
                             {movie.title}
                             {movie.releaseYear && (
-                              <span className="text-slate-400 font-normal ml-1.5 text-base">
-                                ({movie.releaseYear})
+                              <span className="text-slate-500 font-medium ml-2 text-sm">
+                                {movie.releaseYear}
                               </span>
                             )}
                           </h4>
-                          <div className="flex flex-wrap items-center gap-2 mt-1.5">
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-600">
+                          <div className="flex items-center gap-3 mt-2">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-400 border border-blue-500/20">
                               {movie.person}
                             </span>
                             {(movie.watchedAt || movie.watchDate) && (
-                              <span className="text-xs text-slate-400">
+                              <span className="text-[11px] font-medium text-slate-500 tracking-wide">
                                 {formatDate(movie.watchedAt || movie.watchDate)}
                               </span>
                             )}
                           </div>
                         </div>
 
-                        <button
-                          onClick={(e) => { e.stopPropagation(); onDelete(movie.id); }}
-                          className={`text-slate-300 hover:text-red-500 transition-colors p-1 -mr-2 -mt-2 group-hover:opacity-100 focus:opacity-100 ${movie.id === latestId ? 'opacity-100 text-slate-400' : 'opacity-0'}`}
-                          aria-label="Poista"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
-                            <path fillRule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clipRule="evenodd" />
-                          </svg>
-                        </button>
+                        <div className="flex items-center gap-2 pl-4">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); onDelete(movie.id); }}
+                            className={`p-2 rounded-full text-slate-600 hover:text-red-400 hover:bg-red-400/10 transition-all ${movie.id === latestId ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                            aria-label="Poista"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                              <path fillRule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clipRule="evenodd" />
+                            </svg>
+                          </button>
+                          <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-slate-400 transition-transform group-hover:translate-x-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                            </svg>
+                          </div>
+                        </div>
                       </article>
                     ))}
                   </div>

@@ -160,25 +160,26 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen pb-20">
-      <div className="max-w-md mx-auto min-h-screen bg-white shadow-2xl relative overflow-hidden">
+    <main className="min-h-screen pb-20 selection:bg-blue-500/30">
+      <div className="max-w-md mx-auto min-h-screen bg-slate-950/20 backdrop-blur-3xl shadow-[0_0_100px_rgba(0,0,0,0.5)] relative overflow-hidden border-x border-white/5">
         {/* Header / Top Bar like iPhone app */}
-        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-gray-100 p-4 pt-12 flex items-center justify-between">
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Leffakerho</h1>
-          <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs">
-            {movies.length}
+        <div className="sticky top-0 z-30 glass border-b border-white/5 p-4 pt-12 flex items-center justify-between">
+          <h1 className="text-2xl font-black tracking-tight bg-gradient-to-br from-white to-slate-400 bg-clip-text text-transparent">Leffakerho</h1>
+          <div className="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs">
+            {movies.length} <span className="ml-1 opacity-50 font-normal">leffaa</span>
           </div>
         </div>
 
-        <div className="p-4 space-y-6">
+        <div className="p-4 space-y-8">
           {/* Add Movie Form */}
-          <section className="bg-slate-50 p-4 rounded-2xl border border-slate-100 shadow-sm">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-3">Lisää uusi</h2>
-            <form onSubmit={handleAdd} className="space-y-4">
-              <div>
+          <section className="glass-card p-6 rounded-3xl relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 to-purple-600/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-400/80 mb-4 px-1">Lisää uusi elämys</h2>
+            <form onSubmit={handleAdd} className="space-y-4 relative z-10">
+              <div className="relative">
                 <input
-                  className="w-full bg-white border-0 ring-1 ring-slate-200 rounded-xl px-4 py-3 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 transition-all text-base"
-                  placeholder="Elokuvan nimi"
+                  className="w-full glass-input rounded-2xl px-4 py-4 placeholder-slate-500 text-white transition-all ring-0 border-white/10 focus:border-blue-500/50"
+                  placeholder="Elokuvan nimi..."
                   value={title}
                   onChange={e => setTitle(e.target.value)}
                 />
@@ -187,24 +188,24 @@ export default function Home() {
               <div className="flex gap-3">
                 <input
                   type="date"
-                  className="w-full bg-white border-0 ring-1 ring-slate-200 rounded-xl px-4 py-3 text-slate-600 focus:ring-2 focus:ring-blue-500 transition-all text-base"
+                  className="w-full glass-input rounded-2xl px-4 py-3.5 text-slate-300 transition-all border-white/10 focus:border-blue-500/50 [color-scheme:dark]"
                   value={watchDate}
                   onChange={e => setWatchDate(e.target.value)}
                 />
               </div>
 
-              <div className="flex gap-2 p-1 bg-white rounded-xl border border-slate-200 overflow-x-auto">
+              <div className="grid grid-cols-4 gap-2 p-1 bg-white/5 rounded-2xl border border-white/5">
                 {PEOPLE.map(p => (
                   <label
                     key={p}
                     className={`
-                      flex-1 text-center py-2 px-3 rounded-lg text-sm font-medium transition-all cursor-pointer whitespace-nowrap
-                      ${person === p ? 'bg-blue-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-50'}
+                      text-center py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer truncate
+                      ${person === p ? 'bg-blue-600 text-white shadow-[0_0_20px_rgba(37,99,235,0.4)]' : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'}
                     `}
                   >
                     <input
                       type="radio"
-                      className="hidden" // Custom radio style
+                      className="hidden"
                       checked={person === p}
                       onChange={() => setPerson(p)}
                     />
@@ -213,7 +214,7 @@ export default function Home() {
                 ))}
               </div>
 
-              <button className="w-full bg-blue-600 active:bg-blue-700 text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-blue-200 transition-transform active:scale-[0.98]">
+              <button className="w-full bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white font-bold py-4 rounded-2xl shadow-xl shadow-blue-950/20 transition-all border border-blue-400/20 group-hover:shadow-blue-500/10">
                 Lisää listalle
               </button>
             </form>
@@ -221,22 +222,24 @@ export default function Home() {
 
           {/* Candidates Modal */}
           {candidates && (
-            <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
-              <div className="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl animate-in slide-in-from-bottom duration-300">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="font-bold text-lg">Valitse oikea elokuva</h2>
+            <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
+              <div className="bg-slate-900/90 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300 border border-white/10">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="font-black text-lg tracking-tight text-white">Valitse oikea elokuva</h2>
                   <button
                     onClick={() => { setCandidates(null); setPendingMovie(null); }}
-                    className="text-slate-400 hover:text-slate-600"
+                    className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
                   >
-                    Sulje
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                   </button>
                 </div>
-                <div className="space-y-2 max-h-[60vh] overflow-y-auto">
+                <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
                   {candidates.map(c => (
                     <button
                       key={c.id}
-                      className="w-full text-left p-4 rounded-xl hover:bg-slate-50 border border-slate-100 flex items-start flex-col transition-colors"
+                      className="w-full text-left p-5 rounded-2xl hover:bg-white/5 border border-white/5 hover:border-blue-500/30 flex items-start flex-col transition-all group"
                       onClick={() => {
                         if (!confirmAdd(c.title)) return
                         saveMovie({
@@ -247,8 +250,8 @@ export default function Home() {
                         })
                       }}
                     >
-                      <span className="font-bold text-slate-900 text-lg">{c.title}</span>
-                      <span className="text-slate-500">{c.releaseYear}</span>
+                      <span className="font-bold text-slate-100 text-lg group-hover:text-blue-400 transition-colors">{c.title}</span>
+                      <span className="text-slate-500 font-medium">{c.releaseYear}</span>
                     </button>
                   ))}
                 </div>
@@ -258,7 +261,10 @@ export default function Home() {
 
           {/* List */}
           {loading ? (
-            <div className="text-center py-10 text-slate-400">Ladataan elokuvia...</div>
+            <div className="text-center py-20">
+              <div className="inline-block w-8 h-8 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-4" />
+              <div className="text-slate-500 font-bold text-xs uppercase tracking-widest">Ladataan elämyksiä...</div>
+            </div>
           ) : (
             <MovieList movies={movies} onDelete={handleDelete} onSelect={handleSelectMovie} />
           )}
@@ -266,12 +272,12 @@ export default function Home() {
 
         {/* Detail Modal */}
         {selectedMovieId && (
-          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-0 sm:p-4 animate-in fade-in duration-300">
-            <div className="bg-white w-full max-w-2xl h-full sm:h-auto sm:max-h-[85vh] sm:rounded-3xl shadow-2xl overflow-y-auto relative animate-in zoom-in-95 duration-300">
+          <div className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-0 sm:p-4 animate-in fade-in duration-300">
+            <div className="bg-slate-900 w-full max-w-3xl h-full sm:h-auto sm:max-h-[90vh] sm:rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] overflow-y-auto relative animate-in zoom-in-95 duration-500 border border-white/10 group">
               {/* Close Button */}
               <button
                 onClick={() => { setSelectedMovieId(null); setDetails(null); }}
-                className="absolute top-4 right-4 z-20 w-10 h-10 bg-black/20 hover:bg-black/40 text-white rounded-full flex items-center justify-center transition-colors backdrop-blur-md"
+                className="absolute top-6 right-6 z-30 w-12 h-12 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center transition-all backdrop-blur-md border border-white/10 scale-90 hover:scale-100"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -279,11 +285,14 @@ export default function Home() {
               </button>
 
               {loadingDetails ? (
-                <div className="p-20 text-center text-slate-400">Haetaan tietoja...</div>
+                <div className="p-40 text-center">
+                  <div className="inline-block w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-6" />
+                  <div className="text-slate-500 font-bold text-xs uppercase tracking-widest">Noudetaan tietoja...</div>
+                </div>
               ) : details ? (
                 <div className="flex flex-col">
                   {/* Backdrop */}
-                  <div className="relative aspect-video sm:aspect-[21/9] w-full bg-slate-200">
+                  <div className="relative aspect-video sm:aspect-[21/9] w-full bg-slate-800 transition-transform duration-700 group-hover:scale-105">
                     {details.backdropPath ? (
                       <img
                         src={`https://image.tmdb.org/t/p/w1280${details.backdropPath}`}
@@ -291,47 +300,47 @@ export default function Home() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-slate-400">Ei taustakuvaa</div>
+                      <div className="w-full h-full flex items-center justify-center text-slate-600">Ei taustakuvaa</div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-white via-white/20 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
                   </div>
 
                   {/* Content */}
-                  <div className="px-6 pb-12 -mt-16 relative z-10">
-                    <div className="flex flex-col sm:flex-row gap-6">
+                  <div className="px-8 pb-16 -mt-24 relative z-10 transition-transform duration-500">
+                    <div className="flex flex-col sm:flex-row gap-8 items-end sm:items-start text-center sm:text-left">
                       {/* Poster */}
-                      <div className="w-32 sm:w-40 shrink-0 mx-auto sm:mx-0 -mt-10 sm:-mt-20">
+                      <div className="w-40 sm:w-48 shrink-0 mx-auto sm:mx-0 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
                         {details.posterPath ? (
                           <img
                             src={`https://image.tmdb.org/t/p/w500${details.posterPath}`}
                             alt={details.title}
-                            className="w-full rounded-2xl shadow-2xl border-4 border-white object-cover aspect-[2/3]"
+                            className="w-full rounded-[2rem] border-4 border-slate-900 object-cover aspect-[2/3]"
                           />
                         ) : (
-                          <div className="w-full aspect-[2/3] bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400 border-4 border-white">Ei kuvaa</div>
+                          <div className="w-full aspect-[2/3] bg-slate-800 rounded-[2rem] flex items-center justify-center text-slate-600 border-4 border-slate-900">Ei kuvaa</div>
                         )}
                       </div>
 
                       {/* Info */}
-                      <div className="flex-1 space-y-4 text-center sm:text-left pt-4">
-                        <h2 className="text-3xl font-black text-slate-900 leading-tight">{details.title}</h2>
-                        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
+                      <div className="flex-1 space-y-4 pt-4 sm:pt-28">
+                        <h2 className="text-4xl sm:text-5xl font-black text-white leading-[1.1] tracking-tighter">{details.title}</h2>
+                        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4">
                           {details.releaseDate && (
-                            <span className="text-sm font-bold text-slate-500">{new Date(details.releaseDate).getFullYear()}</span>
+                            <span className="text-lg font-bold text-slate-400">{new Date(details.releaseDate).getFullYear()}</span>
                           )}
                           {details.runtime > 0 && (
-                            <span className="text-sm font-medium text-slate-400">{details.runtime} min</span>
+                            <span className="text-sm font-black text-slate-500 uppercase tracking-widest">{details.runtime} min</span>
                           )}
                           {details.voteAverage > 0 && (
-                            <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-yellow-50 text-yellow-700 text-xs font-bold border border-yellow-100">
+                            <span className="inline-flex items-center px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-500 text-sm font-black border border-amber-500/20">
                               ★ {details.voteAverage.toFixed(1)}
                             </span>
                           )}
                         </div>
 
-                        <div className="flex flex-wrap justify-center sm:justify-start gap-2 pt-1">
+                        <div className="flex flex-wrap justify-center sm:justify-start gap-2">
                           {details.genres.map(g => (
-                            <span key={g} className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-semibold">
+                            <span key={g} className="px-4 py-1.5 bg-white/5 text-slate-300 rounded-full text-xs font-bold border border-white/5">
                               {g}
                             </span>
                           ))}
@@ -339,10 +348,10 @@ export default function Home() {
                       </div>
                     </div>
 
-                    <div className="mt-8 space-y-6">
-                      <div>
-                        <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-3">Yleiskatsaus</h3>
-                        <p className="text-slate-600 leading-relaxed text-lg">
+                    <div className="mt-12 space-y-8">
+                      <div className="glass-card p-8 rounded-[2.5rem]">
+                        <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-400/80 mb-4">Tarina lyhyesti</h3>
+                        <p className="text-slate-300 leading-relaxed text-lg font-medium italic">
                           {details.overview || 'Ei kuvausta saatavilla.'}
                         </p>
                       </div>
@@ -350,7 +359,10 @@ export default function Home() {
                   </div>
                 </div>
               ) : (
-                <div className="p-20 text-center text-slate-400">Virhe tietoja haettaessa</div>
+                <div className="p-40 text-center">
+                  <div className="text-red-400 font-black text-lg mb-2">Hups!</div>
+                  <div className="text-slate-500">Tietojen haku epäonnistui. Kokeile myöhemmin uudelleen.</div>
+                </div>
               )}
             </div>
           </div>
