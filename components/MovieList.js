@@ -111,7 +111,7 @@ export default function MovieList({ movies, onDelete, onSelect, onEdit }) {
                           </button>
                           <button
                             onClick={(e) => { e.stopPropagation(); onDelete(movie.id); }}
-                            className={`p-2 rounded-full text-slate-600 hover:text-red-400 hover:bg-red-400/10 transition-all ${movie.id === latestId ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                            className="p-2 rounded-full text-slate-600 hover:text-red-400 hover:bg-red-400/10 transition-all opacity-0 group-hover:opacity-100"
                             aria-label="Poista"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
