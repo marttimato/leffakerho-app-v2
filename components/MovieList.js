@@ -12,7 +12,7 @@ export default function MovieList({ movies, onDelete }) {
 
   // Group by year, prioritize watchedAt
   const byYear = movies.reduce((acc, movie) => {
-    const date = movie.watchedAt ? new Date(movie.watchedAt) : (movie.created_at ? new Date(movie.created_at) : new Date())
+    const date = (movie.watchedAt || movie.watchDate) ? new Date(movie.watchedAt || movie.watchDate) : (movie.created_at ? new Date(movie.created_at) : new Date())
     const y = date.getFullYear()
     acc[y] = acc[y] || []
     acc[y].push({ ...movie, internalDate: date })
@@ -87,9 +87,9 @@ export default function MovieList({ movies, onDelete }) {
                             <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-600">
                               {movie.person}
                             </span>
-                            {movie.watchedAt && (
+                            {(movie.watchedAt || movie.watchDate) && (
                               <span className="text-xs text-slate-400">
-                                Katsottu: {formatDate(movie.watchedAt)}
+                                {formatDate(movie.watchedAt || movie.watchDate)}
                               </span>
                             )}
                           </div>
