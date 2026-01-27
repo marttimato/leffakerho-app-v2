@@ -162,9 +162,16 @@ export default function Home() {
   /* ---------- SCROLL LOCK ---------- */
   useEffect(() => {
     if (selectedMovieId || candidates) {
-      document.body.style.overflow = 'hidden'
+      const scrollY = window.scrollY
+      document.body.style.top = `-${scrollY}px`
+      document.body.classList.add('no-scroll')
     } else {
-      document.body.style.overflow = ''
+      const scrollY = document.body.style.top
+      document.body.classList.remove('no-scroll')
+      document.body.style.top = ''
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || '0') * -1)
+      }
     }
   }, [selectedMovieId, candidates])
 
@@ -245,8 +252,8 @@ export default function Home() {
 
       {/* Candidates Modal */}
       {candidates && (
-        <div className="fixed inset-0 z-[100] bg-slate-950/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
-          <div className="bg-slate-900/90 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300 border border-white/10">
+        <div className="fixed inset-0 z-[100] bg-slate-950/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200 overscroll-behavior-contain">
+          <div className="bg-slate-900/90 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300 border border-white/10 overscroll-contain">
             <div className="flex justify-between items-center mb-6">
               <h2 className="font-black text-lg tracking-tight text-white">Valitse oikea elokuva</h2>
               <button
@@ -284,8 +291,8 @@ export default function Home() {
 
       {/* Detail Modal */}
       {selectedMovieId && (
-        <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-0 sm:p-4 animate-in fade-in duration-300">
-          <div className="bg-slate-900 w-full max-w-3xl h-full sm:h-auto sm:max-h-[80vh] sm:rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] overflow-y-auto relative animate-in zoom-in-95 duration-500 border border-white/10 group">
+        <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-0 sm:p-4 animate-in fade-in duration-300 overscroll-behavior-contain">
+          <div className="bg-slate-900 w-full max-w-3xl h-full sm:h-auto sm:max-h-[80vh] sm:rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] overflow-y-auto relative animate-in zoom-in-95 duration-500 border border-white/10 group overscroll-contain">
             {/* Close Button */}
             <button
               onClick={() => { setSelectedMovieId(null); setDetails(null); }}
