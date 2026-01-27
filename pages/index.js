@@ -493,6 +493,9 @@ export default function Home() {
                     placeholder="Etsi elokuvaa tai katsojaa..."
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
+                    onBlur={() => {
+                      if (!searchQuery.trim()) setIsSearchOpen(false)
+                    }}
                   />
                   {searchQuery && (
                     <button
