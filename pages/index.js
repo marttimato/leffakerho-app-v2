@@ -159,6 +159,15 @@ export default function Home() {
     }
   }
 
+  /* ---------- SCROLL LOCK ---------- */
+  useEffect(() => {
+    if (selectedMovieId || candidates) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+  }, [selectedMovieId, candidates])
+
   return (
     <main className="min-h-screen pb-20 selection:bg-blue-500/30">
       <div className="max-w-md mx-auto min-h-screen bg-slate-950/20 backdrop-blur-3xl shadow-[0_0_100px_rgba(0,0,0,0.5)] relative overflow-hidden border-x border-white/5">
@@ -220,45 +229,6 @@ export default function Home() {
             </form>
           </section>
 
-          {/* Candidates Modal */}
-          {candidates && (
-            <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
-              <div className="bg-slate-900/90 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300 border border-white/10">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="font-black text-lg tracking-tight text-white">Valitse oikea elokuva</h2>
-                  <button
-                    onClick={() => { setCandidates(null); setPendingMovie(null); }}
-                    className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-                <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-                  {candidates.map(c => (
-                    <button
-                      key={c.id}
-                      className="w-full text-left p-5 rounded-2xl hover:bg-white/5 border border-white/5 hover:border-blue-500/30 flex items-start flex-col transition-all group"
-                      onClick={() => {
-                        if (!confirmAdd(c.title)) return
-                        saveMovie({
-                          ...pendingMovie,
-                          title: c.title,
-                          releaseYear: c.releaseYear,
-                          tmdbId: c.id,
-                        })
-                      }}
-                    >
-                      <span className="font-bold text-slate-100 text-lg group-hover:text-blue-400 transition-colors">{c.title}</span>
-                      <span className="text-slate-500 font-medium">{c.releaseYear}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* List */}
           {loading ? (
             <div className="text-center py-20">
@@ -269,105 +239,146 @@ export default function Home() {
             <MovieList movies={movies} onDelete={handleDelete} onSelect={handleSelectMovie} />
           )}
         </div>
+      </div>
 
-        {/* Detail Modal */}
-        {selectedMovieId && (
-          <div className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-0 sm:p-4 animate-in fade-in duration-300">
-            <div className="bg-slate-900 w-full max-w-3xl h-full sm:h-auto sm:max-h-[90vh] sm:rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] overflow-y-auto relative animate-in zoom-in-95 duration-500 border border-white/10 group">
-              {/* Close Button */}
+      {/* MODALS - Moved outside max-w-md to escape backdrop-blur positioning context */}
+
+      {/* Candidates Modal */}
+      {candidates && (
+        <div className="fixed inset-0 z-[100] bg-slate-950/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
+          <div className="bg-slate-900/90 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300 border border-white/10">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="font-black text-lg tracking-tight text-white">Valitse oikea elokuva</h2>
               <button
-                onClick={() => { setSelectedMovieId(null); setDetails(null); }}
-                className="absolute top-6 right-6 z-30 w-12 h-12 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center transition-all backdrop-blur-md border border-white/10 scale-90 hover:scale-100"
+                onClick={() => { setCandidates(null); setPendingMovie(null); }}
+                className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
+            </div>
+            <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+              {candidates.map(c => (
+                <button
+                  key={c.id}
+                  className="w-full text-left p-5 rounded-2xl hover:bg-white/5 border border-white/5 hover:border-blue-500/30 flex items-start flex-col transition-all group"
+                  onClick={() => {
+                    if (!confirmAdd(c.title)) return
+                    saveMovie({
+                      ...pendingMovie,
+                      title: c.title,
+                      releaseYear: c.releaseYear,
+                      tmdbId: c.id,
+                    })
+                  }}
+                >
+                  <span className="font-bold text-slate-100 text-lg group-hover:text-blue-400 transition-colors">{c.title}</span>
+                  <span className="text-slate-500 font-medium">{c.releaseYear}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
-              {loadingDetails ? (
-                <div className="p-40 text-center">
-                  <div className="inline-block w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-6" />
-                  <div className="text-slate-500 font-bold text-xs uppercase tracking-widest">Noudetaan tietoja...</div>
+      {/* Detail Modal */}
+      {selectedMovieId && (
+        <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-0 sm:p-4 animate-in fade-in duration-300">
+          <div className="bg-slate-900 w-full max-w-3xl h-full sm:h-auto sm:max-h-[80vh] sm:rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] overflow-y-auto relative animate-in zoom-in-95 duration-500 border border-white/10 group">
+            {/* Close Button */}
+            <button
+              onClick={() => { setSelectedMovieId(null); setDetails(null); }}
+              className="absolute top-6 right-6 z-30 w-12 h-12 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center transition-all backdrop-blur-md border border-white/10 scale-90 hover:scale-100"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {loadingDetails ? (
+              <div className="p-40 text-center">
+                <div className="inline-block w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-6" />
+                <div className="text-slate-500 font-bold text-xs uppercase tracking-widest">Noudetaan tietoja...</div>
+              </div>
+            ) : details ? (
+              <div className="flex flex-col">
+                {/* Backdrop */}
+                <div className="relative aspect-video sm:aspect-[21/9] w-full bg-slate-800 transition-transform duration-700 group-hover:scale-105">
+                  {details.backdropPath ? (
+                    <img
+                      src={`https://image.tmdb.org/t/p/w1280${details.backdropPath}`}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-slate-600">Ei taustakuvaa</div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
                 </div>
-              ) : details ? (
-                <div className="flex flex-col">
-                  {/* Backdrop */}
-                  <div className="relative aspect-video sm:aspect-[21/9] w-full bg-slate-800 transition-transform duration-700 group-hover:scale-105">
-                    {details.backdropPath ? (
-                      <img
-                        src={`https://image.tmdb.org/t/p/w1280${details.backdropPath}`}
-                        alt=""
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-slate-600">Ei taustakuvaa</div>
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
-                  </div>
 
-                  {/* Content */}
-                  <div className="px-8 pb-16 -mt-24 relative z-10 transition-transform duration-500">
-                    <div className="flex flex-col sm:flex-row gap-8 items-end sm:items-start text-center sm:text-left">
-                      {/* Poster */}
-                      <div className="w-40 sm:w-48 shrink-0 mx-auto sm:mx-0 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
-                        {details.posterPath ? (
-                          <img
-                            src={`https://image.tmdb.org/t/p/w500${details.posterPath}`}
-                            alt={details.title}
-                            className="w-full rounded-[2rem] border-4 border-slate-900 object-cover aspect-[2/3]"
-                          />
-                        ) : (
-                          <div className="w-full aspect-[2/3] bg-slate-800 rounded-[2rem] flex items-center justify-center text-slate-600 border-4 border-slate-900">Ei kuvaa</div>
+                {/* Content */}
+                <div className="px-8 pb-16 -mt-24 relative z-10 transition-transform duration-500">
+                  <div className="flex flex-col sm:flex-row gap-8 items-end sm:items-start text-center sm:text-left">
+                    {/* Poster */}
+                    <div className="w-40 sm:w-48 shrink-0 mx-auto sm:mx-0 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+                      {details.posterPath ? (
+                        <img
+                          src={`https://image.tmdb.org/t/p/w500${details.posterPath}`}
+                          alt={details.title}
+                          className="w-full rounded-[2rem] border-4 border-slate-900 object-cover aspect-[2/3]"
+                        />
+                      ) : (
+                        <div className="w-full aspect-[2/3] bg-slate-800 rounded-[2rem] flex items-center justify-center text-slate-600 border-4 border-slate-900">Ei kuvaa</div>
+                      )}
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex-1 space-y-4 pt-4 sm:pt-28">
+                      <h2 className="text-4xl sm:text-5xl font-black text-white leading-[1.1] tracking-tighter">{details.title}</h2>
+                      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4">
+                        {details.releaseDate && (
+                          <span className="text-lg font-bold text-slate-400">{new Date(details.releaseDate).getFullYear()}</span>
+                        )}
+                        {details.runtime > 0 && (
+                          <span className="text-sm font-black text-slate-500 uppercase tracking-widest">{details.runtime} min</span>
+                        )}
+                        {details.voteAverage > 0 && (
+                          <span className="inline-flex items-center px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-500 text-sm font-black border border-amber-500/20">
+                            ★ {details.voteAverage.toFixed(1)}
+                          </span>
                         )}
                       </div>
 
-                      {/* Info */}
-                      <div className="flex-1 space-y-4 pt-4 sm:pt-28">
-                        <h2 className="text-4xl sm:text-5xl font-black text-white leading-[1.1] tracking-tighter">{details.title}</h2>
-                        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4">
-                          {details.releaseDate && (
-                            <span className="text-lg font-bold text-slate-400">{new Date(details.releaseDate).getFullYear()}</span>
-                          )}
-                          {details.runtime > 0 && (
-                            <span className="text-sm font-black text-slate-500 uppercase tracking-widest">{details.runtime} min</span>
-                          )}
-                          {details.voteAverage > 0 && (
-                            <span className="inline-flex items-center px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-500 text-sm font-black border border-amber-500/20">
-                              ★ {details.voteAverage.toFixed(1)}
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="flex flex-wrap justify-center sm:justify-start gap-2">
-                          {details.genres.map(g => (
-                            <span key={g} className="px-4 py-1.5 bg-white/5 text-slate-300 rounded-full text-xs font-bold border border-white/5">
-                              {g}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="mt-12 space-y-8">
-                      <div className="glass-card p-8 rounded-[2.5rem]">
-                        <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-400/80 mb-4">Tarina lyhyesti</h3>
-                        <p className="text-slate-300 leading-relaxed text-lg font-medium italic">
-                          {details.overview || 'Ei kuvausta saatavilla.'}
-                        </p>
+                      <div className="flex flex-wrap justify-center sm:justify-start gap-2">
+                        {details.genres.map(g => (
+                          <span key={g} className="px-4 py-1.5 bg-white/5 text-slate-300 rounded-full text-xs font-bold border border-white/5">
+                            {g}
+                          </span>
+                        ))}
                       </div>
                     </div>
                   </div>
+
+                  <div className="mt-12 space-y-8">
+                    <div className="glass-card p-8 rounded-[2.5rem]">
+                      <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-400/80 mb-4">Tarina lyhyesti</h3>
+                      <p className="text-slate-300 leading-relaxed text-lg font-medium italic">
+                        {details.overview || 'Ei kuvausta saatavilla.'}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              ) : (
-                <div className="p-40 text-center">
-                  <div className="text-red-400 font-black text-lg mb-2">Hups!</div>
-                  <div className="text-slate-500">Tietojen haku epäonnistui. Kokeile myöhemmin uudelleen.</div>
-                </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div className="p-40 text-center">
+                <div className="text-red-400 font-black text-lg mb-2">Hups!</div>
+                <div className="text-slate-500">Tietojen haku epäonnistui. Kokeile myöhemmin uudelleen.</div>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </main>
   )
 }
