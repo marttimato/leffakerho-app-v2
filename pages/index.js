@@ -34,10 +34,17 @@ export default function Home() {
   /* ---------- SEARCH (Debounced) ---------- */
   useEffect(() => {
     const timer = setTimeout(async () => {
-      if (title.trim().length >= 3) {
+      const trimmedTitle = title.trim()
+      if (trimmedTitle.length >= 3) {
+        // Skip search if we already have a matched movie with this title
+        if (pendingMovie?.tmdbId && pendingMovie.title.toLowerCase() === trimmedTitle.toLowerCase()) {
+          setSuggestions([])
+          return
+        }
+
         setIsSearching(true)
         try {
-          const r = await fetch(`/api/fetch-year?title=${encodeURIComponent(title)}`)
+          const r = await fetch(`/api/fetch-year?title=${encodeURIComponent(trimmedTitle)}`)
           const data = await r.json()
           setSuggestions(data.results || [])
         } catch (err) {
@@ -50,15 +57,23 @@ export default function Home() {
       }
     }, 500)
     return () => clearTimeout(timer)
-  }, [title])
+  }, [title, pendingMovie?.tmdbId, pendingMovie?.title])
 
   useEffect(() => {
     const timer = setTimeout(async () => {
-      // Only search for edit if title actually changed from original
-      if (editingMovie && editTitle.trim().length >= 3 && editTitle.trim().toLowerCase() !== editingMovie.title.toLowerCase()) {
+      const trimmedEditTitle = editTitle.trim()
+      // Only search for edit if title actually changed from original OR if we don't have tmdbId yet
+      if (editingMovie && trimmedEditTitle.length >= 3) {
+        // Skip search if the title matches what we already have and we have a tmdbId
+        // This prevents the loop when selecting from suggestions
+        if (editingMovie.tmdbId && editingMovie.title.toLowerCase() === trimmedEditTitle.toLowerCase()) {
+          setEditSuggestions([])
+          return
+        }
+
         setIsEditSearching(true)
         try {
-          const r = await fetch(`/api/fetch-year?title=${encodeURIComponent(editTitle)}`)
+          const r = await fetch(`/api/fetch-year?title=${encodeURIComponent(trimmedEditTitle)}`)
           const data = await r.json()
           setEditSuggestions(data.results || [])
         } catch (err) {
@@ -71,7 +86,7 @@ export default function Home() {
       }
     }, 500)
     return () => clearTimeout(timer)
-  }, [editTitle, editingMovie])
+  }, [editTitle, editingMovie?.id, editingMovie?.tmdbId, editingMovie?.title])
 
   /* ---------- SUGGESTION SELECT ---------- */
   function handleSelectSuggestion(s, isEdit = false) {
