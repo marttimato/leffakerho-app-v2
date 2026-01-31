@@ -81,7 +81,10 @@ export default function FinnishDatePicker({ value, onChange, onClose }) {
                                 <button
                                     type="button"
                                     onClick={() => {
-                                        const iso = d.toISOString().slice(0, 10)
+                                        const y = d.getFullYear()
+                                        const m = String(d.getMonth() + 1).padStart(2, '0')
+                                        const day = String(d.getDate()).padStart(2, '0')
+                                        const iso = `${y}-${m}-${day}`
                                         onChange(iso)
                                         onClose()
                                     }}
