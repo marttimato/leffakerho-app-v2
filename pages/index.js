@@ -402,7 +402,7 @@ export default function Home() {
         <div className="sticky top-0 z-30 glass border-b border-white/5 p-4 pt-12 flex items-center justify-between">
           <h1 className="text-2xl font-black tracking-tight bg-gradient-to-br from-white to-slate-400 bg-clip-text text-transparent">Leffakerho</h1>
           <div className="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs h-7">
-            {movies.length} <span className="ml-1 opacity-50 font-normal">leffaa</span>
+            {movies.filter(m => PEOPLE.includes(m.person)).length} <span className="ml-1 opacity-50 font-normal">leffaa</span>
           </div>
         </div>
 
@@ -520,6 +520,7 @@ export default function Home() {
             </div>
           ) : (
             <MovieList
+              people={PEOPLE}
               movies={searchQuery.trim().length >= 3
                 ? movies.filter(m => m.title.toLowerCase().includes(searchQuery.toLowerCase()) || m.person.toLowerCase().includes(searchQuery.toLowerCase()))
                 : movies}

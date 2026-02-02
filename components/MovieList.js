@@ -7,7 +7,7 @@ const MONTHS = [
   { num: 11, name: 'Marraskuu' }, { num: 12, name: 'Joulukuu' },
 ]
 
-export default function MovieList({ movies, onDelete, onSelect, onEdit, isFiltered }) {
+export default function MovieList({ movies, onDelete, onSelect, onEdit, isFiltered, people }) {
   if (!movies || !movies.length) {
     return (
       <div className="text-center py-20 px-6">
@@ -75,7 +75,7 @@ export default function MovieList({ movies, onDelete, onSelect, onEdit, isFilter
               <h2 className="text-xl font-black text-white/90 tracking-tighter">{year}</h2>
               <div className="h-px flex-1 bg-gradient-to-r from-white/10 via-white/5 to-transparent" />
               <span className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-[11px] font-black text-slate-500 tabular-nums">
-                {byYear[year].length}
+                {people ? byYear[year].filter(m => people.includes(m.person)).length : byYear[year].length}
               </span>
             </div>
 
