@@ -672,7 +672,7 @@ export default function Home() {
       {/* Detail Modal */}
       {selectedMovieId && (
         <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-0 sm:p-4 animate-in fade-in duration-300 overscroll-behavior-contain">
-          <div className="bg-slate-900 w-full max-w-3xl h-full sm:h-auto sm:max-h-[80vh] sm:rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] overflow-y-auto relative animate-in zoom-in-95 duration-500 border border-white/10 group overscroll-contain">
+          <div className="bg-slate-900 w-full max-w-3xl h-full sm:h-auto sm:max-h-[90vh] sm:rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] overflow-y-auto overflow-x-hidden custom-scrollbar relative animate-in zoom-in-95 duration-500 border border-white/10 group overscroll-contain">
             {/* Close Button */}
             <button
               onClick={() => { setSelectedMovieId(null); setDetails(null); }}
