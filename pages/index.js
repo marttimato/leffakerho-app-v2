@@ -337,16 +337,16 @@ export default function Home() {
   }
 
   /* ---------- DELETE (API) ---------- */
-  async function handleDelete(id) {
+  async function handleDelete(movie) {
     setConfirmConfig({
       title: 'Poista elämys?',
-      message: 'Haluatko varmasti poistaa tämän elokuvan listalta?',
+      message: `Haluatko varmasti poistaa elokuvan "${movie.title}" listalta?`,
       onConfirm: async () => {
         const previous = movies
-        setMovies(prev => prev.filter(m => m.id !== id))
+        setMovies(prev => prev.filter(m => m.id !== movie.id))
 
         try {
-          const res = await fetch(`/api/movies/${id}`, { method: 'DELETE' })
+          const res = await fetch(`/api/movies/${movie.id}`, { method: 'DELETE' })
           if (!res.ok) throw new Error('Failed to delete')
         } catch (err) {
           console.error(err)

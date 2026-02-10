@@ -192,7 +192,7 @@ export default function MovieList({ movies, onDelete, onSelect, onEdit, isFilter
                                     </svg>
                                   </button>
                                   <button
-                                    onClick={(e) => { e.stopPropagation(); onDelete(movie.id); }}
+                                    onClick={(e) => { e.stopPropagation(); onDelete(movie); }}
                                     className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-400/10 transition-all active:bg-red-400/20"
                                     aria-label="Poista"
                                   >
