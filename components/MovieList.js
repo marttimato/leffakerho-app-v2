@@ -68,7 +68,7 @@ export default function MovieList({ movies, onDelete, onSelect, onEdit, isFilter
   return (
     <div className="space-y-6 pb-20">
       {years.map(year => {
-        const isCollapsed = collapsedYears[year] ?? (year !== currentYear)
+        const isCollapsed = isFiltered ? false : (collapsedYears[year] ?? (year !== currentYear))
         const byMonth = byYear[year].reduce((acc, m) => {
           const mon = m.internalDate.getMonth() + 1
           acc[mon] = acc[mon] || []
