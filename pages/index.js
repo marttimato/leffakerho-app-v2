@@ -174,24 +174,27 @@ export default function Home() {
       const res = await fetch('/api/movies')
       if (!res.ok) throw new Error('Failed to fetch')
       const data = await res.json()
-      // Sort manually or rely on DB sort (DB sort added in API)
       setMovies(data)
-
-      // Automatic Turn Rotation
-      if (data.length > 0) {
-        const lastPerson = data[0].person
-        const currentIndex = PEOPLE.indexOf(lastPerson)
-        if (currentIndex !== -1) {
-          const nextIndex = (currentIndex + 1) % PEOPLE.length
-          setPerson(PEOPLE[nextIndex])
-        }
-      }
     } catch (err) {
       console.error(err)
     } finally {
       setLoading(false)
     }
   }
+
+  /* ---------- TURN ROTATION ---------- */
+  useEffect(() => {
+    if (movies.length > 0) {
+      const latestMovie = movies[0]
+      const currentIndex = PEOPLE.indexOf(latestMovie.person)
+      if (currentIndex !== -1) {
+        const nextIndex = (currentIndex + 1) % PEOPLE.length
+        setPerson(PEOPLE[nextIndex])
+      }
+    } else {
+      setPerson(PEOPLE[0])
+    }
+  }, [movies])
 
   /* ---------- ADD (API) ---------- */
   async function saveMovie(movie) {
@@ -224,7 +227,6 @@ export default function Home() {
 
     setTitle('')
     setWatchDate(todayISO())
-    setPerson(PEOPLE[0])
     setCandidates(null)
     setPendingMovie(null)
     setShowAddForm(false)
