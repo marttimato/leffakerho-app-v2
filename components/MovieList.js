@@ -111,14 +111,14 @@ export default function MovieList({ movies, onDelete, onSelect, onEdit, isFilter
               <h2 className="text-xl font-black text-white/90 tracking-tighter">{year}</h2>
               <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent" />
               <div className="flex items-center gap-3">
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                <span className="text-xs font-semibold text-slate-200 bg-white/5 px-2.5 py-1 rounded-lg border border-white/10 uppercase tracking-wider shadow-sm">
                   {byYear[year].length} leffaa
                 </span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
                   fill="currentColor"
-                  className={`w-5 h-5 text-slate-600 transition-transform duration-300 ${isCollapsed ? '-rotate-90' : ''}`}
+                  className={`w-5 h-5 text-slate-400 transition-transform duration-300 ${isCollapsed ? '-rotate-90' : ''}`}
                 >
                   <path fillRule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
                 </svg>
