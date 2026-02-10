@@ -108,10 +108,10 @@ export default function MovieList({ movies, onDelete, onSelect, onEdit, isFilter
               onClick={() => toggleYear(year)}
               className="w-full flex items-center gap-4 py-2 hover:opacity-80 transition-opacity group text-left"
             >
-              <h2 className="text-xl font-black text-white/90 tracking-tighter">{year}</h2>
+              <h2 className="text-xl md:text-4xl font-black text-white/90 tracking-tighter transition-all">{year}</h2>
               <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent" />
               <div className="flex items-center gap-3">
-                <span className="text-xs font-semibold text-slate-200 bg-white/5 px-2.5 py-1 rounded-lg border border-white/10 uppercase tracking-wider shadow-sm">
+                <span className="text-xs md:text-sm font-semibold text-slate-200 bg-white/5 px-2.5 py-1 md:px-4 md:py-2 rounded-lg md:rounded-xl border border-white/10 uppercase tracking-wider shadow-sm transition-all">
                   {byYear[year].length} leffaa
                 </span>
                 <svg
@@ -131,7 +131,7 @@ export default function MovieList({ movies, onDelete, onSelect, onEdit, isFilter
                   const monthData = MONTHS.find(m => m.num === monNum)
                   return (
                     <div key={monNum} className="space-y-3">
-                      <h3 className="text-[10px] font-black text-slate-500 mb-2 pl-1 uppercase tracking-[0.3em]">
+                      <h3 className="text-[10px] md:text-xs font-black text-slate-500 mb-2 md:mb-4 pl-1 uppercase tracking-[0.3em] transition-all">
                         {monthData ? monthData.name : ''}
                       </h3>
 
@@ -143,24 +143,24 @@ export default function MovieList({ movies, onDelete, onSelect, onEdit, isFilter
                               key={movie.id}
                               onClick={() => handleCardClick(movie)}
                               className={`
-                                glass-card p-4 rounded-2xl flex items-center gap-4 cursor-pointer transition-all border-white/5 h-20 group
+                                glass-card p-4 md:p-6 rounded-2xl md:rounded-[2rem] flex items-center gap-4 md:gap-6 cursor-pointer transition-all border-white/5 h-20 md:h-28 group
                                 ${isActive ? 'bg-white/[0.08] border-white/20' : 'hover:bg-white/[0.04] hover:border-white/10 active:scale-[0.99]'}
                               `}
                             >
                               <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-0.5 min-w-0">
-                                  <h4 className="font-bold text-slate-100 text-sm truncate shrink">
+                                <div className="flex items-center gap-2 mb-0.5 md:mb-1.5 min-w-0">
+                                  <h4 className="font-bold text-slate-100 text-sm md:text-xl truncate shrink transition-all">
                                     {movie.title}
                                   </h4>
                                   {movie.releaseYear > 0 && (
-                                    <span className="text-slate-500 text-[10px] font-medium shrink-0">
+                                    <span className="text-slate-500 text-[10px] md:text-sm font-medium shrink-0 transition-all">
                                       {movie.releaseYear}
                                     </span>
                                   )}
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <span className={`
-                                    px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider border
+                                    px-2 py-0.5 md:px-3 md:py-1 rounded-md text-[9px] md:text-xs font-black uppercase tracking-wider border transition-all
                                     ${movie.person === 'Tomi' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' :
                                       movie.person === 'Mikkis' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' :
                                         movie.person === 'Aino' ? 'bg-pink-500/10 text-pink-400 border-pink-500/20' :
@@ -173,7 +173,7 @@ export default function MovieList({ movies, onDelete, onSelect, onEdit, isFilter
 
                               <div className="text-right shrink-0 flex flex-col items-end gap-1">
                                 <div className={`transition-all duration-300 ${isActive ? 'opacity-0 scale-90 h-0 overflow-hidden' : 'opacity-100 scale-100'}`}>
-                                  <div className="text-[10px] font-medium text-slate-500 tabular-nums">
+                                  <div className="text-[10px] md:text-sm font-medium text-slate-500 tabular-nums transition-all">
                                     {formatDate(movie.watchedAt || movie.watchDate)}
                                   </div>
                                 </div>

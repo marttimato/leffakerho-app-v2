@@ -49,15 +49,15 @@ export default function FinnishDatePicker({ value, onChange, onClose }) {
 
     return (
         <div className="fixed inset-0 z-[200] bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={onClose}>
-            <div className="bg-slate-900 w-full max-w-[320px] rounded-3xl p-6 shadow-2xl border border-white/10 animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
+            <div className="bg-slate-900 w-full max-w-[320px] md:max-w-md rounded-3xl p-6 md:p-10 shadow-2xl border border-white/10 animate-in zoom-in-95 duration-300 transition-all" onClick={e => e.stopPropagation()}>
                 {/* Header */}
                 <div className="flex justify-between items-center mb-6">
                     <button type="button" onClick={handlePrev} className="p-2 hover:bg-white/5 rounded-full text-slate-400 transition-colors">
                         <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5"><path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" /></svg>
                     </button>
                     <div className="text-center">
-                        <div className="text-white font-black tracking-tight">{MONTHS_FI[month]}</div>
-                        <div className="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-none mt-1">{year}</div>
+                        <div className="text-white md:text-xl font-black tracking-tight transition-all">{MONTHS_FI[month]}</div>
+                        <div className="text-[10px] md:text-xs text-slate-500 font-bold uppercase tracking-widest leading-none mt-1 transition-all">{year}</div>
                     </div>
                     <button type="button" onClick={handleNext} className="p-2 hover:bg-white/5 rounded-full text-slate-400 transition-colors">
                         <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5"><path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" /></svg>
@@ -65,18 +65,18 @@ export default function FinnishDatePicker({ value, onChange, onClose }) {
                 </div>
 
                 {/* Weekdays */}
-                <div className="grid grid-cols-7 gap-1 mb-2">
+                <div className="grid grid-cols-7 gap-1 md:gap-2 mb-2 md:mb-4">
                     {DAYS_FI.map(d => (
-                        <div key={d} className="text-[10px] text-slate-600 font-black uppercase text-center h-8 flex items-center justify-center">
+                        <div key={d} className="text-[10px] md:text-sm text-slate-600 font-black uppercase text-center h-8 md:h-10 flex items-center justify-center transition-all">
                             {d}
                         </div>
                     ))}
                 </div>
 
                 {/* Days Grid */}
-                <div className="grid grid-cols-7 gap-1">
+                <div className="grid grid-cols-7 gap-1 md:gap-2">
                     {days.map((d, i) => (
-                        <div key={i} className="h-10 flex items-center justify-center">
+                        <div key={i} className="h-10 md:h-14 flex items-center justify-center transition-all">
                             {d ? (
                                 <button
                                     type="button"
@@ -89,7 +89,7 @@ export default function FinnishDatePicker({ value, onChange, onClose }) {
                                         onClose()
                                     }}
                                     className={`
-                    w-9 h-9 rounded-xl text-sm font-bold transition-all
+                    w-9 h-9 md:w-12 md:h-12 rounded-xl md:rounded-2xl text-sm md:text-lg font-bold transition-all
                     ${isSelected(d) ? 'bg-blue-600 text-white shadow-[0_0_15px_rgba(37,99,235,0.4)]' :
                                             isToday(d) ? 'text-blue-400 border border-blue-500/20 bg-blue-500/5' : 'text-slate-300 hover:bg-white/5'}
                   `}
@@ -97,7 +97,7 @@ export default function FinnishDatePicker({ value, onChange, onClose }) {
                                     {d.getDate()}
                                 </button>
                             ) : (
-                                <div className="w-9 h-9" />
+                                <div className="w-9 h-9 md:w-12 md:h-12" />
                             )}
                         </div>
                     ))}

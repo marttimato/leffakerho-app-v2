@@ -133,8 +133,8 @@ export default function Home() {
               onClick={() => onSelect(s)}
               className="w-full text-left px-5 py-4 hover:bg-white/10 border-b border-white/5 last:border-0 transition-all group"
             >
-              <div className="font-bold text-white group-hover:text-blue-400 transition-colors text-base">{s.title}</div>
-              <div className="text-[10px] text-slate-400 font-black uppercase tracking-[0.1em] mt-0.5">{s.releaseYear}</div>
+              <div className="font-bold text-white group-hover:text-blue-400 transition-colors text-base md:text-xl">{s.title}</div>
+              <div className="text-[10px] md:text-xs text-slate-400 font-black uppercase tracking-[0.1em] mt-0.5 md:mt-1">{s.releaseYear}</div>
             </button>
           ))}
         </div>
@@ -400,16 +400,16 @@ export default function Home() {
 
   return (
     <main className="min-h-screen pb-20 selection:bg-blue-500/30 font-sans">
-      <div className="max-w-2xl mx-auto min-h-screen relative overflow-x-hidden">
+      <div className="max-w-2xl md:max-w-5xl mx-auto min-h-screen relative overflow-x-hidden">
         {/* Header / Top Bar */}
         <header className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-white/5 px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <h1 className="text-xl font-black tracking-tight text-white">Leffakerho</h1>
+            <h1 className="text-xl md:text-3xl font-black tracking-tight text-white transition-all">Leffakerho</h1>
           </div>
           <div className="flex items-center gap-4">
-            <div className="px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center gap-2">
-              <span className="text-blue-400 font-bold text-xs">{watchedCount}</span>
-              <span className="text-blue-400/60 text-[10px] font-bold uppercase tracking-wider">leffaa katsottu</span>
+            <div className="px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center gap-2 transition-all">
+              <span className="text-blue-400 font-bold text-xs md:text-sm">{watchedCount}</span>
+              <span className="text-blue-400/60 text-[10px] md:text-xs font-bold uppercase tracking-wider">leffaa katsottu</span>
             </div>
             <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-500">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -423,7 +423,7 @@ export default function Home() {
           {/* Search Bar */}
           <section className="space-y-4">
             <div className="flex items-center justify-between px-1">
-              <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Katsotut elokuvat</h2>
+              <h2 className="text-[10px] md:text-xs font-black uppercase tracking-[0.3em] text-slate-500">Katsotut elokuvat</h2>
               <div className="h-px flex-1 mx-4 bg-white/5" />
             </div>
 
@@ -434,7 +434,7 @@ export default function Home() {
                 </svg>
               </div>
               <input
-                className="w-full glass-input rounded-2xl pl-11 pr-12 py-4 placeholder-slate-600 text-white transition-all ring-0 border-white/5 focus:border-blue-500/30"
+                className="w-full glass-input rounded-2xl md:rounded-[2rem] pl-11 pr-12 py-4 md:py-6 md:pl-14 placeholder-slate-600 text-white md:text-xl transition-all ring-0 border-white/5 focus:border-blue-500/30"
                 placeholder="Etsi elokuvaa tai katsojaa..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
@@ -490,12 +490,12 @@ export default function Home() {
       {
         showAddForm && (
           <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-0 sm:p-4 animate-in fade-in duration-300 overscroll-behavior-contain">
-            <div className="bg-slate-900 w-full max-w-md p-8 sm:rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] border border-white/10 animate-in zoom-in-95 duration-500 relative overflow-hidden">
+            <div className="bg-slate-900 w-full max-w-md md:max-w-xl p-8 md:p-12 sm:rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] border border-white/10 animate-in zoom-in-95 duration-500 relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 to-purple-600/5 pointer-events-none" />
 
               <div className="relative z-10">
-                <div className="flex justify-between items-center mb-8">
-                  <h2 className="text-2xl font-black text-white tracking-tight">Uusi elämys</h2>
+                <div className="flex justify-between items-center mb-8 md:mb-12">
+                  <h2 className="text-2xl md:text-4xl font-black text-white tracking-tight">Uusi elämys</h2>
                   <button
                     onClick={() => setShowAddForm(false)}
                     className="w-10 h-10 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white rounded-full flex items-center justify-center transition-all border border-white/10"
@@ -508,10 +508,10 @@ export default function Home() {
 
                 <form onSubmit={handleAdd} className="space-y-6">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Elokuvan nimi</label>
+                    <label className="text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Elokuvan nimi</label>
                     <div className="relative">
                       <input
-                        className="w-full glass-input rounded-2xl px-5 py-4 placeholder-slate-600 text-white transition-all ring-0 border-white/5 focus:border-blue-500/50"
+                        className="w-full glass-input rounded-2xl md:rounded-[2rem] px-5 py-4 md:py-6 md:px-8 placeholder-slate-600 text-white md:text-lg transition-all ring-0 border-white/5 focus:border-blue-500/50"
                         placeholder="Mikä leffa katsottiin?"
                         value={title}
                         onChange={e => setTitle(e.target.value)}
@@ -530,7 +530,7 @@ export default function Home() {
                     <button
                       type="button"
                       onClick={() => setShowDatePicker(true)}
-                      className="w-full glass-input rounded-2xl px-5 py-4 text-left text-slate-300 transition-all border-white/5 focus:border-blue-500/50 flex justify-between items-center group/btn"
+                      className="w-full glass-input rounded-2xl md:rounded-[2rem] px-5 py-4 md:py-6 md:px-8 text-left text-slate-300 transition-all border-white/5 focus:border-blue-500/50 flex justify-between items-center group/btn"
                     >
                       <span className="font-semibold">{formatDateFi(watchDate)}</span>
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-slate-500 group-hover/btn:text-blue-400 transition-colors">
@@ -548,7 +548,7 @@ export default function Home() {
                           type="button"
                           onClick={() => setPerson(p)}
                           className={`
-                          px-5 py-2.5 rounded-full text-xs font-bold transition-all border
+                          px-5 py-2.5 md:px-8 md:py-4 rounded-full text-xs md:text-sm font-bold transition-all border
                           ${person === p
                               ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-900/40'
                               : 'bg-white/5 border-white/5 text-slate-400 hover:bg-white/10 hover:text-slate-200'}
@@ -560,8 +560,8 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="pt-4">
-                    <button className="w-full bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white font-bold py-4 rounded-2xl shadow-xl shadow-blue-900/20 transition-all border border-blue-400/20 text-lg">
+                  <div className="pt-4 md:pt-8">
+                    <button className="w-full bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white font-bold py-4 md:py-6 rounded-2xl md:rounded-[2rem] shadow-xl shadow-blue-900/20 transition-all border border-blue-400/20 text-lg md:text-2xl">
                       Lisää listalle
                     </button>
                   </div>
@@ -576,7 +576,7 @@ export default function Home() {
       {
         editingMovie && (
           <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-0 sm:p-4 animate-in fade-in duration-300 overscroll-behavior-contain">
-            <div className="bg-slate-900 w-full max-w-md p-8 sm:rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] border border-white/10 animate-in zoom-in-95 duration-500">
+            <div className="bg-slate-900 w-full max-w-md md:max-w-xl p-8 md:p-12 sm:rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] border border-white/10 animate-in zoom-in-95 duration-500">
               <div className="flex justify-between items-center mb-8">
                 <h2 className="text-2xl font-black text-white tracking-tight">Muokkaa tietoja</h2>
                 <button
@@ -763,7 +763,7 @@ export default function Home() {
 
                       {/* Info */}
                       <div className="flex-1 space-y-4 pt-4 sm:pt-28">
-                        <h2 className="text-4xl sm:text-5xl font-black text-white leading-[1.1] tracking-tighter">{details.title}</h2>
+                        <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-white leading-[1.1] tracking-tighter">{details.title}</h2>
                         <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4">
                           {details.releaseDate && (
                             <span className="text-lg font-bold text-slate-400">{new Date(details.releaseDate).getFullYear()}</span>
