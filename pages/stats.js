@@ -41,7 +41,16 @@ export default function Stats() {
 
         async function fetchMissingMetadata() {
             const missingIds = movies
-                .filter(m => m.tmdbId && !metadata[m.tmdbId])
+                .filter(m => {
+                    if (!m.tmdbId) return false
+                    const meta = metadata[m.tmdbId]
+                    if (!meta) return true
+                    // Check for legacy format (countries is array of strings)
+                    if (meta.countries && meta.countries.length > 0 && typeof meta.countries[0] === 'string') {
+                        return true
+                    }
+                    return false
+                })
                 .map(m => m.tmdbId)
 
             // Eliminate duplicates
@@ -216,21 +225,26 @@ export default function Stats() {
             if (!m.tmdbId || !metadata[m.tmdbId]) return
             // Count primary country only (first one)
             const countries = metadata[m.tmdbId].countries
-            if (countries && countries.length > 0) {
-                const primary = countries[0]
-                // API details.js updated to return objects: { iso_3166_1, name } or similar depending on TMDB
-                // IMPORTANT: TMDB /movie/{id} returns production_countries: [{ iso_3166_1: "US", name: "United States of America" }]
-                // My API mapper sends this array through.
+            const primary = countries[0]
 
-                const code = primary.iso_3166_1
-                const name = primary.name
+            let code = null
+            let name = null
 
-                if (code) {
-                    if (!counts[code]) {
-                        counts[code] = { name, count: 0, code }
-                    }
-                    counts[code].count++
+            if (typeof primary === 'string') {
+                name = primary
+            } else {
+                code = primary.iso_3166_1
+                name = primary.name
+            }
+
+            // Allow counting even if code is missing (fallback for legacy data)
+            if (name) {
+                // Use name as key if code is missing, but prefer code for accurate aggregation
+                const key = code || name
+                if (!counts[key]) {
+                    counts[key] = { name, count: 0, code }
                 }
+                counts[key].count++
             }
         })
 
