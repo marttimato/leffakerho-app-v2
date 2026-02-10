@@ -1,6 +1,6 @@
 import {
-    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-    PieChart, Pie, Cell
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList,
+    PieChart, Pie, Cell, LineChart, Line
 } from 'recharts';
 
 // Distinct colors for better contrast
@@ -41,6 +41,7 @@ export function TurnChart({ data }) {
                         {data.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
+                        <LabelList dataKey="count" position="top" fill="#94a3b8" fontSize={12} fontWeight={700} />
                     </Bar>
                 </BarChart>
             </ResponsiveContainer>
@@ -48,7 +49,31 @@ export function TurnChart({ data }) {
     );
 }
 
-
+export function MonthlyChart({ data }) {
+    return (
+        <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={data} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
+                    <XAxis
+                        dataKey="name"
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 700 }}
+                        dy={10}
+                    />
+                    <YAxis
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fill: '#64748b', fontSize: 10 }}
+                    />
+                    <Tooltip content={<CustomTooltip />} cursor={{ fill: '#ffffff05' }} />
+                    <Line type="monotone" dataKey="count" stroke="#8b5cf6" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                </LineChart>
+            </ResponsiveContainer>
+        </div>
+    );
+}
 
 export function YearDistributionChart({ data }) {
     return (
@@ -108,6 +133,7 @@ export function CountryChart({ data }) {
                         <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-xs font-black text-slate-500 group-hover:text-blue-400 transition-colors">
                             {index + 1}
                         </div>
+                        <span className="text-2xl" role="img" aria-label={`Flag of ${item.name}`}>{item.flag}</span>
                         <span className="text-sm font-bold text-slate-200">{item.name}</span>
                     </div>
                     <div className="flex items-center gap-4">

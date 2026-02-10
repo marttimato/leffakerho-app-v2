@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
-import { TurnChart, YearDistributionChart, GenreChart, CountryChart } from '../components/StatsCharts'
+import { TurnChart, MonthlyChart, YearDistributionChart, GenreChart, CountryChart } from '../components/StatsCharts'
 
 const PEOPLE = ['Tomi', 'Mikkis', 'Aino', 'Mari']
 
@@ -66,7 +66,7 @@ export default function Stats() {
                             const data = await res.json()
                             newMetadata[id] = {
                                 genres: data.genres || [],
-                                countries: data.countries || []
+                                countries: data.countries || [] // Now contains objects with { iso_3166_1, name }
                             }
                             changed = true
                         }
@@ -186,21 +186,48 @@ export default function Stats() {
 
     // 5. Countries
     const countryData = useMemo(() => {
-        const counts = {}
+        const counts = {} // { "US": { name: "United States", count: 1, code: "US" } }
+
         filteredMovies.forEach(m => {
             if (!m.tmdbId || !metadata[m.tmdbId]) return
             // Count primary country only (first one)
             const countries = metadata[m.tmdbId].countries
             if (countries && countries.length > 0) {
                 const primary = countries[0]
-                counts[primary] = (counts[primary] || 0) + 1
+                // API details.js updated to return objects: { iso_3166_1, name } or similar depending on TMDB
+                // IMPORTANT: TMDB /movie/{id} returns production_countries: [{ iso_3166_1: "US", name: "United States of America" }]
+                // My API mapper sends this array through.
+
+                const code = primary.iso_3166_1
+                const name = primary.name
+
+                if (code) {
+                    if (!counts[code]) {
+                        counts[code] = { name, count: 0, code }
+                    }
+                    counts[code].count++
+                }
             }
         })
 
-        return Object.entries(counts)
-            .sort((a, b) => b[1] - a[1])
+        // Helper to get flag emoji from ISO code
+        const getFlagEmoji = (countryCode) => {
+            if (!countryCode) return ''
+            const codePoints = countryCode
+                .toUpperCase()
+                .split('')
+                .map(char => 127397 + char.charCodeAt(0));
+            return String.fromCodePoint(...codePoints);
+        }
+
+        return Object.values(counts)
+            .sort((a, b) => b.count - a.count)
             .slice(0, 10) // Top 10
-            .map(([name, count]) => ({ name, count }))
+            .map(c => ({
+                name: c.name === "United States of America" ? "USA" : c.name, // Shorten USA for better fit
+                count: c.count,
+                flag: getFlagEmoji(c.code)
+            }))
     }, [filteredMovies, metadata])
 
 
@@ -263,13 +290,22 @@ export default function Stats() {
                         </div>
 
                         {/* 2. Monthly */}
-                        <div className="p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl flex flex-col justify-center items-center text-center">
-                            <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-2">Katselutahti</h2>
-                            <div className="text-4xl md:text-5xl font-black text-white tracking-tight mb-2">
-                                {averagePace}
+                        <div className="md:row-span-2 space-y-6">
+                            {/* Pace Metric */}
+                            <div className="p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl flex flex-col justify-center items-center text-center h-[200px]">
+                                <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-2">Katselutahti</h2>
+                                <div className="text-4xl md:text-5xl font-black text-white tracking-tight mb-2">
+                                    {averagePace}
+                                </div>
+                                <div className="text-sm font-bold text-slate-400 uppercase tracking-wider">
+                                    leffaa / kk
+                                </div>
                             </div>
-                            <div className="text-sm font-bold text-slate-400 uppercase tracking-wider">
-                                leffaa / kk
+
+                            {/* Activity Chart */}
+                            <div className="p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl">
+                                <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-6">Katselut (kk)</h2>
+                                <MonthlyChart data={monthlyData} />
                             </div>
                         </div>
 
