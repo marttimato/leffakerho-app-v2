@@ -45,6 +45,7 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [showAddForm, setShowAddForm] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const [validationError, setValidationError] = useState('')
   const [toast, setToast] = useState({ message: '', visible: false })
@@ -108,6 +109,8 @@ export default function Home() {
 
   /* ---------- REAL-TIME VALIDATION ---------- */
   useEffect(() => {
+    if (isSubmitting) return
+
     const trimmedTitle = title.trim()
     if (!trimmedTitle) {
       setValidationError('')
@@ -225,6 +228,7 @@ export default function Home() {
     setCandidates(null)
     setPendingMovie(null)
     setShowAddForm(false)
+    setIsSubmitting(false)
   }
 
   /* ---------- UPDATE (API) ---------- */
@@ -263,7 +267,8 @@ export default function Home() {
 
   /* ---------- ADD (UI) ---------- */
   async function handleAdd(e) {
-    e.preventDefault()
+    if (e) e.preventDefault()
+    setIsSubmitting(true)
 
     const d = new Date(watchDate)
     const baseMovie = {
@@ -523,7 +528,7 @@ export default function Home() {
                 <div className="flex justify-between items-center mb-8 md:mb-12">
                   <h2 className="text-2xl md:text-4xl font-black text-white tracking-tight">Uusi elämys</h2>
                   <button
-                    onClick={() => setShowAddForm(false)}
+                    onClick={() => { setShowAddForm(false); setIsSubmitting(false); }}
                     className="w-10 h-10 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white rounded-full flex items-center justify-center transition-all border border-white/10"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
@@ -702,7 +707,7 @@ export default function Home() {
               <div className="flex justify-between items-center mb-6">
                 <h2 className="font-black text-lg tracking-tight text-white">Valitse oikea elokuva</h2>
                 <button
-                  onClick={() => { setCandidates(null); setPendingMovie(null); }}
+                  onClick={() => { setCandidates(null); setPendingMovie(null); setIsSubmitting(false); }}
                   className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
@@ -871,7 +876,7 @@ export default function Home() {
               <p className="text-slate-400 mb-8 leading-relaxed font-medium">{confirmConfig.message}</p>
               <div className="flex gap-3">
                 <button
-                  onClick={() => setConfirmConfig(null)}
+                  onClick={() => { setConfirmConfig(null); setIsSubmitting(false); }}
                   className="flex-1 px-4 py-3.5 rounded-xl border border-white/10 text-slate-400 font-bold hover:bg-white/5 transition-all text-sm"
                 >
                   Peruuta
