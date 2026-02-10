@@ -46,6 +46,9 @@ export default function Home() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [showAddForm, setShowAddForm] = useState(false)
 
+  const [validationError, setValidationError] = useState('')
+  const [toast, setToast] = useState({ message: '', visible: false })
+
   /* ---------- SEARCH (Debounced) ---------- */
   useEffect(() => {
     const timer = setTimeout(async () => {
@@ -102,6 +105,22 @@ export default function Home() {
     }, 500)
     return () => clearTimeout(timer)
   }, [editTitle, editingMovie?.id, editingMovie?.tmdbId, editingMovie?.title])
+
+  /* ---------- REAL-TIME VALIDATION ---------- */
+  useEffect(() => {
+    const trimmedTitle = title.trim()
+    if (!trimmedTitle) {
+      setValidationError('')
+      return
+    }
+
+    const exists = movies.some(m => m.title.toLowerCase() === trimmedTitle.toLowerCase())
+    if (exists) {
+      setValidationError('Elokuva on jo listalla')
+    } else {
+      setValidationError('')
+    }
+  }, [title, movies])
 
   /* ---------- SUGGESTION SELECT ---------- */
   function handleSelectSuggestion(s, isEdit = false) {
@@ -187,6 +206,13 @@ export default function Home() {
 
       // Refresh to get real IDs and sorting
       fetchMovies()
+
+      // Success Toast
+      setToast({
+        message: `Lisätty: ${movie.title}${movie.releaseYear ? ` (${movie.releaseYear})` : ''}`,
+        visible: true
+      })
+      setTimeout(() => setToast(prev => ({ ...prev, visible: false })), 3000)
     } catch (err) {
       console.error(err)
       setMovies(previous) // Rollback
@@ -511,12 +537,17 @@ export default function Home() {
                     <label className="text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Elokuvan nimi</label>
                     <div className="relative">
                       <input
-                        className="w-full glass-input rounded-2xl md:rounded-[2rem] px-5 py-4 md:py-6 md:px-8 placeholder-slate-600 text-white md:text-lg transition-all ring-0 border-white/5 focus:border-blue-500/50"
+                        className={`w-full glass-input rounded-2xl md:rounded-[2rem] px-5 py-4 md:py-6 md:px-8 placeholder-slate-600 text-white md:text-lg transition-all ring-0 focus:border-blue-500/50 ${validationError ? 'border-red-500/50 bg-red-500/5' : 'border-white/5'}`}
                         placeholder="Mikä leffa katsottiin?"
                         value={title}
                         onChange={e => setTitle(e.target.value)}
                         onBlur={() => setTimeout(() => setSuggestions([]), 200)}
                       />
+                      {validationError && (
+                        <div className="absolute -bottom-6 left-1 text-[10px] font-bold text-red-400 animate-in fade-in slide-in-from-top-1 duration-200">
+                          {validationError}
+                        </div>
+                      )}
                       <SuggestionList
                         items={suggestions}
                         isSearching={isSearching}
@@ -561,7 +592,10 @@ export default function Home() {
                   </div>
 
                   <div className="pt-4 md:pt-8">
-                    <button className="w-full bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white font-bold py-4 md:py-6 rounded-2xl md:rounded-[2rem] shadow-xl shadow-blue-900/20 transition-all border border-blue-400/20 text-lg md:text-2xl">
+                    <button
+                      disabled={!!validationError || !title.trim()}
+                      className="w-full bg-blue-600 hover:bg-blue-500 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 disabled:hover:bg-blue-600 text-white font-bold py-4 md:py-6 rounded-2xl md:rounded-[2rem] shadow-xl shadow-blue-900/20 transition-all border border-blue-400/20 text-lg md:text-2xl"
+                    >
                       Lisää listalle
                     </button>
                   </div>
@@ -856,6 +890,19 @@ export default function Home() {
           </div>
         )
       }
+      {/* Success Toast */}
+      {toast.visible && (
+        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[300] animate-in fade-in slide-in-from-bottom-10 duration-500">
+          <div className="bg-slate-900/90 backdrop-blur-xl border border-blue-500/30 px-6 py-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+              </svg>
+            </div>
+            <span className="text-white font-bold text-sm md:text-base">{toast.message}</span>
+          </div>
+        </div>
+      )}
     </main >
   )
 }
