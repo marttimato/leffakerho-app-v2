@@ -383,19 +383,18 @@ export default function Home() {
 
   /* ---------- SCROLL LOCK ---------- */
   useEffect(() => {
-    if (selectedMovieId || candidates || editingMovie || confirmConfig || showDatePicker || showEditDatePicker) {
+    if (selectedMovieId || candidates || editingMovie || confirmConfig || showDatePicker || showEditDatePicker || showAddForm) {
       const scrollY = window.scrollY
       document.body.style.top = `-${scrollY}px`
       document.body.classList.add('no-scroll')
     } else {
       const scrollY = document.body.style.top
       document.body.classList.remove('no-scroll')
+      const scrollTo = parseInt(scrollY || '0') * -1
       document.body.style.top = ''
-      if (scrollY) {
-        window.scrollTo(0, parseInt(scrollY || '0') * -1)
-      }
+      if (scrollY) window.scrollTo(0, scrollTo)
     }
-  }, [selectedMovieId, candidates, editingMovie, confirmConfig, showDatePicker, showEditDatePicker])
+  }, [selectedMovieId, candidates, editingMovie, confirmConfig, showDatePicker, showEditDatePicker, showAddForm])
 
   const watchedCount = movies.filter(m => PEOPLE.includes(m.person)).length
 
@@ -421,106 +420,6 @@ export default function Home() {
         </header>
 
         <div className="p-4 sm:p-6 space-y-8">
-          {/* Add Movie Section */}
-          <section className="space-y-4">
-            {!showAddForm ? (
-              <button
-                onClick={() => setShowAddForm(true)}
-                className="w-full bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white font-bold py-5 rounded-2xl shadow-xl shadow-blue-900/20 transition-all flex items-center justify-center gap-2 group"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5 transition-transform group-hover:rotate-90">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
-                Lisää uusi elämys
-              </button>
-            ) : (
-              <div className="glass-card p-6 rounded-[2.5rem] relative overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 to-purple-600/5 pointer-events-none" />
-                <div className="relative z-10 space-y-6">
-                  <div className="flex items-center justify-between px-1">
-                    <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-400">Uusi elämys</h2>
-                    <button
-                      onClick={() => setShowAddForm(false)}
-                      className="text-slate-500 hover:text-white transition-colors"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
-                        <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-                      </svg>
-                    </button>
-                  </div>
-
-                  <form onSubmit={handleAdd} className="space-y-6">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Elokuvan nimi</label>
-                      <div className="relative">
-                        <input
-                          className="w-full glass-input rounded-2xl px-5 py-4 placeholder-slate-600 text-white transition-all ring-0 border-white/5 focus:border-blue-500/50"
-                          placeholder="Mikä leffa katsottiin?"
-                          value={title}
-                          onChange={e => setTitle(e.target.value)}
-                          onBlur={() => setTimeout(() => setSuggestions([]), 200)}
-                        />
-                        <SuggestionList
-                          items={suggestions}
-                          isSearching={isSearching}
-                          onSelect={(s) => handleSelectSuggestion(s, false)}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Katselupäivä</label>
-                      <button
-                        type="button"
-                        onClick={() => setShowDatePicker(true)}
-                        className="w-full glass-input rounded-2xl px-5 py-4 text-left text-slate-300 transition-all border-white/5 focus:border-blue-500/50 flex justify-between items-center group/btn"
-                      >
-                        <span className="font-semibold">{formatDateFi(watchDate)}</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-slate-500 group-hover/btn:text-blue-400 transition-colors">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-                        </svg>
-                      </button>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Kuka valitsi?</label>
-                      <div className="flex flex-wrap gap-2">
-                        {PEOPLE.map(p => (
-                          <button
-                            key={p}
-                            type="button"
-                            onClick={() => setPerson(p)}
-                            className={`
-                              px-5 py-2.5 rounded-full text-xs font-bold transition-all border
-                              ${person === p
-                                ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-900/40'
-                                : 'bg-white/5 border-white/5 text-slate-400 hover:bg-white/10 hover:text-slate-200'}
-                            `}
-                          >
-                            {p}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="flex gap-3 pt-2">
-                      <button
-                        type="button"
-                        onClick={() => setShowAddForm(false)}
-                        className="flex-1 px-4 py-4 rounded-2xl text-slate-400 font-bold hover:bg-white/5 transition-all"
-                      >
-                        Peruuta
-                      </button>
-                      <button className="flex-[2] bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white font-bold py-4 rounded-2xl shadow-xl shadow-blue-900/20 transition-all border border-blue-400/20">
-                        Lisää listalle
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            )}
-          </section>
-
           {/* Search Bar */}
           <section className="space-y-4">
             <div className="flex items-center justify-between px-1">
@@ -574,280 +473,389 @@ export default function Home() {
         </div>
       </div>
 
-      {/* MODALS - Moved outside max-w-md to escape backdrop-blur positioning context */}
+      {/* Floating Action Button */}
+      <button
+        onClick={() => setShowAddForm(true)}
+        className="fixed bottom-8 right-6 w-16 h-16 bg-blue-600 rounded-full shadow-[0_20px_50px_rgba(37,99,235,0.4)] flex items-center justify-center text-white z-50 hover:bg-blue-500 transition-all active:scale-90 hover:scale-110 group border border-blue-400/20"
+        aria-label="Lisää uusi elämys"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-8 h-8 transition-transform group-hover:rotate-90">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+      </button>
+
+      {/* MODALS */}
+
+      {/* Add Modal */}
+      {
+        showAddForm && (
+          <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-0 sm:p-4 animate-in fade-in duration-300 overscroll-behavior-contain">
+            <div className="bg-slate-900 w-full max-w-md p-8 sm:rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] border border-white/10 animate-in zoom-in-95 duration-500 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 to-purple-600/5 pointer-events-none" />
+
+              <div className="relative z-10">
+                <div className="flex justify-between items-center mb-8">
+                  <h2 className="text-2xl font-black text-white tracking-tight">Uusi elämys</h2>
+                  <button
+                    onClick={() => setShowAddForm(false)}
+                    className="w-10 h-10 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white rounded-full flex items-center justify-center transition-all border border-white/10"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                <form onSubmit={handleAdd} className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Elokuvan nimi</label>
+                    <div className="relative">
+                      <input
+                        className="w-full glass-input rounded-2xl px-5 py-4 placeholder-slate-600 text-white transition-all ring-0 border-white/5 focus:border-blue-500/50"
+                        placeholder="Mikä leffa katsottiin?"
+                        value={title}
+                        onChange={e => setTitle(e.target.value)}
+                        onBlur={() => setTimeout(() => setSuggestions([]), 200)}
+                      />
+                      <SuggestionList
+                        items={suggestions}
+                        isSearching={isSearching}
+                        onSelect={(s) => handleSelectSuggestion(s, false)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Katselupäivä</label>
+                    <button
+                      type="button"
+                      onClick={() => setShowDatePicker(true)}
+                      className="w-full glass-input rounded-2xl px-5 py-4 text-left text-slate-300 transition-all border-white/5 focus:border-blue-500/50 flex justify-between items-center group/btn"
+                    >
+                      <span className="font-semibold">{formatDateFi(watchDate)}</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-slate-500 group-hover/btn:text-blue-400 transition-colors">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Kuka valitsi?</label>
+                    <div className="flex flex-wrap gap-2">
+                      {PEOPLE.map(p => (
+                        <button
+                          key={p}
+                          type="button"
+                          onClick={() => setPerson(p)}
+                          className={`
+                          px-5 py-2.5 rounded-full text-xs font-bold transition-all border
+                          ${person === p
+                              ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-900/40'
+                              : 'bg-white/5 border-white/5 text-slate-400 hover:bg-white/10 hover:text-slate-200'}
+                        `}
+                        >
+                          {p}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="pt-4">
+                    <button className="w-full bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white font-bold py-4 rounded-2xl shadow-xl shadow-blue-900/20 transition-all border border-blue-400/20 text-lg">
+                      Lisää listalle
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )
+      }
 
       {/* Edit Modal */}
-      {editingMovie && (
-        <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-0 sm:p-4 animate-in fade-in duration-300 overscroll-behavior-contain">
-          <div className="bg-slate-900 w-full max-w-md p-8 sm:rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] border border-white/10 animate-in zoom-in-95 duration-500">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-2xl font-black text-white tracking-tight">Muokkaa tietoja</h2>
-              <button
-                onClick={() => setEditingMovie(null)}
-                className="w-10 h-10 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white rounded-full flex items-center justify-center transition-all border border-white/10"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <form onSubmit={handleUpdate} className="space-y-6">
-              <div className="space-y-2 relative">
-                <label className="text-[10px] font-black uppercase tracking-widest text-blue-400/80 ml-1">Elokuvan nimi</label>
-                <input
-                  className="w-full glass-input rounded-2xl px-4 py-4 placeholder-slate-500 text-white transition-all ring-0 border-white/10 focus:border-blue-500/50"
-                  value={editTitle}
-                  onChange={e => setEditTitle(e.target.value)}
-                  onBlur={() => setTimeout(() => setEditSuggestions([]), 200)}
-                />
-                <SuggestionList
-                  items={editSuggestions}
-                  isSearching={isEditSearching}
-                  onSelect={(s) => handleSelectSuggestion(s, true)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-blue-400/80 ml-1">Katselupäivä</label>
+      {
+        editingMovie && (
+          <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-0 sm:p-4 animate-in fade-in duration-300 overscroll-behavior-contain">
+            <div className="bg-slate-900 w-full max-w-md p-8 sm:rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] border border-white/10 animate-in zoom-in-95 duration-500">
+              <div className="flex justify-between items-center mb-8">
+                <h2 className="text-2xl font-black text-white tracking-tight">Muokkaa tietoja</h2>
                 <button
-                  type="button"
-                  onClick={() => setShowEditDatePicker(true)}
-                  className="w-full glass-input rounded-2xl px-4 py-4 text-left text-slate-300 transition-all border-white/10 focus:border-blue-500/50 flex justify-between items-center group/btn"
+                  onClick={() => setEditingMovie(null)}
+                  className="w-10 h-10 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white rounded-full flex items-center justify-center transition-all border border-white/10"
                 >
-                  <span>{formatDateFi(editWatchDate)}</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-slate-500 group-hover/btn:text-blue-400 transition-colors">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
 
+              <form onSubmit={handleUpdate} className="space-y-6">
+                <div className="space-y-2 relative">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-blue-400/80 ml-1">Elokuvan nimi</label>
+                  <input
+                    className="w-full glass-input rounded-2xl px-4 py-4 placeholder-slate-500 text-white transition-all ring-0 border-white/10 focus:border-blue-500/50"
+                    value={editTitle}
+                    onChange={e => setEditTitle(e.target.value)}
+                    onBlur={() => setTimeout(() => setEditSuggestions([]), 200)}
+                  />
+                  <SuggestionList
+                    items={editSuggestions}
+                    isSearching={isEditSearching}
+                    onSelect={(s) => handleSelectSuggestion(s, true)}
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Kuka valitsi?</label>
-                <div className="flex flex-wrap gap-2">
-                  {PEOPLE.map(p => (
-                    <button
-                      key={p}
-                      type="button"
-                      onClick={() => setEditPerson(p)}
-                      className={`
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-blue-400/80 ml-1">Katselupäivä</label>
+                  <button
+                    type="button"
+                    onClick={() => setShowEditDatePicker(true)}
+                    className="w-full glass-input rounded-2xl px-4 py-4 text-left text-slate-300 transition-all border-white/10 focus:border-blue-500/50 flex justify-between items-center group/btn"
+                  >
+                    <span>{formatDateFi(editWatchDate)}</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-slate-500 group-hover/btn:text-blue-400 transition-colors">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                    </svg>
+                  </button>
+                </div>
+
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Kuka valitsi?</label>
+                  <div className="flex flex-wrap gap-2">
+                    {PEOPLE.map(p => (
+                      <button
+                        key={p}
+                        type="button"
+                        onClick={() => setEditPerson(p)}
+                        className={`
                         px-5 py-2.5 rounded-full text-xs font-bold transition-all border
                         ${editPerson === p
-                          ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-900/40'
-                          : 'bg-white/5 border-white/5 text-slate-400 hover:bg-white/10 hover:text-slate-200'}
+                            ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-900/40'
+                            : 'bg-white/5 border-white/5 text-slate-400 hover:bg-white/10 hover:text-slate-200'}
                       `}
-                    >
-                      {p}
-                    </button>
-                  ))}
+                      >
+                        {p}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex gap-3 pt-4">
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setEditingMovie(null)}
+                    className="flex-1 px-4 py-4 rounded-2xl border border-white/10 text-slate-400 font-bold hover:bg-white/5 transition-all"
+                  >
+                    Peruuta
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-[2] bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white font-bold py-4 rounded-2xl shadow-xl shadow-blue-950/20 transition-all border border-blue-400/20"
+                  >
+                    Tallenna
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )
+      }
+      {
+        candidates && (
+          <div className="fixed inset-0 z-[100] bg-slate-950/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200 overscroll-behavior-contain">
+            <div className="bg-slate-900/90 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300 border border-white/10 overscroll-contain">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="font-black text-lg tracking-tight text-white">Valitse oikea elokuva</h2>
                 <button
-                  type="button"
-                  onClick={() => setEditingMovie(null)}
-                  className="flex-1 px-4 py-4 rounded-2xl border border-white/10 text-slate-400 font-bold hover:bg-white/5 transition-all"
+                  onClick={() => { setCandidates(null); setPendingMovie(null); }}
+                  className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                {candidates.map(c => (
+                  <button
+                    key={c.id}
+                    className="w-full text-left p-5 rounded-2xl hover:bg-white/5 border border-white/5 hover:border-blue-500/30 flex items-start flex-col transition-all group"
+                    onClick={() => {
+                      const isEdit = pendingMovie.id && !pendingMovie.id.startsWith('temp-')
+                      checkDuplicate(c.title, isEdit ? pendingMovie.id : null, () => {
+                        const finalMovie = {
+                          ...pendingMovie,
+                          title: c.title,
+                          releaseYear: c.releaseYear,
+                          tmdbId: c.id,
+                        }
+
+                        if (isEdit) {
+                          updateMovie(finalMovie)
+                        } else {
+                          saveMovie(finalMovie)
+                        }
+                      })
+                    }}
+                  >
+                    <span className="font-bold text-slate-100 text-lg group-hover:text-blue-400 transition-colors">{c.title}</span>
+                    <span className="text-slate-500 font-medium">{c.releaseYear}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )
+      }
+
+      {/* Detail Modal */}
+      {
+        selectedMovieId && (
+          <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-0 sm:p-4 animate-in fade-in duration-300 overscroll-behavior-contain">
+            <div className="bg-slate-900 w-full max-w-3xl h-full sm:h-auto sm:max-h-[90vh] sm:rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] overflow-y-auto overflow-x-hidden custom-scrollbar relative animate-in zoom-in-95 duration-500 border border-white/10 group overscroll-contain">
+              {/* Close Button */}
+              <button
+                onClick={() => { setSelectedMovieId(null); setDetails(null); }}
+                className="absolute top-6 right-6 z-30 w-12 h-12 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center transition-all backdrop-blur-md border border-white/10 scale-90 hover:scale-100"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              {loadingDetails ? (
+                <div className="p-40 text-center">
+                  <div className="inline-block w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-6" />
+                  <div className="text-slate-500 font-bold text-xs uppercase tracking-widest">Noudetaan tietoja...</div>
+                </div>
+              ) : details ? (
+                <div className="flex flex-col">
+                  {/* Backdrop */}
+                  <div className="relative aspect-video sm:aspect-[21/9] w-full bg-slate-800 transition-transform duration-700 group-hover:scale-105">
+                    {details.backdropPath ? (
+                      <img
+                        src={`https://image.tmdb.org/t/p/w1280${details.backdropPath}`}
+                        alt=""
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-slate-600">Ei taustakuvaa</div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
+                  </div>
+
+                  {/* Content */}
+                  <div className="px-8 pb-16 -mt-24 relative z-10 transition-transform duration-500">
+                    <div className="flex flex-col sm:flex-row gap-8 items-end sm:items-start text-center sm:text-left">
+                      {/* Poster */}
+                      <div className="w-40 sm:w-48 shrink-0 mx-auto sm:mx-0 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+                        {details.posterPath ? (
+                          <img
+                            src={`https://image.tmdb.org/t/p/w500${details.posterPath}`}
+                            alt={details.title}
+                            className="w-full rounded-[2rem] border-4 border-slate-900 object-cover aspect-[2/3]"
+                          />
+                        ) : (
+                          <div className="w-full aspect-[2/3] bg-slate-800 rounded-[2rem] flex items-center justify-center text-slate-600 border-4 border-slate-900">Ei kuvaa</div>
+                        )}
+                      </div>
+
+                      {/* Info */}
+                      <div className="flex-1 space-y-4 pt-4 sm:pt-28">
+                        <h2 className="text-4xl sm:text-5xl font-black text-white leading-[1.1] tracking-tighter">{details.title}</h2>
+                        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4">
+                          {details.releaseDate && (
+                            <span className="text-lg font-bold text-slate-400">{new Date(details.releaseDate).getFullYear()}</span>
+                          )}
+                          {details.runtime > 0 && (
+                            <span className="text-sm font-black text-slate-500 uppercase tracking-widest">{details.runtime} min</span>
+                          )}
+                          {details.voteAverage > 0 && (
+                            <span className="inline-flex items-center px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-500 text-sm font-black border border-amber-500/20">
+                              ★ {details.voteAverage.toFixed(1)}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex flex-wrap justify-center sm:justify-start gap-2">
+                          {details.genres.map(g => (
+                            <span key={g} className="px-4 py-1.5 bg-white/5 text-slate-300 rounded-full text-xs font-bold border border-white/5">
+                              {g}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-12 space-y-8">
+                      <div className="glass-card p-8 rounded-[2.5rem]">
+                        <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-400/80 mb-4">Tarina lyhyesti</h3>
+                        <p className="text-slate-300 leading-relaxed text-lg font-medium italic">
+                          {details.overview || 'Ei kuvausta saatavilla.'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-40 text-center">
+                  <div className="text-red-400 font-black text-lg mb-2">Hups!</div>
+                  <div className="text-slate-500">Tietojen haku epäonnistui. Kokeile myöhemmin uudelleen.</div>
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      }
+      {/* Date Pickers */}
+      {
+        showDatePicker && (
+          <FinnishDatePicker
+            value={watchDate}
+            onChange={setWatchDate}
+            onClose={() => setShowDatePicker(false)}
+          />
+        )
+      }
+      {
+        showEditDatePicker && (
+          <FinnishDatePicker
+            value={editWatchDate}
+            onChange={setEditWatchDate}
+            onClose={() => setShowEditDatePicker(false)}
+          />
+        )
+      }
+
+      {/* Confirm Modal */}
+      {
+        confirmConfig && (
+          <div className="fixed inset-0 z-[150] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in duration-200 overscroll-behavior-contain">
+            <div className="bg-slate-900 w-full max-w-sm p-8 rounded-[2rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] border border-white/10 animate-in zoom-in-95 duration-300">
+              <h2 className="text-xl font-black text-white mb-2 tracking-tight">{confirmConfig.title}</h2>
+              <p className="text-slate-400 mb-8 leading-relaxed font-medium">{confirmConfig.message}</p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setConfirmConfig(null)}
+                  className="flex-1 px-4 py-3.5 rounded-xl border border-white/10 text-slate-400 font-bold hover:bg-white/5 transition-all text-sm"
                 >
                   Peruuta
                 </button>
                 <button
-                  type="submit"
-                  className="flex-[2] bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white font-bold py-4 rounded-2xl shadow-xl shadow-blue-950/20 transition-all border border-blue-400/20"
-                >
-                  Tallenna
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-      {candidates && (
-        <div className="fixed inset-0 z-[100] bg-slate-950/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200 overscroll-behavior-contain">
-          <div className="bg-slate-900/90 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300 border border-white/10 overscroll-contain">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="font-black text-lg tracking-tight text-white">Valitse oikea elokuva</h2>
-              <button
-                onClick={() => { setCandidates(null); setPendingMovie(null); }}
-                className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-              {candidates.map(c => (
-                <button
-                  key={c.id}
-                  className="w-full text-left p-5 rounded-2xl hover:bg-white/5 border border-white/5 hover:border-blue-500/30 flex items-start flex-col transition-all group"
                   onClick={() => {
-                    const isEdit = pendingMovie.id && !pendingMovie.id.startsWith('temp-')
-                    checkDuplicate(c.title, isEdit ? pendingMovie.id : null, () => {
-                      const finalMovie = {
-                        ...pendingMovie,
-                        title: c.title,
-                        releaseYear: c.releaseYear,
-                        tmdbId: c.id,
-                      }
-
-                      if (isEdit) {
-                        updateMovie(finalMovie)
-                      } else {
-                        saveMovie(finalMovie)
-                      }
-                    })
+                    confirmConfig.onConfirm();
+                    setConfirmConfig(null);
                   }}
+                  className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl shadow-xl shadow-blue-950/20 transition-all border border-blue-400/20 active:scale-[0.98] text-sm"
                 >
-                  <span className="font-bold text-slate-100 text-lg group-hover:text-blue-400 transition-colors">{c.title}</span>
-                  <span className="text-slate-500 font-medium">{c.releaseYear}</span>
+                  Kyllä
                 </button>
-              ))}
+              </div>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Detail Modal */}
-      {selectedMovieId && (
-        <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-0 sm:p-4 animate-in fade-in duration-300 overscroll-behavior-contain">
-          <div className="bg-slate-900 w-full max-w-3xl h-full sm:h-auto sm:max-h-[90vh] sm:rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] overflow-y-auto overflow-x-hidden custom-scrollbar relative animate-in zoom-in-95 duration-500 border border-white/10 group overscroll-contain">
-            {/* Close Button */}
-            <button
-              onClick={() => { setSelectedMovieId(null); setDetails(null); }}
-              className="absolute top-6 right-6 z-30 w-12 h-12 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center transition-all backdrop-blur-md border border-white/10 scale-90 hover:scale-100"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-
-            {loadingDetails ? (
-              <div className="p-40 text-center">
-                <div className="inline-block w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-6" />
-                <div className="text-slate-500 font-bold text-xs uppercase tracking-widest">Noudetaan tietoja...</div>
-              </div>
-            ) : details ? (
-              <div className="flex flex-col">
-                {/* Backdrop */}
-                <div className="relative aspect-video sm:aspect-[21/9] w-full bg-slate-800 transition-transform duration-700 group-hover:scale-105">
-                  {details.backdropPath ? (
-                    <img
-                      src={`https://image.tmdb.org/t/p/w1280${details.backdropPath}`}
-                      alt=""
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-slate-600">Ei taustakuvaa</div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
-                </div>
-
-                {/* Content */}
-                <div className="px-8 pb-16 -mt-24 relative z-10 transition-transform duration-500">
-                  <div className="flex flex-col sm:flex-row gap-8 items-end sm:items-start text-center sm:text-left">
-                    {/* Poster */}
-                    <div className="w-40 sm:w-48 shrink-0 mx-auto sm:mx-0 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
-                      {details.posterPath ? (
-                        <img
-                          src={`https://image.tmdb.org/t/p/w500${details.posterPath}`}
-                          alt={details.title}
-                          className="w-full rounded-[2rem] border-4 border-slate-900 object-cover aspect-[2/3]"
-                        />
-                      ) : (
-                        <div className="w-full aspect-[2/3] bg-slate-800 rounded-[2rem] flex items-center justify-center text-slate-600 border-4 border-slate-900">Ei kuvaa</div>
-                      )}
-                    </div>
-
-                    {/* Info */}
-                    <div className="flex-1 space-y-4 pt-4 sm:pt-28">
-                      <h2 className="text-4xl sm:text-5xl font-black text-white leading-[1.1] tracking-tighter">{details.title}</h2>
-                      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4">
-                        {details.releaseDate && (
-                          <span className="text-lg font-bold text-slate-400">{new Date(details.releaseDate).getFullYear()}</span>
-                        )}
-                        {details.runtime > 0 && (
-                          <span className="text-sm font-black text-slate-500 uppercase tracking-widest">{details.runtime} min</span>
-                        )}
-                        {details.voteAverage > 0 && (
-                          <span className="inline-flex items-center px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-500 text-sm font-black border border-amber-500/20">
-                            ★ {details.voteAverage.toFixed(1)}
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex flex-wrap justify-center sm:justify-start gap-2">
-                        {details.genres.map(g => (
-                          <span key={g} className="px-4 py-1.5 bg-white/5 text-slate-300 rounded-full text-xs font-bold border border-white/5">
-                            {g}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-12 space-y-8">
-                    <div className="glass-card p-8 rounded-[2.5rem]">
-                      <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-400/80 mb-4">Tarina lyhyesti</h3>
-                      <p className="text-slate-300 leading-relaxed text-lg font-medium italic">
-                        {details.overview || 'Ei kuvausta saatavilla.'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="p-40 text-center">
-                <div className="text-red-400 font-black text-lg mb-2">Hups!</div>
-                <div className="text-slate-500">Tietojen haku epäonnistui. Kokeile myöhemmin uudelleen.</div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-      {/* Date Pickers */}
-      {showDatePicker && (
-        <FinnishDatePicker
-          value={watchDate}
-          onChange={setWatchDate}
-          onClose={() => setShowDatePicker(false)}
-        />
-      )}
-      {showEditDatePicker && (
-        <FinnishDatePicker
-          value={editWatchDate}
-          onChange={setEditWatchDate}
-          onClose={() => setShowEditDatePicker(false)}
-        />
-      )}
-
-      {/* Confirm Modal */}
-      {confirmConfig && (
-        <div className="fixed inset-0 z-[150] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in duration-200 overscroll-behavior-contain">
-          <div className="bg-slate-900 w-full max-w-sm p-8 rounded-[2rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] border border-white/10 animate-in zoom-in-95 duration-300">
-            <h2 className="text-xl font-black text-white mb-2 tracking-tight">{confirmConfig.title}</h2>
-            <p className="text-slate-400 mb-8 leading-relaxed font-medium">{confirmConfig.message}</p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setConfirmConfig(null)}
-                className="flex-1 px-4 py-3.5 rounded-xl border border-white/10 text-slate-400 font-bold hover:bg-white/5 transition-all text-sm"
-              >
-                Peruuta
-              </button>
-              <button
-                onClick={() => {
-                  confirmConfig.onConfirm();
-                  setConfirmConfig(null);
-                }}
-                className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl shadow-xl shadow-blue-950/20 transition-all border border-blue-400/20 active:scale-[0.98] text-sm"
-              >
-                Kyllä
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </main>
+        )
+      }
+    </main >
   )
 }
