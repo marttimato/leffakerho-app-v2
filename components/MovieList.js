@@ -125,7 +125,7 @@ export default function MovieList({ movies, onDelete, onSelect, onEdit, isFilter
                                 <h4 className="font-bold text-slate-100 text-sm truncate">
                                   {movie.title}
                                 </h4>
-                                {movie.releaseYear && (
+                                {movie.releaseYear > 0 && (
                                   <span className="text-slate-500 text-[10px] font-medium shrink-0">
                                     {movie.releaseYear}
                                   </span>
@@ -150,10 +150,11 @@ export default function MovieList({ movies, onDelete, onSelect, onEdit, isFilter
                               </div>
                             </div>
 
-                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity pl-2">
+                            <div className="flex items-center gap-1 md:opacity-0 group-hover:opacity-100 transition-opacity pl-1 sm:pl-2 shrink-0">
                               <button
                                 onClick={(e) => { e.stopPropagation(); onEdit(movie); }}
-                                className="p-2 rounded-lg text-slate-500 hover:text-white hover:bg-white/5 transition-all"
+                                className="p-2 rounded-lg text-slate-500 hover:text-white hover:bg-white/5 transition-all active:bg-white/10"
+                                aria-label="Muokkaa"
                               >
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
                                   <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
@@ -161,7 +162,8 @@ export default function MovieList({ movies, onDelete, onSelect, onEdit, isFilter
                               </button>
                               <button
                                 onClick={(e) => { e.stopPropagation(); onDelete(movie.id); }}
-                                className="p-2 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-400/10 transition-all"
+                                className="p-2 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-400/10 transition-all active:bg-red-400/20"
+                                aria-label="Poista"
                               >
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
                                   <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.34 9m-4.74 0-.34-9m9.26-3.85c.73 0 1.36.59 1.45 1.32l.28 2.22m-13.14 0 .28-2.22c.09-.73.72-1.32 1.45-1.32m13.14 0a45.65 45.65 0 0 0-11 0m11 0V19c0 1.1-.9 2-2 2H7c-1.1 0-2-.9-2-2V7.41m21 0a45.65 45.65 0 0 0-11 0" />
