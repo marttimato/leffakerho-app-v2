@@ -201,7 +201,9 @@ export default function Stats() {
             if (!m.tmdbId || !metadata[m.tmdbId]) return
             // Count primary country only (first one)
             const countries = metadata[m.tmdbId].countries
-            const primary = countries[0]
+            const primary = countries && countries.length > 0 ? countries[0] : null
+            if (!primary) return
+
 
             let code = null
             let name = null
