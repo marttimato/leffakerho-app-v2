@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
-import { TurnChart, MonthlyChart, YearDistributionChart, GenreChart, CountryChart } from '../components/StatsCharts'
+import { TurnChart, YearDistributionChart, GenreChart, CountryChart } from '../components/StatsCharts'
 
 const PEOPLE = ['Tomi', 'Mikkis', 'Aino', 'Mari']
 
@@ -127,31 +127,27 @@ export default function Stats() {
         }
     }, [movies, filterPerson])
 
-    // 2. Movies per month
-    const monthlyData = useMemo(() => {
-        // We need all months from start to end, or just existing months?
-        // Let's sort filtered movies by date
-        const sorted = [...filteredMovies].sort((a, b) => {
-            const da = new Date(a.watchedAt || a.watchDate)
-            const db = new Date(b.watchedAt || b.watchDate)
-            return da - db
-        })
+    // 2. Average movies per month (Pace)
+    const averagePace = useMemo(() => {
+        if (filteredMovies.length === 0) return 0
 
-        if (sorted.length === 0) return []
+        // Find min and max date
+        const dates = filteredMovies
+            .map(m => new Date(m.watchedAt || m.watchDate))
+            .filter(d => !isNaN(d.getTime()))
+            .sort((a, b) => a - b)
 
-        // Map to Year-Month keys
-        const stats = {} // "2024-01": 5
-        sorted.forEach(m => {
-            const d = new Date(m.watchedAt || m.watchDate)
-            if (isNaN(d.getTime())) return
-            const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-            stats[key] = (stats[key] || 0) + 1
-        })
+        if (dates.length === 0) return 0
 
-        return Object.entries(stats).map(([key, count]) => ({
-            name: key, // Label
-            count
-        }))
+        const start = dates[0]
+        const end = new Date() // Use current date as end to represent "pace up to now" or dates[dates.length - 1]?
+        // "Pace" usually implies consistency over the active period. 
+        // Let's use the span between first movie and now (if active) or just first and last.
+        // If we use "now", and the user hasn't watched anything in a year, the pace drops (which is correct).
+        // Let's use the span between first watched and today.
+
+        const monthDiff = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()) + 1
+        return (filteredMovies.length / Math.max(1, monthDiff)).toFixed(1)
     }, [filteredMovies])
 
     // 3. Release Year Distribution
@@ -237,8 +233,8 @@ export default function Stats() {
                         <button
                             onClick={() => setFilterPerson('Kaikki')}
                             className={`px-5 py-2 rounded-full text-xs font-bold transition-all border ${filterPerson === 'Kaikki'
-                                    ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-900/20'
-                                    : 'bg-white/5 border-white/5 text-slate-400 hover:bg-white/10'
+                                ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-900/20'
+                                : 'bg-white/5 border-white/5 text-slate-400 hover:bg-white/10'
                                 }`}
                         >
                             Kaikki
@@ -248,8 +244,8 @@ export default function Stats() {
                                 key={p}
                                 onClick={() => setFilterPerson(p)}
                                 className={`px-5 py-2 rounded-full text-xs font-bold transition-all border ${filterPerson === p
-                                        ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-900/20'
-                                        : 'bg-white/5 border-white/5 text-slate-400 hover:bg-white/10'
+                                    ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-900/20'
+                                    : 'bg-white/5 border-white/5 text-slate-400 hover:bg-white/10'
                                     }`}
                             >
                                 {p}
@@ -267,9 +263,14 @@ export default function Stats() {
                         </div>
 
                         {/* 2. Monthly */}
-                        <div className="p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl">
-                            <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-6">Katselutahti (kk)</h2>
-                            <MonthlyChart data={monthlyData} />
+                        <div className="p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl flex flex-col justify-center items-center text-center">
+                            <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-2">Katselutahti</h2>
+                            <div className="text-4xl md:text-5xl font-black text-white tracking-tight mb-2">
+                                {averagePace}
+                            </div>
+                            <div className="text-sm font-bold text-slate-400 uppercase tracking-wider">
+                                leffaa / kk
+                            </div>
                         </div>
 
                         {/* 3. Genres */}

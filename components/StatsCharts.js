@@ -1,9 +1,9 @@
-import {
-    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-    LineChart, Line, PieChart, Pie, Cell, Legend
+BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+    PieChart, Pie, Cell
 } from 'recharts';
 
-const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#6366f1'];
+// Distinct colors for better contrast
+const COLORS = ['#e11d48', '#2563eb', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
 
 export function CustomTooltip({ active, payload, label }) {
     if (active && payload && payload.length) {
@@ -47,38 +47,7 @@ export function TurnChart({ data }) {
     );
 }
 
-export function MonthlyChart({ data }) {
-    return (
-        <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
-                    <XAxis
-                        dataKey="name"
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }}
-                        dy={10}
-                    />
-                    <YAxis
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fill: '#64748b', fontSize: 10 }}
-                    />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Line
-                        type="monotone"
-                        dataKey="count"
-                        stroke="#3b82f6"
-                        strokeWidth={4}
-                        dot={{ r: 6, fill: '#3b82f6', strokeWidth: 0 }}
-                        activeDot={{ r: 8, strokeWidth: 0, fill: '#60a5fa' }}
-                    />
-                </LineChart>
-            </ResponsiveContainer>
-        </div>
-    );
-}
+
 
 export function YearDistributionChart({ data }) {
     return (
@@ -112,21 +81,17 @@ export function GenreChart({ data }) {
                         cx="50%"
                         cy="50%"
                         innerRadius={60}
-                        outerRadius={100}
+                        outerRadius={90}
                         paddingAngle={5}
                         dataKey="count"
+                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        labelLine={{ stroke: '#94a3b8', strokeWidth: 1 }}
                     >
                         {data.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                     </Pie>
                     <Tooltip content={<CustomTooltip />} />
-                    <Legend
-                        verticalAlign="bottom"
-                        align="center"
-                        wrapperStyle={{ paddingTop: '20px' }}
-                        formatter={(value) => <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{value}</span>}
-                    />
                 </PieChart>
             </ResponsiveContainer>
         </div>
