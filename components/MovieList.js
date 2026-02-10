@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const MONTHS = [
   { num: 1, name: 'Tammikuu' }, { num: 2, name: 'Helmikuu' },
@@ -12,6 +12,17 @@ const MONTHS = [
 export default function MovieList({ movies, onDelete, onSelect, onEdit, isFiltered, people }) {
   const [collapsedYears, setCollapsedYears] = useState({})
   const [activeMovieId, setActiveMovieId] = useState(null)
+
+  /* ---------- AUTO-HIDE TIMER (MOBILE) ---------- */
+  useEffect(() => {
+    if (!activeMovieId) return
+
+    const timer = setTimeout(() => {
+      setActiveMovieId(null)
+    }, 10000) // 10 seconds
+
+    return () => clearTimeout(timer)
+  }, [activeMovieId])
 
   if (!movies || !movies.length) {
     return (
