@@ -23,7 +23,8 @@ export default async function handler(req, res) {
             releaseDate: data.release_date,
             voteAverage: data.vote_average,
             runtime: data.runtime,
-            genres: data.genres ? data.genres.map(g => g.name) : []
+            genres: data.genres ? data.genres.map(g => g.name) : [],
+            countries: data.production_countries ? data.production_countries.map(c => c.name) : []
         })
     } catch (e) {
         console.error(e)
