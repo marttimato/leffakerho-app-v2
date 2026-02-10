@@ -401,9 +401,9 @@ export default function Home() {
 
   return (
     <main className="min-h-screen pb-20 selection:bg-blue-500/30 font-sans">
-      <div className="max-w-2xl mx-auto min-h-screen relative overflow-hidden">
+      <div className="max-w-2xl mx-auto min-h-screen relative overflow-x-hidden">
         {/* Header / Top Bar */}
-        <header className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-white/5 px-6 py-4 flex items-center justify-between">
+        <header className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-white/5 px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <h1 className="text-xl font-black tracking-tight text-white">Leffakerho</h1>
           </div>
@@ -420,7 +420,7 @@ export default function Home() {
           </div>
         </header>
 
-        <div className="p-6 space-y-8">
+        <div className="p-4 sm:p-6 space-y-8">
           {/* Add Movie Section */}
           <section className="space-y-4">
             {!showAddForm ? (
