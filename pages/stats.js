@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
-import { TurnChart, MonthlyChart, YearDistributionChart, GenreChart, CountryChart } from '../components/StatsCharts'
+import { TurnChart, YearDistributionChart, GenreChart, CountryChart } from '../components/StatsCharts'
 
 const PEOPLE = ['Tomi', 'Mikkis', 'Aino', 'Mari']
 
@@ -135,30 +135,6 @@ export default function Stats() {
             return [{ name: filterPerson, count }]
         }
     }, [movies, filterPerson])
-
-    // 2. Movies per month
-    const monthlyData = useMemo(() => {
-        const sorted = [...filteredMovies].sort((a, b) => {
-            const da = new Date(a.watchedAt || a.watchDate)
-            const db = new Date(b.watchedAt || b.watchDate)
-            return da - db
-        })
-
-        if (sorted.length === 0) return []
-
-        const stats = {}
-        sorted.forEach(m => {
-            const d = new Date(m.watchedAt || m.watchDate)
-            if (isNaN(d.getTime())) return
-            const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-            stats[key] = (stats[key] || 0) + 1
-        })
-
-        return Object.entries(stats).map(([key, count]) => ({
-            name: key,
-            count
-        }))
-    }, [filteredMovies])
 
     // 2b. Average movies per month (Pace)
     const averagePace = useMemo(() => {
@@ -338,12 +314,6 @@ export default function Stats() {
                                 <div className="text-sm font-bold text-slate-400 uppercase tracking-wider">
                                     leffaa / kk
                                 </div>
-                            </div>
-
-                            {/* Activity Chart */}
-                            <div className="p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl">
-                                <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-6">Katselut (kk)</h2>
-                                <MonthlyChart data={monthlyData} />
                             </div>
                         </div>
 
