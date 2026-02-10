@@ -11,6 +11,7 @@ const MONTHS = [
 
 export default function MovieList({ movies, onDelete, onSelect, onEdit, isFiltered, people }) {
   const [collapsedYears, setCollapsedYears] = useState({})
+  const [activeMovieId, setActiveMovieId] = useState(null)
 
   if (!movies || !movies.length) {
     return (
@@ -51,6 +52,15 @@ export default function MovieList({ movies, onDelete, onSelect, onEdit, isFilter
       const isCurrentlyCollapsed = prev[year] ?? (year !== currentYear)
       return { ...prev, [year]: !isCurrentlyCollapsed }
     })
+  }
+
+  function handleCardClick(movie) {
+    if (activeMovieId === movie.id) {
+      setActiveMovieId(null)
+      onSelect(movie) // Original behavior if already active
+    } else {
+      setActiveMovieId(movie.id)
+    }
   }
 
   function formatDate(dateStr) {
@@ -114,64 +124,75 @@ export default function MovieList({ movies, onDelete, onSelect, onEdit, isFilter
                       </h3>
 
                       <div className="grid gap-3">
-                        {byMonth[monNum].sort((a, b) => b.internalDate - a.internalDate).map(movie => (
-                          <article
-                            key={movie.id}
-                            onClick={() => onSelect(movie)}
-                            className="glass-card p-4 rounded-2xl flex items-center gap-4 cursor-pointer active:scale-[0.99] transition-all hover:bg-white/[0.04] border-white/5 hover:border-white/10 group h-20"
-                          >
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-0.5 min-w-0">
-                                <h4 className="font-bold text-slate-100 text-sm truncate shrink">
-                                  {movie.title}
-                                </h4>
-                                {movie.releaseYear > 0 && (
-                                  <span className="text-slate-500 text-[10px] font-medium shrink-0">
-                                    {movie.releaseYear}
+                        {byMonth[monNum].sort((a, b) => b.internalDate - a.internalDate).map(movie => {
+                          const isActive = activeMovieId === movie.id
+                          return (
+                            <article
+                              key={movie.id}
+                              onClick={() => handleCardClick(movie)}
+                              className={`
+                                glass-card p-4 rounded-2xl flex items-center gap-4 cursor-pointer transition-all border-white/5 h-20 group
+                                ${isActive ? 'bg-white/[0.08] border-white/20' : 'hover:bg-white/[0.04] hover:border-white/10 active:scale-[0.99]'}
+                              `}
+                            >
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-0.5 min-w-0">
+                                  <h4 className="font-bold text-slate-100 text-sm truncate shrink">
+                                    {movie.title}
+                                  </h4>
+                                  {movie.releaseYear > 0 && (
+                                    <span className="text-slate-500 text-[10px] font-medium shrink-0">
+                                      {movie.releaseYear}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className={`
+                                    px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider border
+                                    ${movie.person === 'Tomi' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' :
+                                      movie.person === 'Mikkis' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' :
+                                        movie.person === 'Aino' ? 'bg-pink-500/10 text-pink-400 border-pink-500/20' :
+                                          'bg-amber-500/10 text-amber-400 border-amber-500/20'}
+                                  `}>
+                                    {movie.person}
                                   </span>
-                                )}
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className={`
-                                px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider border
-                                ${movie.person === 'Tomi' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' :
-                                    movie.person === 'Mikkis' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' :
-                                      movie.person === 'Aino' ? 'bg-pink-500/10 text-pink-400 border-pink-500/20' :
-                                        'bg-amber-500/10 text-amber-400 border-amber-500/20'}
-                              `}>
-                                  {movie.person}
-                                </span>
-                              </div>
-                            </div>
-
-                            <div className="text-right shrink-0 flex flex-col items-end gap-1">
-                              <div className="text-[10px] font-medium text-slate-500 tabular-nums">
-                                {formatDate(movie.watchedAt || movie.watchDate)}
+                                </div>
                               </div>
 
-                              <div className="flex items-center gap-1 md:opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                                <button
-                                  onClick={(e) => { e.stopPropagation(); onEdit(movie); }}
-                                  className="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/5 transition-all active:bg-white/10"
-                                  aria-label="Muokkaa"
-                                >
-                                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
-                                  </svg>
-                                </button>
-                                <button
-                                  onClick={(e) => { e.stopPropagation(); onDelete(movie.id); }}
-                                  className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-400/10 transition-all active:bg-red-400/20"
-                                  aria-label="Poista"
-                                >
-                                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.34 9m-4.74 0-.34-9m9.26-3.85c.73 0 1.36.59 1.45 1.32l.28 2.22m-13.14 0 .28-2.22c.09-.73.72-1.32 1.45-1.32m13.14 0a45.65 45.65 0 0 0-11 0m11 0V19c0 1.1-.9 2-2 2H7c-1.1 0-2-.9-2-2V7.41m21 0a45.65 45.65 0 0 0-11 0" />
-                                  </svg>
-                                </button>
+                              <div className="text-right shrink-0 flex flex-col items-end gap-1">
+                                <div className={`transition-all duration-300 ${isActive ? 'opacity-0 scale-90 h-0 overflow-hidden' : 'opacity-100 scale-100'}`}>
+                                  <div className="text-[10px] font-medium text-slate-500 tabular-nums">
+                                    {formatDate(movie.watchedAt || movie.watchDate)}
+                                  </div>
+                                </div>
+
+                                <div className={`
+                                  flex items-center gap-1 transition-all duration-300 shrink-0
+                                  ${isActive ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4 pointer-events-none md:pointer-events-auto md:group-hover:opacity-100 md:group-hover:translate-x-0'}
+                                `}>
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); onEdit(movie); }}
+                                    className="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/5 transition-all active:bg-white/10"
+                                    aria-label="Muokkaa"
+                                  >
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5">
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                                    </svg>
+                                  </button>
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); onDelete(movie.id); }}
+                                    className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-400/10 transition-all active:bg-red-400/20"
+                                    aria-label="Poista"
+                                  >
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5">
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.34 9m-4.74 0-.34-9m9.26-3.85c.73 0 1.36.59 1.45 1.32l.28 2.22m-13.14 0 .28-2.22c.09-.73.72-1.32 1.45-1.32m13.14 0a45.65 45.65 0 0 0-11 0m11 0V19c0 1.1-.9 2-2 2H7c-1.1 0-2-.9-2-2V7.41m21 0a45.65 45.65 0 0 0-11 0" />
+                                    </svg>
+                                  </button>
+                                </div>
                               </div>
-                            </div>
-                          </article>
-                        ))}
+                            </article>
+                          )
+                        })}
                       </div>
                     </div>
                   )
