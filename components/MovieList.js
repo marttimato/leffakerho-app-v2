@@ -55,9 +55,10 @@ export default function MovieList({ movies, onDelete, onSelect, onEdit, isFilter
   }
 
   function handleCardClick(movie) {
-    if (activeMovieId === movie.id) {
+    const isHoverDevice = window.matchMedia('(hover: hover)').matches
+    if (isHoverDevice || activeMovieId === movie.id) {
       setActiveMovieId(null)
-      onSelect(movie) // Original behavior if already active
+      onSelect(movie)
     } else {
       setActiveMovieId(movie.id)
     }
