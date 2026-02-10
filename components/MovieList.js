@@ -44,15 +44,17 @@ export default function MovieList({ movies, onDelete, onSelect, onEdit, isFilter
     .filter(y => !isNaN(y))
     .sort((a, b) => b - a) // Latest year first
 
-  const latestId = movies[0]?.id // API already returns newest first
+  const currentYear = new Date().getFullYear()
 
   function toggleYear(year) {
-    setCollapsedYears(prev => ({ ...prev, [year]: !prev[year] }))
+    setCollapsedYears(prev => {
+      const isCurrentlyCollapsed = prev[year] ?? (year !== currentYear)
+      return { ...prev, [year]: !isCurrentlyCollapsed }
+    })
   }
 
   function formatDate(dateStr) {
     if (!dateStr) return ''
-    // Handle YYYY-MM-DD ISO strings directly to avoid TZ shifts
     if (typeof dateStr === 'string' && dateStr.includes('-')) {
       const parts = dateStr.split('T')[0].split('-')
       if (parts.length === 3) {
@@ -66,7 +68,7 @@ export default function MovieList({ movies, onDelete, onSelect, onEdit, isFilter
   return (
     <div className="space-y-6 pb-20">
       {years.map(year => {
-        const isCollapsed = collapsedYears[year]
+        const isCollapsed = collapsedYears[year] ?? (year !== currentYear)
         const byMonth = byYear[year].reduce((acc, m) => {
           const mon = m.internalDate.getMonth() + 1
           acc[mon] = acc[mon] || []
