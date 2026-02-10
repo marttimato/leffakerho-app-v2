@@ -127,7 +127,31 @@ export default function Stats() {
         }
     }, [movies, filterPerson])
 
-    // 2. Average movies per month (Pace)
+    // 2. Movies per month
+    const monthlyData = useMemo(() => {
+        const sorted = [...filteredMovies].sort((a, b) => {
+            const da = new Date(a.watchedAt || a.watchDate)
+            const db = new Date(b.watchedAt || b.watchDate)
+            return da - db
+        })
+
+        if (sorted.length === 0) return []
+
+        const stats = {}
+        sorted.forEach(m => {
+            const d = new Date(m.watchedAt || m.watchDate)
+            if (isNaN(d.getTime())) return
+            const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+            stats[key] = (stats[key] || 0) + 1
+        })
+
+        return Object.entries(stats).map(([key, count]) => ({
+            name: key,
+            count
+        }))
+    }, [filteredMovies])
+
+    // 2b. Average movies per month (Pace)
     const averagePace = useMemo(() => {
         if (filteredMovies.length === 0) return 0
 
