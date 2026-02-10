@@ -44,6 +44,7 @@ export default function Home() {
 
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [showAddForm, setShowAddForm] = useState(false)
 
   /* ---------- SEARCH (Debounced) ---------- */
   useEffect(() => {
@@ -197,6 +198,7 @@ export default function Home() {
     setPerson(PEOPLE[0])
     setCandidates(null)
     setPendingMovie(null)
+    setShowAddForm(false)
   }
 
   /* ---------- UPDATE (API) ---------- */
@@ -395,122 +397,161 @@ export default function Home() {
     }
   }, [selectedMovieId, candidates, editingMovie, confirmConfig, showDatePicker, showEditDatePicker])
 
+  const watchedCount = movies.filter(m => PEOPLE.includes(m.person)).length
+
   return (
-    <main className="min-h-screen pb-20 selection:bg-blue-500/30">
-      <div className="max-w-md mx-auto min-h-screen bg-slate-950/20 backdrop-blur-3xl shadow-[0_0_100px_rgba(0,0,0,0.5)] relative overflow-hidden border-x border-white/5">
+    <main className="min-h-screen pb-20 selection:bg-blue-500/30 font-sans">
+      <div className="max-w-2xl mx-auto min-h-screen relative overflow-hidden">
         {/* Header / Top Bar */}
-        <div className="sticky top-0 z-30 glass border-b border-white/5 p-4 pt-12 flex items-center justify-between">
-          <h1 className="text-2xl font-black tracking-tight bg-gradient-to-br from-white to-slate-400 bg-clip-text text-transparent">Leffakerho</h1>
-          <div className="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs h-7">
-            {movies.filter(m => PEOPLE.includes(m.person)).length} <span className="ml-1 opacity-50 font-normal">leffaa</span>
+        <header className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-white/5 px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <h1 className="text-xl font-black tracking-tight text-white">Leffakerho</h1>
           </div>
-        </div>
-
-        <div className="p-4 space-y-8">
-          {/* Add Movie Form */}
-          <section className="glass-card p-6 rounded-3xl relative overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 to-purple-600/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-400/80 mb-4 px-1">Lisää uusi elämys</h2>
-            <form onSubmit={handleAdd} className="space-y-4 relative z-10">
-              <div className="relative">
-                <input
-                  className="w-full glass-input rounded-2xl px-4 py-4 placeholder-slate-500 text-white transition-all ring-0 border-white/10 focus:border-blue-500/50"
-                  placeholder="Elokuvan nimi..."
-                  value={title}
-                  onChange={e => setTitle(e.target.value)}
-                  onBlur={() => setTimeout(() => setSuggestions([]), 200)}
-                />
-                <SuggestionList
-                  items={suggestions}
-                  isSearching={isSearching}
-                  onSelect={(s) => handleSelectSuggestion(s, false)}
-                />
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setShowDatePicker(true)}
-                  className="w-full glass-input rounded-2xl px-4 py-3.5 text-left text-slate-300 transition-all border-white/10 focus:border-blue-500/50 flex justify-between items-center group/btn"
-                >
-                  <span>{formatDateFi(watchDate)}</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-slate-500 group-hover/btn:text-blue-400 transition-colors">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-                  </svg>
-                </button>
-              </div>
-
-
-              <div className="grid grid-cols-4 gap-2 p-1 bg-white/5 rounded-2xl border border-white/5">
-                {PEOPLE.map(p => (
-                  <label
-                    key={p}
-                    className={`
-                      text-center py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer truncate
-                      ${person === p ? 'bg-blue-600 text-white shadow-[0_0_20px_rgba(37,99,235,0.4)]' : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'}
-                    `}
-                  >
-                    <input
-                      type="radio"
-                      className="hidden"
-                      checked={person === p}
-                      onChange={() => setPerson(p)}
-                    />
-                    {p}
-                  </label>
-                ))}
-              </div>
-
-              <button className="w-full bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white font-bold py-4 rounded-2xl shadow-xl shadow-blue-950/20 transition-all border border-blue-400/20 group-hover:shadow-blue-500/10">
-                Lisää listalle
-              </button>
-            </form>
-          </section>
-
-          {/* Search Bar */}
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between px-1">
-              <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Katsotut elokuvat</h2>
-              <button
-                onClick={() => {
-                  setIsSearchOpen(!isSearchOpen)
-                  if (isSearchOpen) setSearchQuery('')
-                }}
-                className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${isSearchOpen ? 'bg-blue-600 text-white shadow-[0_0_15px_rgba(37,99,235,0.4)]' : 'bg-white/5 text-slate-500 hover:text-white border border-white/5'}`}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                </svg>
-              </button>
+          <div className="flex items-center gap-4">
+            <div className="px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center gap-2">
+              <span className="text-blue-400 font-bold text-xs">{watchedCount}</span>
+              <span className="text-blue-400/60 text-[10px] font-bold uppercase tracking-wider">leffaa katsottu</span>
             </div>
+            <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-500">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+              </svg>
+            </div>
+          </div>
+        </header>
 
-            {isSearchOpen && (
-              <div className="animate-in zoom-in-95 duration-200">
-                <div className="relative">
-                  <input
-                    autoFocus
-                    className="w-full glass-input rounded-2xl px-5 py-4 placeholder-slate-500 text-white transition-all ring-0 border-white/10 focus:border-blue-500/50"
-                    placeholder="Etsi elokuvaa tai katsojaa..."
-                    value={searchQuery}
-                    onChange={e => setSearchQuery(e.target.value)}
-                    onBlur={() => {
-                      if (!searchQuery.trim()) setIsSearchOpen(false)
-                    }}
-                  />
-                  {searchQuery && (
+        <div className="p-6 space-y-8">
+          {/* Add Movie Section */}
+          <section className="space-y-4">
+            {!showAddForm ? (
+              <button
+                onClick={() => setShowAddForm(true)}
+                className="w-full bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white font-bold py-5 rounded-2xl shadow-xl shadow-blue-900/20 transition-all flex items-center justify-center gap-2 group"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5 transition-transform group-hover:rotate-90">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Lisää uusi elämys
+              </button>
+            ) : (
+              <div className="glass-card p-6 rounded-[2.5rem] relative overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 to-purple-600/5 pointer-events-none" />
+                <div className="relative z-10 space-y-6">
+                  <div className="flex items-center justify-between px-1">
+                    <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-400">Uusi elämys</h2>
                     <button
-                      onClick={() => setSearchQuery('')}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white p-2"
+                      onClick={() => setShowAddForm(false)}
+                      className="text-slate-500 hover:text-white transition-colors"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
                         <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
                       </svg>
                     </button>
-                  )}
+                  </div>
+
+                  <form onSubmit={handleAdd} className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Elokuvan nimi</label>
+                      <div className="relative">
+                        <input
+                          className="w-full glass-input rounded-2xl px-5 py-4 placeholder-slate-600 text-white transition-all ring-0 border-white/5 focus:border-blue-500/50"
+                          placeholder="Mikä leffa katsottiin?"
+                          value={title}
+                          onChange={e => setTitle(e.target.value)}
+                          onBlur={() => setTimeout(() => setSuggestions([]), 200)}
+                        />
+                        <SuggestionList
+                          items={suggestions}
+                          isSearching={isSearching}
+                          onSelect={(s) => handleSelectSuggestion(s, false)}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Katselupäivä</label>
+                      <button
+                        type="button"
+                        onClick={() => setShowDatePicker(true)}
+                        className="w-full glass-input rounded-2xl px-5 py-4 text-left text-slate-300 transition-all border-white/5 focus:border-blue-500/50 flex justify-between items-center group/btn"
+                      >
+                        <span className="font-semibold">{formatDateFi(watchDate)}</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-slate-500 group-hover/btn:text-blue-400 transition-colors">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                        </svg>
+                      </button>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Kuka valitsi?</label>
+                      <div className="flex flex-wrap gap-2">
+                        {PEOPLE.map(p => (
+                          <button
+                            key={p}
+                            type="button"
+                            onClick={() => setPerson(p)}
+                            className={`
+                              px-5 py-2.5 rounded-full text-xs font-bold transition-all border
+                              ${person === p
+                                ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-900/40'
+                                : 'bg-white/5 border-white/5 text-slate-400 hover:bg-white/10 hover:text-slate-200'}
+                            `}
+                          >
+                            {p}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowAddForm(false)}
+                        className="flex-1 px-4 py-4 rounded-2xl text-slate-400 font-bold hover:bg-white/5 transition-all"
+                      >
+                        Peruuta
+                      </button>
+                      <button className="flex-[2] bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white font-bold py-4 rounded-2xl shadow-xl shadow-blue-900/20 transition-all border border-blue-400/20">
+                        Lisää listalle
+                      </button>
+                    </div>
+                  </form>
                 </div>
               </div>
             )}
-          </div>
+          </section>
+
+          {/* Search Bar */}
+          <section className="space-y-4">
+            <div className="flex items-center justify-between px-1">
+              <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Katsotut elokuvat</h2>
+              <div className="h-px flex-1 mx-4 bg-white/5" />
+            </div>
+
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className={`w-4 h-4 transition-colors ${searchQuery ? 'text-blue-400' : 'text-slate-500 group-hover:text-slate-400'}`}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                </svg>
+              </div>
+              <input
+                className="w-full glass-input rounded-2xl pl-11 pr-12 py-4 placeholder-slate-600 text-white transition-all ring-0 border-white/5 focus:border-blue-500/30"
+                placeholder="Etsi elokuvaa tai katsojaa..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-xl bg-white/5 text-slate-500 hover:text-white flex items-center justify-center transition-all"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+                    <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                  </svg>
+                </button>
+              )}
+            </div>
+          </section>
 
           {/* List */}
           {loading ? (
@@ -583,24 +624,22 @@ export default function Home() {
 
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-blue-400/80 ml-1">Valitsija</label>
-                <div className="grid grid-cols-4 gap-2 p-1 bg-white/5 rounded-2xl border border-white/5">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Kuka valitsi?</label>
+                <div className="flex flex-wrap gap-2">
                   {PEOPLE.map(p => (
-                    <label
+                    <button
                       key={p}
+                      type="button"
+                      onClick={() => setEditPerson(p)}
                       className={`
-                        text-center py-3 rounded-xl text-xs font-bold transition-all cursor-pointer truncate
-                        ${editPerson === p ? 'bg-blue-600 text-white shadow-[0_0_20px_rgba(37,99,235,0.4)]' : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'}
+                        px-5 py-2.5 rounded-full text-xs font-bold transition-all border
+                        ${editPerson === p
+                          ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-900/40'
+                          : 'bg-white/5 border-white/5 text-slate-400 hover:bg-white/10 hover:text-slate-200'}
                       `}
                     >
-                      <input
-                        type="radio"
-                        className="hidden"
-                        checked={editPerson === p}
-                        onChange={() => setEditPerson(p)}
-                      />
                       {p}
-                    </label>
+                    </button>
                   ))}
                 </div>
               </div>
