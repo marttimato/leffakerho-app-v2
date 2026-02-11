@@ -128,22 +128,22 @@ export function CountryChart({ data }) {
     return (
         <div className="space-y-3">
             {data.map((item, index) => (
-                <div key={item.name} className="flex items-center justify-between group">
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-xs font-black text-slate-500 group-hover:text-blue-400 transition-colors">
+                <div key={item.name} className="flex items-center justify-between group gap-2">
+                    <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+                        <div className="w-6 h-6 md:w-8 md:h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-[10px] md:text-xs font-black text-slate-500 group-hover:text-blue-400 transition-colors flex-shrink-0">
                             {index + 1}
                         </div>
-                        <span className="text-2xl" role="img" aria-label={`Flag of ${item.name}`}>{item.flag}</span>
-                        <span className="text-sm font-bold text-slate-200">{item.name}</span>
+                        <span className="text-xl md:text-2xl flex-shrink-0" role="img" aria-label={`Flag of ${item.name}`}>{item.flag}</span>
+                        <span className="text-sm font-bold text-slate-200 truncate">{item.name}</span>
                     </div>
-                    <div className="flex items-center gap-4">
-                        <div className="w-32 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                    <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
+                        <div className="w-16 md:w-32 h-1.5 bg-slate-800 rounded-full overflow-hidden">
                             <div
                                 className="h-full bg-blue-500 rounded-full transition-all duration-1000"
                                 style={{ width: `${(item.count / data[0].count) * 100}%` }}
                             />
                         </div>
-                        <span className="text-xs font-black text-white tabular-nums">{item.count}</span>
+                        <span className="text-xs font-black text-white tabular-nums w-5 text-right">{item.count}</span>
                     </div>
                 </div>
             ))}

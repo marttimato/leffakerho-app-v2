@@ -270,7 +270,7 @@ export default function Stats() {
                     )}
                 </header>
 
-                <div className="p-6 space-y-10">
+                <div className="p-4 md:p-6 space-y-10">
                     {/* Filter */}
                     <div className="flex flex-wrap gap-2">
                         <button
