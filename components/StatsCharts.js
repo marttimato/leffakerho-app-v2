@@ -133,6 +133,10 @@ export function GenreChart({ data }) {
 }
 
 export function CountryChart({ data }) {
+    console.log('CountryChart received data:', data);
+    console.log('First item:', data[0]);
+    console.log('First item flag:', data[0]?.flag, 'Type:', typeof data[0]?.flag);
+
     return (
         <div className="space-y-3">
             {data.map((item, index) => (
