@@ -149,7 +149,11 @@ export function CountryChart({ data }) {
                             className="text-xl md:text-2xl flex-shrink-0"
                             role="img"
                             aria-label={`Flag of ${item.name}`}
-                            style={{ fontFamily: 'Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif' }}
+                            style={{
+                                fontFamily: '"Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "Apple Color Emoji", "Android Emoji", sans-serif',
+                                textRendering: 'optimizeLegibility',
+                                WebkitFontSmoothing: 'antialiased'
+                            }}
                         >
                             {item.flag}
                         </span>
