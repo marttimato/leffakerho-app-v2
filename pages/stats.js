@@ -181,9 +181,10 @@ export default function Stats() {
         const counts = {}
         filteredMovies.forEach(m => {
             if (!m.tmdbId || !metadata[m.tmdbId]) return
-            metadata[m.tmdbId].genres.forEach(g => {
-                counts[g] = (counts[g] || 0) + 1
-            })
+            if (metadata[m.tmdbId].genres && metadata[m.tmdbId].genres.length > 0) {
+                const primaryGenre = metadata[m.tmdbId].genres[0]
+                counts[primaryGenre] = (counts[primaryGenre] || 0) + 1
+            }
         })
 
         // Sort and take top X
