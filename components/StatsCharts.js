@@ -1,6 +1,6 @@
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList,
-    LineChart, Line
+    LineChart, Line, Cell
 } from 'recharts';
 
 // Distinct colors for better contrast
