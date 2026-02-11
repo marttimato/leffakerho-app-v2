@@ -323,7 +323,7 @@ export default function Stats() {
                         {/* 3. Genres */}
                         <div className="p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl">
                             <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-6">Suosituimmat genret</h2>
-                            <div className="h-[300px] flex items-center justify-center">
+                            <div className="w-full">
                                 {genreData.length > 0 ? (
                                     <GenreChart data={genreData} />
                                 ) : (
