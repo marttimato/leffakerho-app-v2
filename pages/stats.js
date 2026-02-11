@@ -240,15 +240,11 @@ export default function Stats() {
         return Object.values(counts)
             .sort((a, b) => b.count - a.count)
             .slice(0, 10) // Top 10
-            .map(c => {
-                const flagEmoji = getFlagEmoji(c.code);
-                console.log('Country:', c.name, 'Code:', c.code, 'Flag emoji:', flagEmoji, 'Code points:', c.code ? c.code.split('').map(ch => ch.charCodeAt(0)) : 'no code');
-                return {
-                    name: c.name === "United States of America" ? "USA" : c.name,
-                    count: c.count,
-                    flag: flagEmoji || '🏴' // Fallback to black flag if no code
-                };
-            })
+            .map(c => ({
+                name: c.name === "United States of America" ? "USA" : c.name,
+                count: c.count,
+                code: c.code || 'XX' // Use code directly for SVG flags, fallback to XX
+            }))
     }, [filteredMovies, metadata])
 
 

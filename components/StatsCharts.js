@@ -133,10 +133,6 @@ export function GenreChart({ data }) {
 }
 
 export function CountryChart({ data }) {
-    console.log('CountryChart received data:', data);
-    console.log('First item:', data[0]);
-    console.log('First item flag:', data[0]?.flag, 'Type:', typeof data[0]?.flag);
-
     return (
         <div className="space-y-3">
             {data.map((item, index) => (
@@ -145,18 +141,17 @@ export function CountryChart({ data }) {
                         <div className="w-6 h-6 md:w-8 md:h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-[10px] md:text-xs font-black text-slate-500 group-hover:text-blue-400 transition-colors flex-shrink-0">
                             {index + 1}
                         </div>
-                        <span
-                            className="text-xl md:text-2xl flex-shrink-0"
-                            role="img"
-                            aria-label={`Flag of ${item.name}`}
-                            style={{
-                                fontFamily: '"Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "Apple Color Emoji", "Android Emoji", sans-serif',
-                                textRendering: 'optimizeLegibility',
-                                WebkitFontSmoothing: 'antialiased'
+                        <img
+                            src={`https://flagcdn.com/w40/${item.code.toLowerCase()}.png`}
+                            srcSet={`https://flagcdn.com/w80/${item.code.toLowerCase()}.png 2x`}
+                            width="32"
+                            height="24"
+                            alt={`Flag of ${item.name}`}
+                            className="flex-shrink-0 rounded shadow-sm"
+                            onError={(e) => {
+                                e.target.style.display = 'none';
                             }}
-                        >
-                            {item.flag}
-                        </span>
+                        />
                         <span className="text-sm font-bold text-slate-200 truncate">{item.name}</span>
                     </div>
                     <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
