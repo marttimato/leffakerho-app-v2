@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList,
-    PieChart, Pie, Cell, LineChart, Line
+    LineChart, Line
 } from 'recharts';
 
 // Distinct colors for better contrast
@@ -99,60 +98,36 @@ export function YearDistributionChart({ data }) {
 }
 
 export function GenreChart({ data }) {
-    const [isMobile, setIsMobile] = useState(false);
-
-    useEffect(() => {
-        const checkMobile = () => setIsMobile(window.innerWidth < 768);
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
-
     const total = data.reduce((sum, item) => sum + item.count, 0);
 
     return (
-        <div className="w-full flex flex-col items-center">
-            <div className="h-[300px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                        <Pie
-                            data={data}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={isMobile ? 60 : 50}
-                            outerRadius={isMobile ? 90 : 80}
-                            paddingAngle={5}
-                            dataKey="count"
-                            label={isMobile ? false : ({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                            labelLine={!isMobile}
-                        >
-                            {data.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                            ))}
-                        </Pie>
-                        <Tooltip content={<CustomTooltip />} />
-                    </PieChart>
-                </ResponsiveContainer>
-            </div>
-
-            {/* Mobile Legend */}
-            <div className="md:hidden w-full max-w-[300px] mt-4 space-y-2">
-                {data.map((entry, index) => (
-                    <div key={entry.name} className="flex items-center justify-between text-sm">
+        <div className="space-y-4 w-full">
+            {data.map((item, index) => (
+                <div key={item.name} className="group">
+                    <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                             <div
-                                className="w-3 h-3 rounded-full"
+                                className="w-2 h-2 rounded-full"
                                 style={{ backgroundColor: COLORS[index % COLORS.length] }}
                             />
-                            <span className="font-bold text-slate-300">{entry.name}</span>
+                            <span className="text-sm font-bold text-slate-200 group-hover:text-white transition-colors">{item.name}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <span className="font-bold text-white">{entry.count}</span>
-                            <span className="text-slate-500">({((entry.count / total) * 100).toFixed(0)}%)</span>
+                        <div className="flex items-baseline gap-1.5">
+                            <span className="text-sm font-black text-white">{item.count}</span>
+                            <span className="text-xs font-medium text-slate-500">({((item.count / total) * 100).toFixed(0)}%)</span>
                         </div>
                     </div>
-                ))}
-            </div>
+                    <div className="w-full h-2.5 bg-slate-800/50 rounded-full overflow-hidden border border-white/5">
+                        <div
+                            className="h-full rounded-full transition-all duration-1000 ease-out"
+                            style={{
+                                width: `${(item.count / total) * 100}%`,
+                                backgroundColor: COLORS[index % COLORS.length]
+                            }}
+                        />
+                    </div>
+                </div>
+            ))}
         </div>
     );
 }
