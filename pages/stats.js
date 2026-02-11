@@ -243,7 +243,7 @@ export default function Stats() {
             .map(c => ({
                 name: c.name === "United States of America" ? "USA" : c.name, // Shorten USA for better fit
                 count: c.count,
-                flag: getFlagEmoji(c.code)
+                flag: getFlagEmoji(c.code) || '🏴' // Fallback to black flag if no code
             }))
     }, [filteredMovies, metadata])
 

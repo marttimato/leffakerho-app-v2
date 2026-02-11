@@ -141,7 +141,14 @@ export function CountryChart({ data }) {
                         <div className="w-6 h-6 md:w-8 md:h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-[10px] md:text-xs font-black text-slate-500 group-hover:text-blue-400 transition-colors flex-shrink-0">
                             {index + 1}
                         </div>
-                        <span className="text-xl md:text-2xl flex-shrink-0" role="img" aria-label={`Flag of ${item.name}`}>{item.flag}</span>
+                        <span
+                            className="text-xl md:text-2xl flex-shrink-0"
+                            role="img"
+                            aria-label={`Flag of ${item.name}`}
+                            style={{ fontFamily: 'Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif' }}
+                        >
+                            {item.flag}
+                        </span>
                         <span className="text-sm font-bold text-slate-200 truncate">{item.name}</span>
                     </div>
                     <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
