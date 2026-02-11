@@ -47,6 +47,7 @@ export default function Home() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [showAddForm, setShowAddForm] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [titlePickerMovie, setTitlePickerMovie] = useState(null) // Movie with multiple title options
 
   const [validationError, setValidationError] = useState('')
   const [toast, setToast] = useState({ message: '', visible: false })
@@ -128,14 +129,38 @@ export default function Home() {
 
   /* ---------- SUGGESTION SELECT ---------- */
   function handleSelectSuggestion(s, isEdit = false) {
-    if (isEdit) {
-      setEditTitle(s.title)
-      setEditSuggestions([])
-      setEditingMovie(prev => ({ ...prev, title: s.title, tmdbId: s.id, releaseYear: s.releaseYear }))
-    } else {
-      setTitle(s.title)
+    // If movie has multiple title options, show title picker
+    if (s.titles && s.titles.length > 1) {
+      setTitlePickerMovie({ ...s, isEdit })
       setSuggestions([])
-      setPendingMovie({ title: s.title, tmdbId: s.id, releaseYear: s.releaseYear })
+      setEditSuggestions([])
+      return
+    }
+
+    // Single title - use it directly
+    const selectedTitle = s.titles ? s.titles[0].title : s.title
+
+    if (isEdit) {
+      setEditTitle(selectedTitle)
+      setEditSuggestions([])
+      setEditingMovie(prev => ({ ...prev, title: selectedTitle, tmdbId: s.id, releaseYear: s.releaseYear }))
+    } else {
+      setTitle(selectedTitle)
+      setSuggestions([])
+      setPendingMovie({ title: selectedTitle, tmdbId: s.id, releaseYear: s.releaseYear })
+    }
+  }
+
+  function handleTitlePick(selectedTitle) {
+    const movie = titlePickerMovie
+    setTitlePickerMovie(null)
+
+    if (movie.isEdit) {
+      setEditTitle(selectedTitle)
+      setEditingMovie(prev => ({ ...prev, title: selectedTitle, tmdbId: movie.id, releaseYear: movie.releaseYear }))
+    } else {
+      setTitle(selectedTitle)
+      setPendingMovie({ title: selectedTitle, tmdbId: movie.id, releaseYear: movie.releaseYear })
     }
   }
 
@@ -149,17 +174,20 @@ export default function Home() {
           </div>
         )}
         <div className="max-h-60 overflow-y-auto custom-scrollbar">
-          {items.map(s => (
-            <button
-              key={s.id}
-              type="button"
-              onClick={() => onSelect(s)}
-              className="w-full text-left px-5 py-4 hover:bg-white/10 border-b border-white/5 last:border-0 transition-all group"
-            >
-              <div className="font-bold text-white group-hover:text-blue-400 transition-colors text-base md:text-xl">{s.title}</div>
-              <div className="text-[10px] md:text-xs text-slate-400 font-black uppercase tracking-[0.1em] mt-0.5 md:mt-1">{s.releaseYear}</div>
-            </button>
-          ))}
+          {items.map(s => {
+            const displayTitle = s.titles ? s.titles[0].title : s.title
+            return (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => onSelect(s)}
+                className="w-full text-left px-5 py-4 hover:bg-white/10 border-b border-white/5 last:border-0 transition-all group"
+              >
+                <div className="font-bold text-white group-hover:text-blue-400 transition-colors text-base md:text-xl">{displayTitle}</div>
+                <div className="text-[10px] md:text-xs text-slate-400 font-black uppercase tracking-[0.1em] mt-0.5 md:mt-1">{s.releaseYear}</div>
+              </button>
+            )
+          })}
         </div>
       </div>
     )
@@ -417,7 +445,7 @@ export default function Home() {
 
   /* ---------- SCROLL LOCK ---------- */
   useEffect(() => {
-    if (selectedMovieId || candidates || editingMovie || confirmConfig || showDatePicker || showEditDatePicker || showAddForm) {
+    if (selectedMovieId || candidates || editingMovie || confirmConfig || showDatePicker || showEditDatePicker || showAddForm || titlePickerMovie) {
       const scrollY = window.scrollY
       document.body.style.top = `-${scrollY}px`
       document.body.classList.add('no-scroll')
@@ -428,7 +456,7 @@ export default function Home() {
       document.body.style.top = ''
       if (scrollY) window.scrollTo(0, scrollTo)
     }
-  }, [selectedMovieId, candidates, editingMovie, confirmConfig, showDatePicker, showEditDatePicker, showAddForm])
+  }, [selectedMovieId, candidates, editingMovie, confirmConfig, showDatePicker, showEditDatePicker, showAddForm, titlePickerMovie])
 
   const watchedCount = movies.filter(m => PEOPLE.includes(m.person)).length
 
@@ -705,6 +733,50 @@ export default function Home() {
           </div>
         )
       }
+      {/* Title Picker Modal */}
+      {
+        titlePickerMovie && (
+          <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-0 sm:p-4 animate-in fade-in duration-300 overscroll-behavior-contain">
+            <div className="bg-slate-900 w-full max-w-md p-8 md:p-12 sm:rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] border border-white/10 animate-in zoom-in-95 duration-500">
+              <div className="flex justify-between items-center mb-8">
+                <h2 className="text-2xl font-black text-white tracking-tight">Valitse elokuvan nimi</h2>
+                <button
+                  onClick={() => setTitlePickerMovie(null)}
+                  className="w-10 h-10 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white rounded-full flex items-center justify-center transition-all border border-white/10"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                {titlePickerMovie.titles.map((titleObj, index) => {
+                  const languageLabels = {
+                    'original': 'Alkuperäinen',
+                    'finnish': 'Suomi',
+                    'english': 'Englanti',
+                    'fi': 'Suomi',
+                    'en': 'Englanti'
+                  }
+                  const label = languageLabels[titleObj.type] || languageLabels[titleObj.language] || titleObj.language.toUpperCase()
+
+                  return (
+                    <button
+                      key={index}
+                      className="w-full text-left p-5 rounded-2xl hover:bg-white/5 border border-white/5 hover:border-blue-500/30 flex flex-col transition-all group"
+                      onClick={() => handleTitlePick(titleObj.title)}
+                    >
+                      <span className="font-bold text-slate-100 text-lg group-hover:text-blue-400 transition-colors">{titleObj.title}</span>
+                      <span className="text-xs text-slate-500 font-bold uppercase tracking-wider mt-1">{label}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+        )
+      }
       {
         candidates && (
           <div className="fixed inset-0 z-[100] bg-slate-950/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200 overscroll-behavior-contain">
@@ -727,10 +799,11 @@ export default function Home() {
                     className="w-full text-left p-5 rounded-2xl hover:bg-white/5 border border-white/5 hover:border-blue-500/30 flex items-start flex-col transition-all group"
                     onClick={() => {
                       const isEdit = pendingMovie.id && !pendingMovie.id.startsWith('temp-')
-                      checkDuplicate(c.title, isEdit ? pendingMovie.id : null, () => {
+                      const candidateTitle = c.titles ? c.titles[0].title : c.title
+                      checkDuplicate(candidateTitle, isEdit ? pendingMovie.id : null, () => {
                         const finalMovie = {
                           ...pendingMovie,
-                          title: c.title,
+                          title: candidateTitle,
                           releaseYear: c.releaseYear,
                           tmdbId: c.id,
                         }
