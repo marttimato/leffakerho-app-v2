@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
-import { TurnChart, YearDistributionChart, GenreChart, CountryChart } from '../components/StatsCharts'
+import { YearDistributionChart, GenreChart, CountryChart } from '../components/StatsCharts'
 
 const PEOPLE = ['Tomi', 'Mikkis', 'Aino', 'Mari']
 
@@ -113,28 +113,6 @@ export default function Stats() {
         return movies.filter(m => m.person === filterPerson)
     }, [movies, filterPerson])
 
-    // 1. Turns per person
-    const turnsData = useMemo(() => {
-        const counts = {}
-        // Initialize
-        PEOPLE.forEach(p => counts[p] = 0)
-
-        // Count ONLY from the filtered set? 
-        // Requirement: "When a single person is selected: Show only that person’s total"
-        // So if filter is Tomi, we show one bar for Tomi.
-        if (filterPerson === 'Kaikki') {
-            movies.forEach(m => {
-                if (counts[m.person] !== undefined) counts[m.person]++
-            })
-            return PEOPLE.map(p => ({
-                name: p,
-                count: counts[p] || 0
-            }))
-        } else {
-            const count = movies.filter(m => m.person === filterPerson).length
-            return [{ name: filterPerson, count }]
-        }
-    }, [movies, filterPerson])
 
     // 2b. Average movies per month (Pace)
     const averagePace = useMemo(() => {
@@ -300,11 +278,6 @@ export default function Stats() {
                     {/* Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                        {/* 1. Turns */}
-                        <div className="p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl">
-                            <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-6">Valitut elokuvat</h2>
-                            <TurnChart data={turnsData} />
-                        </div>
 
                         {/* 2. Monthly */}
                         <div className="md:row-span-2 space-y-6">

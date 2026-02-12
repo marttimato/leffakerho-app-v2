@@ -18,36 +18,6 @@ export function CustomTooltip({ active, payload, label }) {
     return null;
 }
 
-export function TurnChart({ data }) {
-    return (
-        <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
-                    <XAxis
-                        dataKey="name"
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 700 }}
-                        dy={10}
-                    />
-                    <YAxis
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fill: '#64748b', fontSize: 10 }}
-                    />
-                    <Tooltip content={<CustomTooltip />} cursor={{ fill: '#ffffff05' }} />
-                    <Bar dataKey="count" radius={[8, 8, 0, 0]}>
-                        {data.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                        <LabelList dataKey="count" position="top" fill="#94a3b8" fontSize={12} fontWeight={700} />
-                    </Bar>
-                </BarChart>
-            </ResponsiveContainer>
-        </div>
-    );
-}
 
 export function MonthlyChart({ data }) {
     return (
