@@ -14,6 +14,17 @@ export default async function handler(req, res) {
     }
 
     try {
+        // 0. Validate session first
+        const validateUrl = `https://api.themoviedb.org/3/account?api_key=${apiKey}&session_id=${sessionId}`
+        const valRes = await fetch(validateUrl)
+        const valData = await valRes.json()
+
+        if (!valRes.ok) {
+            return res.status(401).json({
+                error: `TMDB-istunnon todennus epäonnistui: ${valData.status_message || 'Virheellinen Session ID'}. Tarkista ettei Vercelin asetuksissa ole lainausmerkkejä arvon ympärillä.`
+            })
+        }
+
         // 1. Get all watched movies with TMDB ID
         const result = await pool.query(
             "SELECT tmdb_id, title FROM movies WHERE tmdb_id IS NOT NULL"
