@@ -265,7 +265,7 @@ export default function Home() {
   /* ---------- UPDATE (API) ---------- */
   async function updateMovie(movie) {
     try {
-      const res = await fetch(`/api/movies/${movie.id}`, {
+      const res = await fetch(`/api/movies/${encodeURIComponent(movie.id)}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(movie),
@@ -408,7 +408,7 @@ export default function Home() {
         setMovies(prev => prev.filter(m => m.id !== movie.id))
 
         try {
-          const res = await fetch(`/api/movies/${movie.id}`, { method: 'DELETE' })
+          const res = await fetch(`/api/movies/${encodeURIComponent(movie.id)}`, { method: 'DELETE' })
           if (!res.ok) throw new Error('Failed to delete')
         } catch (err) {
           console.error(err)

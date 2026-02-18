@@ -254,10 +254,9 @@ export default async function handler(req, res) {
     for (let i = 0; i < limit; i++) {
         const m = moviesToInsert[i]
 
-        // Skip if already exists (optional, but good for idempotency)
         // For simplicity, we'll just try to insert and catch errors (e.g. unique constraint if we had one)
         // Here we use a generated ID based on content to help with idempotency
-        const contentId = `import-${m.year}-${m.month}-${m.title.toLowerCase().replace(/\s+/g, '-')}`
+        const contentId = `import-${m.year}-${m.month}-${m.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`
 
         try {
             const tmdb = await searchTMDB(m.title, TMDB_API_KEY)
