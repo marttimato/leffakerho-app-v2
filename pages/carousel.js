@@ -103,48 +103,49 @@ export default function Carousel() {
         <main className="min-h-screen pb-20 selection:bg-blue-500/30 font-sans bg-slate-950 text-white">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
                 {/* Header */}
-                <header className="py-8 flex items-center justify-between border-b border-white/5 mb-12">
+                <header className="py-4 md:py-8 flex items-center justify-between border-b border-white/5 mb-4 md:mb-12">
                     <div className="flex items-center gap-4">
                         <Link href="/" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-white transition-all border border-white/5 hover:bg-white/10">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
                             </svg>
                         </Link>
-                        <h1 className="text-2xl md:text-3xl font-black tracking-tight">Leffakaruselli</h1>
+                        <h1 className="text-xl md:text-3xl font-black tracking-tight">Leffakaruselli</h1>
                     </div>
                     <button
                         onClick={handleSync}
                         disabled={syncing}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all text-xs font-bold uppercase tracking-widest ${syncing ? 'bg-white/5 border-white/5 text-slate-500 cursor-not-allowed' : 'bg-slate-900 border-white/10 text-white hover:bg-white/10 hover:border-white/20'}`}
+                        aria-label="Synkronoi TMDB"
+                        className={`flex items-center gap-2 p-2 md:px-4 md:py-2 rounded-full border transition-all text-xs font-bold uppercase tracking-widest ${syncing ? 'bg-white/5 border-white/5 text-slate-500 cursor-not-allowed' : 'bg-slate-900 border-white/10 text-white hover:bg-white/10 hover:border-white/20'}`}
                     >
                         {syncing ? (
                             <>
-                                <div className="w-3 h-3 border-2 border-slate-700 border-t-slate-400 rounded-full animate-spin" />
-                                Synkronoidaan...
+                                <div className="w-4 h-4 md:w-3 md:h-3 border-2 border-slate-700 border-t-slate-400 rounded-full animate-spin" />
+                                <span className="hidden md:inline">Synkronoidaan...</span>
                             </>
                         ) : (
                             <>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 md:w-4 md:h-4">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
                                 </svg>
-                                Synkronoi TMDB
+                                <span className="hidden md:inline">Synkronoi TMDB</span>
                             </>
                         )}
                     </button>
                 </header>
 
                 {/* Content */}
-                <div className="text-center mb-16 space-y-4">
-                    <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
+                <div className="text-center mb-8 md:mb-16 space-y-2 md:space-y-4">
+                    <h2 className="text-3xl md:text-6xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
                         Suositeltuja elokuvia
                     </h2>
                     <div className="space-y-2">
-                        <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto font-medium">
+                        <p className="text-slate-400 text-sm md:text-xl max-w-2xl mx-auto font-medium">
                             Valitsimme sinulle kolme näkemätöntä helmeä katseluhistoriasi perusteella.
                         </p>
                         <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/5 rounded-full">
                             <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Istunnon aikana näytetty: {seenIds.size} elokuvaa</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Istunnon aikana näytetty: {seenIds.size}</span>
                         </div>
                     </div>
                 </div>
@@ -164,7 +165,7 @@ export default function Carousel() {
                                     style={{ animationDelay: `${idx * 150}ms` }}
                                 >
                                     {/* Poster Container */}
-                                    <div className="aspect-[2/3] relative overflow-hidden">
+                                    <div className="aspect-[2/3] max-h-[55vh] md:max-h-none relative overflow-hidden">
                                         {movie.posterPath ? (
                                             <img
                                                 src={`https://image.tmdb.org/t/p/w500${movie.posterPath}`}
@@ -174,7 +175,7 @@ export default function Carousel() {
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center bg-slate-800 text-slate-600">Ei kuvaa</div>
                                         )}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-slate-940 via-transparent to-transparent opacity-60" />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-60" />
                                     </div>
 
                                     {/* Info */}
