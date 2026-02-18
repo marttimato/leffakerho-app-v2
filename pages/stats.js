@@ -176,28 +176,31 @@ export default function Stats() {
     // 5. Countries
     const countryData = useMemo(() => {
         const counts = {} // { "US": { name: "United States", count: 1, code: "US" } }
+        const clubMovies = movies.filter(m => PEOPLE.includes(m.person))
 
-        movies.forEach(m => {
-            if (!m.tmdbId || !metadata[m.tmdbId]) return
-            // Count primary country only (first one)
-            const countries = metadata[m.tmdbId].countries
+        clubMovies.forEach(m => {
+            const meta = m.tmdbId ? metadata[m.tmdbId] : null
+            const countries = meta?.countries
             const primary = countries && countries.length > 0 ? countries[0] : null
-            if (!primary) return
-
 
             let code = null
             let name = null
 
-            if (typeof primary === 'string') {
-                name = primary
+            if (primary) {
+                if (typeof primary === 'string') {
+                    name = primary
+                } else {
+                    code = primary.iso_3166_1
+                    name = primary.name
+                }
             } else {
-                code = primary.iso_3166_1
-                name = primary.name
+                // Fallback for missing country info
+                name = "Tuntematon"
+                code = "XX"
             }
 
-            // Allow counting even if code is missing (fallback for legacy data)
             if (name) {
-                // Use name as key if code is missing, but prefer code for accurate aggregation
+                if (name === "United States of America") name = "USA"
                 const key = code || name
                 if (!counts[key]) {
                     counts[key] = { name, count: 0, code }
@@ -206,36 +209,32 @@ export default function Stats() {
             }
         })
 
-        // Helper to get flag emoji from ISO code
-        const getFlagEmoji = (countryCode) => {
-            if (!countryCode) return ''
-            const codePoints = countryCode
-                .toUpperCase()
-                .split('')
-                .map(char => 127397 + char.charCodeAt(0));
-            return String.fromCodePoint(...codePoints);
-        }
-
         return Object.values(counts)
             .sort((a, b) => b.count - a.count)
-            .slice(0, 10) // Top 10
+            // Removed slice(0, 10) to include all movies
             .map(c => ({
-                name: c.name === "United States of America" ? "USA" : c.name,
+                name: c.name,
                 count: c.count,
-                code: c.code || 'XX' // Use code directly for SVG flags, fallback to XX
+                code: c.code || 'XX'
             }))
     }, [movies, metadata])
 
     const countryMovies = useMemo(() => {
         if (!selectedCountry) return []
-        return movies.filter(m => {
-            if (!m.tmdbId || !metadata[m.tmdbId]) return false
-            const countries = metadata[m.tmdbId].countries
-            const primary = countries && countries.length > 0 ? countries[0] : null
-            if (!primary) return false
+        const clubMovies = movies.filter(m => PEOPLE.includes(m.person))
 
-            let name = typeof primary === 'string' ? primary : primary.name
-            if (name === "United States of America") name = "USA"
+        return clubMovies.filter(m => {
+            const meta = m.tmdbId ? metadata[m.tmdbId] : null
+            const countries = meta?.countries
+            const primary = countries && countries.length > 0 ? countries[0] : null
+
+            let name = null
+            if (primary) {
+                name = typeof primary === 'string' ? primary : primary.name
+                if (name === "United States of America") name = "USA"
+            } else {
+                name = "Tuntematon"
+            }
 
             return name === selectedCountry.name
         })
