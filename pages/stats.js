@@ -11,6 +11,7 @@ export default function Stats() {
     const [filterPerson, setFilterPerson] = useState('Kaikki')
     const [loadingMetadata, setLoadingMetadata] = useState(false)
     const [selectedCountry, setSelectedCountry] = useState(null)
+    const [selectedGenre, setSelectedGenre] = useState(null)
 
     // 1. Fetch basic movie list
     useEffect(() => {
@@ -261,14 +262,25 @@ export default function Stats() {
         })
     }, [movies, metadata, selectedCountry])
 
+    const genreMovies = useMemo(() => {
+        if (!selectedGenre) return []
+        const clubMovies = filteredMovies.filter(m => PEOPLE.includes(m.person))
+
+        return clubMovies.filter(m => {
+            const meta = m.tmdbId ? metadata[m.tmdbId] : null
+            const genres = meta?.genres || []
+            return genres.includes(selectedGenre.name)
+        })
+    }, [filteredMovies, metadata, selectedGenre])
+
     useEffect(() => {
-        if (selectedCountry) {
+        if (selectedCountry || selectedGenre) {
             document.body.classList.add('overflow-hidden')
         } else {
             document.body.classList.remove('overflow-hidden')
         }
         return () => document.body.classList.remove('overflow-hidden')
-    }, [selectedCountry])
+    }, [selectedCountry, selectedGenre])
 
 
     if (loading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-500">Ladataan tilastoja...</div>
@@ -340,10 +352,10 @@ export default function Stats() {
 
                         {/* 3. Genres */}
                         <div className="p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl">
-                            <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-6">Suosituimmat genret</h2>
+                            <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-6">Genret</h2>
                             <div className="custom-scrollbar overflow-y-auto max-h-[600px] pr-2 w-full">
                                 {genreData.length > 0 ? (
-                                    <GenreChart data={genreData} />
+                                    <GenreChart data={genreData} onGenreClick={(genre) => setSelectedGenre(genre)} />
                                 ) : (
                                     <div className="text-slate-600 text-sm font-bold">Ei tarpeeksi dataa</div>
                                 )}
@@ -373,37 +385,44 @@ export default function Stats() {
 
             {/* Slide-over Drawer */}
             <div
-                className={`fixed inset-0 z-[100] transition-opacity duration-500 ease-in-out ${selectedCountry ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                className={`fixed inset-0 z-[100] transition-opacity duration-500 ease-in-out ${selectedCountry || selectedGenre ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
             >
                 {/* Backdrop */}
                 <div
                     className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
-                    onClick={() => setSelectedCountry(null)}
+                    onClick={() => { setSelectedCountry(null); setSelectedGenre(null); }}
                 />
 
                 {/* Panel */}
                 <div
-                    className={`absolute inset-y-0 right-0 w-full max-w-md bg-slate-900 shadow-2xl border-l border-white/10 transform transition-transform duration-500 ease-in-out flex flex-col ${selectedCountry ? 'translate-x-0' : 'translate-x-full'}`}
+                    className={`absolute inset-y-0 right-0 w-full max-w-md bg-slate-900 shadow-2xl border-l border-white/10 transform transition-transform duration-500 ease-in-out flex flex-col ${selectedCountry || selectedGenre ? 'translate-x-0' : 'translate-x-full'}`}
                 >
                     {/* Drawer Header */}
                     <div className="p-6 border-b border-white/5 flex items-center justify-between bg-slate-900/50 backdrop-blur-md sticky top-0 z-10">
                         <div className="flex items-center gap-4">
-                            {selectedCountry && (
-                                <img
-                                    src={`https://flagcdn.com/w40/${selectedCountry.code.toLowerCase()}.png`}
-                                    width="32"
-                                    height="24"
-                                    alt=""
-                                    className="rounded shadow-sm"
-                                />
-                            )}
-                            <div>
-                                <h2 className="text-xl font-black text-white tracking-tight">{selectedCountry?.name}</h2>
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{countryMovies.length} elokuvaa</p>
-                            </div>
+                            {selectedCountry ? (
+                                <>
+                                    <img
+                                        src={`https://flagcdn.com/w40/${selectedCountry.code.toLowerCase()}.png`}
+                                        width="32"
+                                        height="24"
+                                        alt=""
+                                        className="rounded shadow-sm"
+                                    />
+                                    <div>
+                                        <h2 className="text-xl font-black text-white tracking-tight">{selectedCountry.name}</h2>
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{countryMovies.length} elokuvaa</p>
+                                    </div>
+                                </>
+                            ) : selectedGenre ? (
+                                <div>
+                                    <h2 className="text-xl font-black text-white tracking-tight">{selectedGenre.name}</h2>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{genreMovies.length} elokuvaa</p>
+                                </div>
+                            ) : null}
                         </div>
                         <button
-                            onClick={() => setSelectedCountry(null)}
+                            onClick={() => { setSelectedCountry(null); setSelectedGenre(null); }}
                             className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-white transition-colors border border-white/5 hover:bg-white/10"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
@@ -414,7 +433,7 @@ export default function Stats() {
 
                     {/* Movie List */}
                     <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
-                        {countryMovies.map((movie, idx) => (
+                        {(selectedCountry ? countryMovies : genreMovies).map((movie, idx) => (
                             <div
                                 key={movie.id}
                                 className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-blue-500/30 transition-all group animate-in slide-in-from-right-4 duration-300 ease-out"

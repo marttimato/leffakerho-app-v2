@@ -67,13 +67,17 @@ export function YearDistributionChart({ data }) {
     );
 }
 
-export function GenreChart({ data }) {
+export function GenreChart({ data, onGenreClick }) {
     const total = data.reduce((sum, item) => sum + item.count, 0);
 
     return (
         <div className="space-y-4 w-full">
             {data.map((item, index) => (
-                <div key={item.name} className="group">
+                <div
+                    key={item.name}
+                    onClick={() => onGenreClick && onGenreClick(item)}
+                    className="group cursor-pointer hover:bg-white/5 p-2 -m-2 rounded-2xl transition-all"
+                >
                     <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                             <div
