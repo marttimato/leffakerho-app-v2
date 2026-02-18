@@ -4,22 +4,55 @@ import Link from 'next/link'
 export default function Carousel() {
     const [movies, setMovies] = useState([])
     const [displayMovies, setDisplayMovies] = useState([])
+    const [seenIds, setSeenIds] = useState(new Set())
     const [loading, setLoading] = useState(true)
     const [selectedMovieId, setSelectedMovieId] = useState(null)
     const [details, setDetails] = useState(null)
     const [loadingDetails, setLoadingDetails] = useState(false)
+    const [syncing, setSyncing] = useState(false)
+    const [syncResult, setSyncResult] = useState(null)
 
     useEffect(() => {
         fetchRecommendations()
     }, [])
 
-    async function fetchRecommendations() {
+    async function handleSync() {
+        if (!confirm('Haluatko varmasti synkronoida kaikki katsotut elokuvat TMDB-tiliisi? Tämä merkitsee ne katsotuiksi antamalla niille arvosanan 7 (jos arvosanaa ei ole ennestään).')) return
+
+        setSyncing(true)
+        setSyncResult(null)
+        try {
+            const res = await fetch('/api/movies/sync-tmdb')
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || 'Synkronointi epäonnistui')
+            setSyncResult(data)
+            alert(`Synkronointi valmis! Onnistui: ${data.success}, Ohitettu: ${data.skipped}, Virheitä: ${data.error}`)
+        } catch (err) {
+            console.error(err)
+            alert(err.message)
+        } finally {
+            setSyncing(false)
+        }
+    }
+
+    async function fetchRecommendations(currentSeenIds = new Set()) {
         setLoading(true)
         try {
-            const res = await fetch('/api/movies/recommendations')
+            const excludeParam = Array.from(currentSeenIds).join(',')
+            const res = await fetch(`/api/movies/recommendations?excludeIds=${excludeParam}`)
             const data = await res.json()
             setMovies(data)
-            shuffle(data)
+
+            // Pick first 3 from the fresh pool
+            if (data.length >= 3) {
+                const initial3 = data.slice(0, 3)
+                setDisplayMovies(initial3)
+                const newSeen = new Set(currentSeenIds)
+                initial3.forEach(m => newSeen.add(m.id))
+                setSeenIds(newSeen)
+            } else {
+                setDisplayMovies(data)
+            }
         } catch (err) {
             console.error('Failed to fetch recommendations', err)
         } finally {
@@ -27,10 +60,11 @@ export default function Carousel() {
         }
     }
 
-    function shuffle(allMovies) {
-        if (allMovies.length === 0) return
-        const shuffled = [...allMovies].sort(() => 0.5 - Math.random())
-        setDisplayMovies(shuffled.slice(0, 3))
+    async function handleRegenerate() {
+        // If we have less than 3 movies left in our local 'movies' pool that haven't been shown,
+        // we should probably fetch more. 
+        // But for simplicity, let's just always fetch fresh results based on seenIds.
+        fetchRecommendations(seenIds)
     }
 
     async function handleSelectMovie(movieId) {
@@ -67,6 +101,25 @@ export default function Carousel() {
                         </Link>
                         <h1 className="text-2xl md:text-3xl font-black tracking-tight">Leffakaruselli</h1>
                     </div>
+                    <button
+                        onClick={handleSync}
+                        disabled={syncing}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all text-xs font-bold uppercase tracking-widest ${syncing ? 'bg-white/5 border-white/5 text-slate-500 cursor-not-allowed' : 'bg-slate-900 border-white/10 text-white hover:bg-white/10 hover:border-white/20'}`}
+                    >
+                        {syncing ? (
+                            <>
+                                <div className="w-3 h-3 border-2 border-slate-700 border-t-slate-400 rounded-full animate-spin" />
+                                Synkronoidaan...
+                            </>
+                        ) : (
+                            <>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                                </svg>
+                                Synkronoi TMDB
+                            </>
+                        )}
+                    </button>
                 </header>
 
                 {/* Content */}
@@ -74,9 +127,15 @@ export default function Carousel() {
                     <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
                         Suositeltuja elokuvia
                     </h2>
-                    <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto font-medium">
-                        Valitsimme sinulle kolme näkemätöntä helmeä katseluhistoriasi perusteella.
-                    </p>
+                    <div className="space-y-2">
+                        <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto font-medium">
+                            Valitsimme sinulle kolme näkemätöntä helmeä katseluhistoriasi perusteella.
+                        </p>
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/5 rounded-full">
+                            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Istunnon aikana näytetty: {seenIds.size} elokuvaa</span>
+                        </div>
+                    </div>
                 </div>
 
                 {loading ? (
@@ -127,7 +186,7 @@ export default function Carousel() {
 
                         <div className="flex justify-center pt-8">
                             <button
-                                onClick={() => shuffle(movies)}
+                                onClick={handleRegenerate}
                                 className="group flex items-center gap-4 px-10 py-6 rounded-[2rem] bg-blue-600 hover:bg-blue-500 text-white font-black text-xl shadow-[0_20px_50px_rgba(37,99,235,0.3)] transition-all active:scale-95 border border-blue-400/20"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6 group-hover:rotate-180 transition-transform duration-500">
