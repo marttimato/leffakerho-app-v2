@@ -17,7 +17,6 @@ export default function Carousel() {
     }, [])
 
     async function handleSync() {
-        if (!confirm('Haluatko varmasti synkronoida kaikki katsotut elokuvat TMDB-tiliisi? Tämä merkitsee ne katsotuiksi antamalla niille arvosanan 7 (jos arvosanaa ei ole ennestään).')) return
 
         setSyncing(true)
         setSyncResult(null)
