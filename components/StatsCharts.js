@@ -102,13 +102,17 @@ export function GenreChart({ data }) {
     );
 }
 
-export function CountryChart({ data }) {
+export function CountryChart({ data, onCountryClick }) {
     return (
         <div className="space-y-3">
             {data.map((item, index) => (
-                <div key={item.name} className="flex items-center justify-between group gap-2">
+                <div
+                    key={item.name}
+                    onClick={() => onCountryClick && onCountryClick(item)}
+                    className="flex items-center justify-between group gap-2 cursor-pointer hover:bg-white/5 p-2 -m-2 rounded-2xl transition-all"
+                >
                     <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
-                        <div className="w-6 h-6 md:w-8 md:h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-[10px] md:text-xs font-black text-slate-500 group-hover:text-blue-400 transition-colors flex-shrink-0">
+                        <div className="w-6 h-6 md:w-8 md:h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-[10px] md:text-xs font-black text-slate-500 group-hover:text-blue-400 group-hover:bg-blue-500/10 group-hover:border-blue-500/20 transition-colors flex-shrink-0">
                             {index + 1}
                         </div>
                         <img
@@ -122,12 +126,12 @@ export function CountryChart({ data }) {
                                 e.target.style.display = 'none';
                             }}
                         />
-                        <span className="text-sm font-bold text-slate-200 truncate">{item.name}</span>
+                        <span className="text-sm font-bold text-slate-200 group-hover:text-white transition-colors truncate">{item.name}</span>
                     </div>
                     <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
                         <div className="w-16 md:w-32 h-1.5 bg-slate-800 rounded-full overflow-hidden">
                             <div
-                                className="h-full bg-blue-500 rounded-full transition-all duration-1000"
+                                className="h-full bg-blue-500 rounded-full transition-all duration-1000 group-hover:bg-blue-400"
                                 style={{ width: `${(item.count / data[0].count) * 100}%` }}
                             />
                         </div>
