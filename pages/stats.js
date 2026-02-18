@@ -264,9 +264,8 @@ export default function Stats() {
 
     const genreMovies = useMemo(() => {
         if (!selectedGenre) return []
-        const clubMovies = filteredMovies.filter(m => PEOPLE.includes(m.person))
 
-        return clubMovies.filter(m => {
+        return filteredMovies.filter(m => {
             const meta = m.tmdbId ? metadata[m.tmdbId] : null
             const genres = meta?.genres || []
             return genres[0] === selectedGenre.name
