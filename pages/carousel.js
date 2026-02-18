@@ -31,7 +31,11 @@ export default function Carousel() {
                 throw new Error(data.error || 'Synkronointi epäonnistui')
             }
             setSyncResult(data)
-            alert(`Synkronointi valmis! Onnistui: ${data.success}, Ohitettu: ${data.skipped}, Virheitä: ${data.error}`)
+            let msg = `Synkronointi valmis! Onnistui: ${data.success}, Ohitettu: ${data.skipped}, Virheitä: ${data.error}`
+            if (data.error > 0 && data.details && data.details.length > 0) {
+                msg += `\n\nEsimerkkivirhe: "${data.details[0].title}": ${data.details[0].error}`
+            }
+            alert(msg)
         } catch (err) {
             console.error(err)
             alert(err.message)

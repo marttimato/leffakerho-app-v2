@@ -44,6 +44,12 @@ export default async function handler(req, res) {
                         return
                     }
 
+                    if (stateData.status_code === 3 || stateData.status_code === 30 || stateData.status_code === 34) {
+                        results.error++
+                        results.details.push({ title: movie.title, error: stateData.status_message || 'Virheellinen istunto tai API-avain' })
+                        return
+                    }
+
                     // Rate the movie (mark as watched)
                     const rateUrl = `https://api.themoviedb.org/3/movie/${movie.tmdb_id}/rating?api_key=${apiKey}&session_id=${sessionId}`
                     const rateRes = await fetch(rateUrl, {
@@ -52,11 +58,13 @@ export default async function handler(req, res) {
                         body: JSON.stringify({ value: 7.0 })
                     })
 
+                    const rateData = await rateRes.json()
+
                     if (rateRes.ok) {
                         results.success++
                     } else {
                         results.error++
-                        results.details.push({ title: movie.title, error: 'Rate failed' })
+                        results.details.push({ title: movie.title, error: rateData.status_message || 'Arvostelu epäonnistui' })
                     }
                 } catch (e) {
                     results.error++
