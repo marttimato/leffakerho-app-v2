@@ -52,7 +52,6 @@ export default async function handler(req, res) {
 
                     if (stateData.rated) {
                         results.skipped++
-                        results.details.push({ title: movie.title, status: 'skipped', reason: 'Arvosteltu jo TMDB:ssä' })
                         return
                     }
 

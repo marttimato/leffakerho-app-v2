@@ -32,24 +32,11 @@ export default function Carousel() {
             }
             setSyncResult(data)
             let msg = `Synkronointi valmis! Onnistui: ${data.success}, Ohitettu: ${data.skipped}, Virheitä: ${data.error}`
-
-            const skippedMovies = data.details.filter(d => d.status === 'skipped')
-            if (skippedMovies.length > 0) {
-                msg += `\n\nOhitetut elokuvat (jo arvosteltu TMDB:ssä):`
-                skippedMovies.slice(0, 5).forEach(m => {
-                    msg += `\n- ${m.title}`
-                })
-                if (skippedMovies.length > 5) {
-                    msg += `\n... ja ${skippedMovies.length - 5} muuta.`
+            if (data.error > 0 && data.details && data.details.length > 0) {
+                const errorSample = data.details.find(d => d.error)
+                if (errorSample) {
+                    msg += `\n\nEsimerkkivirhe: "${errorSample.title}": ${errorSample.error}`
                 }
-            }
-
-            if (data.error > 0) {
-                const errorMovies = data.details.filter(d => d.error)
-                msg += `\n\nVirheet:`
-                errorMovies.slice(0, 3).forEach(m => {
-                    msg += `\n- ${m.title}: ${m.error}`
-                })
             }
             alert(msg)
         } catch (err) {
