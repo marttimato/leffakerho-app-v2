@@ -269,7 +269,7 @@ export default function Stats() {
         return clubMovies.filter(m => {
             const meta = m.tmdbId ? metadata[m.tmdbId] : null
             const genres = meta?.genres || []
-            return genres.includes(selectedGenre.name)
+            return genres[0] === selectedGenre.name
         })
     }, [filteredMovies, metadata, selectedGenre])
 
