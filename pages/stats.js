@@ -180,8 +180,19 @@ export default function Stats() {
 
         clubMovies.forEach(m => {
             const meta = m.tmdbId ? metadata[m.tmdbId] : null
-            const countries = meta?.countries
-            const primary = countries && countries.length > 0 ? countries[0] : null
+            const countries = meta?.countries || []
+
+            // Prioritize Finland for co-productions
+            let primary = countries.find(c => {
+                const name = typeof c === 'string' ? c : c.name
+                const code = typeof c === 'string' ? null : c.iso_3166_1
+                return name === "Finland" || code === "FI"
+            })
+
+            // Fallback to first country if Finland not found
+            if (!primary && countries.length > 0) {
+                primary = countries[0]
+            }
 
             let code = null
             let name = null
@@ -225,8 +236,19 @@ export default function Stats() {
 
         return clubMovies.filter(m => {
             const meta = m.tmdbId ? metadata[m.tmdbId] : null
-            const countries = meta?.countries
-            const primary = countries && countries.length > 0 ? countries[0] : null
+            const countries = meta?.countries || []
+
+            // Prioritize Finland for co-productions
+            let primary = countries.find(c => {
+                const name = typeof c === 'string' ? c : c.name
+                const code = typeof c === 'string' ? null : c.iso_3166_1
+                return name === "Finland" || code === "FI"
+            })
+
+            // Fallback to first country
+            if (!primary && countries.length > 0) {
+                primary = countries[0]
+            }
 
             let name = null
             if (primary) {
