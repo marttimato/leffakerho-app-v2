@@ -49,7 +49,7 @@ export function YearDistributionChart({ data }) {
     return (
         <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data} layout="vertical" margin={{ top: 0, right: 30, left: 40, bottom: 0 }}>
+                <BarChart data={data} layout="vertical" margin={{ top: 0, right: 40, left: 40, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" horizontal={false} />
                     <XAxis type="number" hide />
                     <YAxis
@@ -60,7 +60,9 @@ export function YearDistributionChart({ data }) {
                         tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 700 }}
                     />
                     <Tooltip content={<CustomTooltip />} cursor={{ fill: '#ffffff05' }} />
-                    <Bar dataKey="count" fill="#8b5cf6" radius={[0, 8, 8, 0]} barSize={20} />
+                    <Bar dataKey="count" fill="#8b5cf6" radius={[0, 8, 8, 0]} barSize={20}>
+                        <LabelList dataKey="count" position="right" fill="#94a3b8" fontSize={11} fontWeight={800} offset={10} />
+                    </Bar>
                 </BarChart>
             </ResponsiveContainer>
         </div>

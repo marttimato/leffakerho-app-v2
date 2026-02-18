@@ -149,7 +149,7 @@ export default function Stats() {
         })
 
         return Object.entries(decades)
-            .sort((a, b) => Number(a[0]) - Number(b[0]))
+            .sort((a, b) => Number(b[0]) - Number(a[0]))
             .map(([d, c]) => ({
                 name: `${d}s`,
                 count: c
