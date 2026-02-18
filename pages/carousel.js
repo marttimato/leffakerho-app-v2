@@ -9,42 +9,11 @@ export default function Carousel() {
     const [selectedMovieId, setSelectedMovieId] = useState(null)
     const [details, setDetails] = useState(null)
     const [loadingDetails, setLoadingDetails] = useState(false)
-    const [syncing, setSyncing] = useState(false)
-    const [syncResult, setSyncResult] = useState(null)
 
     useEffect(() => {
         fetchRecommendations()
     }, [])
 
-    async function handleSync() {
-
-        setSyncing(true)
-        setSyncResult(null)
-        try {
-            const res = await fetch('/api/movies/sync-tmdb')
-            const data = await res.json()
-            if (!res.ok) {
-                if (data.error.includes('Session ID required')) {
-                    throw new Error('Synkronointi vaatii TMDB_SESSION_ID-tunnisteen .env.local tiedostoon. Katso ohjeet walkthrough.md tiedostosta.')
-                }
-                throw new Error(data.error || 'Synkronointi epäonnistui')
-            }
-            setSyncResult(data)
-            let msg = `Synkronointi valmis! Onnistui: ${data.success}, Ohitettu: ${data.skipped}, Virheitä: ${data.error}`
-            if (data.error > 0 && data.details && data.details.length > 0) {
-                const errorSample = data.details.find(d => d.error)
-                if (errorSample) {
-                    msg += `\n\nEsimerkkivirhe: "${errorSample.title}": ${errorSample.error}`
-                }
-            }
-            alert(msg)
-        } catch (err) {
-            console.error(err)
-            alert(err.message)
-        } finally {
-            setSyncing(false)
-        }
-    }
 
     async function fetchRecommendations(currentSeenIds = new Set()) {
         setLoading(true)
@@ -112,26 +81,6 @@ export default function Carousel() {
                         </Link>
                         <h1 className="text-xl md:text-3xl font-black tracking-tight">Leffakaruselli</h1>
                     </div>
-                    <button
-                        onClick={handleSync}
-                        disabled={syncing}
-                        aria-label="Synkronoi TMDB"
-                        className={`flex items-center gap-2 p-2 md:px-4 md:py-2 rounded-full border transition-all text-xs font-bold uppercase tracking-widest ${syncing ? 'bg-white/5 border-white/5 text-slate-500 cursor-not-allowed' : 'bg-slate-900 border-white/10 text-white hover:bg-white/10 hover:border-white/20'}`}
-                    >
-                        {syncing ? (
-                            <>
-                                <div className="w-4 h-4 md:w-3 md:h-3 border-2 border-slate-700 border-t-slate-400 rounded-full animate-spin" />
-                                <span className="hidden md:inline">Synkronoidaan...</span>
-                            </>
-                        ) : (
-                            <>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 md:w-4 md:h-4">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                                </svg>
-                                <span className="hidden md:inline">Synkronoi TMDB</span>
-                            </>
-                        )}
-                    </button>
                 </header>
 
                 {/* Content */}
@@ -161,21 +110,21 @@ export default function Carousel() {
                             {displayMovies.map((movie, idx) => (
                                 <div
                                     key={movie.id}
-                                    className="group relative flex flex-col bg-slate-900 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl transition-all hover:scale-[1.02] hover:border-blue-500/30 animate-in fade-in zoom-in-95 duration-700"
+                                    className="group relative flex flex-col items-center bg-slate-900 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl transition-all hover:scale-[1.02] hover:border-blue-500/30 animate-in fade-in zoom-in-95 duration-700"
                                     style={{ animationDelay: `${idx * 150}ms` }}
                                 >
                                     {/* Poster Container */}
-                                    <div className="aspect-[2/3] max-h-[55vh] md:max-h-none relative overflow-hidden">
+                                    <div className="w-full aspect-[2/3] max-h-[45vh] md:max-h-none relative overflow-hidden flex justify-center">
                                         {movie.posterPath ? (
                                             <img
                                                 src={`https://image.tmdb.org/t/p/w500${movie.posterPath}`}
                                                 alt={movie.title}
-                                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                                className="h-full w-auto object-contain transition-transform duration-700 group-hover:scale-110 mx-auto"
                                             />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center bg-slate-800 text-slate-600">Ei kuvaa</div>
                                         )}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-60" />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-60 pointer-events-none" />
                                     </div>
 
                                     {/* Info */}
