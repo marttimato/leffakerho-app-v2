@@ -166,10 +166,9 @@ export default function Stats() {
             }
         })
 
-        // Sort and take top X
+        // Sort and return all genres
         return Object.entries(counts)
             .sort((a, b) => b[1] - a[1])
-            .slice(0, 6) // Top 6
             .map(([name, count]) => ({ name, count }))
     }, [filteredMovies, metadata])
 
@@ -342,7 +341,7 @@ export default function Stats() {
                         {/* 3. Genres */}
                         <div className="p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl">
                             <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-6">Suosituimmat genret</h2>
-                            <div className="w-full">
+                            <div className="custom-scrollbar overflow-y-auto max-h-[600px] pr-2 w-full">
                                 {genreData.length > 0 ? (
                                     <GenreChart data={genreData} />
                                 ) : (
