@@ -177,7 +177,7 @@ export default function Stats() {
     const countryData = useMemo(() => {
         const counts = {} // { "US": { name: "United States", count: 1, code: "US" } }
 
-        filteredMovies.forEach(m => {
+        movies.forEach(m => {
             if (!m.tmdbId || !metadata[m.tmdbId]) return
             // Count primary country only (first one)
             const countries = metadata[m.tmdbId].countries
@@ -224,11 +224,11 @@ export default function Stats() {
                 count: c.count,
                 code: c.code || 'XX' // Use code directly for SVG flags, fallback to XX
             }))
-    }, [filteredMovies, metadata])
+    }, [movies, metadata])
 
     const countryMovies = useMemo(() => {
         if (!selectedCountry) return []
-        return filteredMovies.filter(m => {
+        return movies.filter(m => {
             if (!m.tmdbId || !metadata[m.tmdbId]) return false
             const countries = metadata[m.tmdbId].countries
             const primary = countries && countries.length > 0 ? countries[0] : null
@@ -239,7 +239,7 @@ export default function Stats() {
 
             return name === selectedCountry.name
         })
-    }, [filteredMovies, metadata, selectedCountry])
+    }, [movies, metadata, selectedCountry])
 
     useEffect(() => {
         if (selectedCountry) {
