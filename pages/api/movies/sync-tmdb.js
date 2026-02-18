@@ -5,7 +5,12 @@ export default async function handler(req, res) {
     const sessionId = process.env.TMDB_SESSION_ID
 
     if (!apiKey || !sessionId) {
-        return res.status(400).json({ error: 'TMDB API key and Session ID required for synchronization.' })
+        const missing = []
+        if (!apiKey) missing.push('TMDB_API_KEY')
+        if (!sessionId) missing.push('TMDB_SESSION_ID')
+        return res.status(400).json({
+            error: `TMDB-synkronointi epäonnistui: Puuttuvat ympäristömuuttujat: ${missing.join(', ')}.`
+        })
     }
 
     try {

@@ -24,7 +24,12 @@ export default function Carousel() {
         try {
             const res = await fetch('/api/movies/sync-tmdb')
             const data = await res.json()
-            if (!res.ok) throw new Error(data.error || 'Synkronointi epäonnistui')
+            if (!res.ok) {
+                if (data.error.includes('Session ID required')) {
+                    throw new Error('Synkronointi vaatii TMDB_SESSION_ID-tunnisteen .env.local tiedostoon. Katso ohjeet walkthrough.md tiedostosta.')
+                }
+                throw new Error(data.error || 'Synkronointi epäonnistui')
+            }
             setSyncResult(data)
             alert(`Synkronointi valmis! Onnistui: ${data.success}, Ohitettu: ${data.skipped}, Virheitä: ${data.error}`)
         } catch (err) {
