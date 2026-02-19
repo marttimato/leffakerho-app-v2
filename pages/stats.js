@@ -357,7 +357,7 @@ export default function Stats() {
                         {/* 3. Genres */}
                         <div className="p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl">
                             <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-6">Genret</h2>
-                            <div className="custom-scrollbar overflow-y-auto max-h-[600px] pr-2 w-full">
+                            <div className="w-full">
                                 {genreData.length > 0 ? (
                                     <GenreChart data={genreData} onGenreClick={(genre) => setSelectedGenre(genre)} />
                                 ) : (
@@ -369,7 +369,7 @@ export default function Stats() {
                         {/* 4. Countries */}
                         <div className="p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl md:row-span-2">
                             <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-6">Elokuvan alkuperämaa</h2>
-                            <div className="custom-scrollbar overflow-y-auto max-h-[600px] pr-2">
+                            <div>
                                 {countryData.length > 0 ? (
                                     <CountryChart data={countryData} onCountryClick={(country) => setSelectedCountry(country)} />
                                 ) : (
