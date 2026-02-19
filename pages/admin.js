@@ -4,6 +4,8 @@ import Link from 'next/link'
 export default function Admin() {
     const [syncing, setSyncing] = useState(false)
     const [syncResult, setSyncResult] = useState(null)
+    const [syncingMetadata, setSyncingMetadata] = useState(false)
+    const [metadataResult, setMetadataResult] = useState(null)
 
     async function handleSync() {
         setSyncing(true)
@@ -21,6 +23,29 @@ export default function Admin() {
             alert(err.message)
         } finally {
             setSyncing(false)
+        }
+    }
+
+    async function handleMetadataSync() {
+        setSyncingMetadata(true)
+        setMetadataResult(null)
+        try {
+            const res = await fetch('/api/movies/sync-metadata')
+            const data = await res.json()
+            if (!res.ok) {
+                throw new Error(data.error || 'Nimitietojen haku epäonnistui')
+            }
+            setMetadataResult(data)
+            if (data.message) {
+                alert(data.message)
+            } else {
+                alert(`Nimitiedot päivitetty! Onnistui: ${data.success}, Virheitä: ${data.error}`)
+            }
+        } catch (err) {
+            console.error(err)
+            alert(err.message)
+        } finally {
+            setSyncingMetadata(false)
         }
     }
 
@@ -79,6 +104,49 @@ export default function Admin() {
                                     </div>
                                     <div>
                                         <div className="text-2xl font-black text-red-400">{syncResult.error}</div>
+                                        <div className="text-[10px] text-slate-500 uppercase font-bold tracking-tighter">Virheitä</div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </section>
+
+                    <section className="bg-slate-900 p-8 rounded-[2.5rem] border border-white/10">
+                        <h2 className="text-xl font-bold mb-4">Hae puuttuvat nimitiedot</h2>
+                        <p className="text-slate-400 mb-6">
+                            Hakee elokuvien alkuperäiset ja vaihtoehtoiset nimet TMDB-tietokannasta hakutoimintoa varten. Käytä tätä, jos haku ei löydä vanhoja elokuvia alkuperäisellä nimellä.
+                        </p>
+
+                        <button
+                            onClick={handleMetadataSync}
+                            disabled={syncingMetadata}
+                            className={`flex items-center gap-3 px-8 py-4 rounded-2xl font-bold transition-all ${syncingMetadata ? 'bg-white/5 text-slate-500 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-500/20'}`}
+                        >
+                            {syncingMetadata ? (
+                                <>
+                                    <div className="w-5 h-5 border-2 border-slate-700 border-t-slate-400 rounded-full animate-spin" />
+                                    Haetaan...
+                                </>
+                            ) : (
+                                <>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                                    </svg>
+                                    Hae nimitiedot
+                                </>
+                            )}
+                        </button>
+
+                        {metadataResult && (
+                            <div className="mt-8 p-6 bg-white/5 rounded-2xl border border-white/5 space-y-2">
+                                <h3 className="text-sm font-bold text-purple-400 uppercase tracking-widest">Viimeisin tulos</h3>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <div className="text-2xl font-black">{metadataResult.success}</div>
+                                        <div className="text-[10px] text-slate-500 uppercase font-bold tracking-tighter">Päivitetty</div>
+                                    </div>
+                                    <div>
+                                        <div className="text-2xl font-black text-red-400">{metadataResult.error}</div>
                                         <div className="text-[10px] text-slate-500 uppercase font-bold tracking-tighter">Virheitä</div>
                                     </div>
                                 </div>
