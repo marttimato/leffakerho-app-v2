@@ -76,10 +76,10 @@ export default function Carousel() {
     }
 
     return (
-        <main className="min-h-screen pb-20 selection:bg-blue-500/30 font-sans bg-slate-950 text-white">
+        <main className="min-h-screen pb-10 md:pb-20 selection:bg-blue-500/30 font-sans bg-slate-950 text-white">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
                 {/* Header */}
-                <header className="py-2 md:py-6 flex items-center justify-between border-b border-white/5 mb-2 md:mb-8">
+                <header className="py-2 md:py-6 flex items-center justify-between border-b border-white/5 mb-1 md:mb-8">
                     <div className="flex items-center gap-4">
                         <Link href="/" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-white transition-all border border-white/5 hover:bg-white/10">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
@@ -91,8 +91,8 @@ export default function Carousel() {
                 </header>
 
                 {/* Content */}
-                <div className="text-center mb-4 md:mb-8 space-y-2 md:space-y-4">
-                    <h2 className="text-3xl md:text-6xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
+                <div className="text-center mb-2 md:mb-8 space-y-2 md:space-y-4">
+                    <h2 className="text-xl md:text-6xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
                         Suositeltuja elokuvia
                     </h2>
                 </div>
@@ -117,7 +117,7 @@ export default function Carousel() {
                                     style={{ animationDelay: `${idx * 150}ms` }}
                                 >
                                     {/* Poster Container */}
-                                    <div className="w-full aspect-[2/3] max-h-[55vh] md:max-h-none relative overflow-hidden flex justify-center bg-slate-950">
+                                    <div className="w-full aspect-[2/3] max-h-[50dvh] md:max-h-none relative overflow-hidden flex justify-center bg-slate-950">
                                         {movie.posterPath ? (
                                             <img
                                                 src={`https://image.tmdb.org/t/p/w500${movie.posterPath}`}
@@ -131,10 +131,10 @@ export default function Carousel() {
                                     </div>
 
                                     {/* Info */}
-                                    <div className="p-8 flex flex-col flex-1 justify-between gap-6 w-full">
+                                    <div className="p-4 sm:p-8 flex flex-col flex-1 justify-between gap-2 sm:gap-6 w-full">
                                         <div className="space-y-2">
                                             <div className="flex items-start justify-between gap-4">
-                                                <h3 className="text-2xl font-black leading-tight group-hover:text-blue-400 transition-colors uppercase tracking-tight line-clamp-2">{movie.title}</h3>
+                                                <h3 className="text-lg md:text-2xl font-black leading-tight group-hover:text-blue-400 transition-colors uppercase tracking-tight line-clamp-2">{movie.title}</h3>
                                                 <span className="text-slate-500 font-black text-sm shrink-0">{movie.releaseYear}</span>
                                             </div>
                                         </div>
@@ -158,7 +158,7 @@ export default function Carousel() {
                         </div>
 
                         {/* Pagination indicator (Mobile only) */}
-                        <div className="flex md:hidden justify-center gap-1.5 mt-4">
+                        <div className="flex md:hidden justify-center gap-1.5 mt-2">
                             <span className="text-[10px] font-black uppercase tracking-widest text-slate-600 animate-pulse">
                                 Pyyhkäise nähdäksesi lisää
                             </span>
