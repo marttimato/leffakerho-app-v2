@@ -3,7 +3,6 @@ import Link from 'next/link'
 
 export default function Carousel() {
     const [movies, setMovies] = useState([])
-    const [displayMovies, setDisplayMovies] = useState([])
     const [seenIds, setSeenIds] = useState(new Set())
     const [loading, setLoading] = useState(true)
     const [selectedMovieId, setSelectedMovieId] = useState(null)
@@ -15,24 +14,22 @@ export default function Carousel() {
     }, [])
 
 
-    async function fetchRecommendations(currentSeenIds = new Set()) {
-        setLoading(true)
+    async function fetchRecommendations(append = false) {
+        if (!append) setLoading(true)
         try {
-            const excludeParam = Array.from(currentSeenIds).join(',')
+            const excludeParam = Array.from(seenIds).join(',')
             const res = await fetch(`/api/movies/recommendations?excludeIds=${excludeParam}`)
             const data = await res.json()
-            setMovies(data)
 
-            // Pick first 3 from the fresh pool
-            if (data.length >= 3) {
-                const initial3 = data.slice(0, 3)
-                setDisplayMovies(initial3)
-                const newSeen = new Set(currentSeenIds)
-                initial3.forEach(m => newSeen.add(m.id))
-                setSeenIds(newSeen)
+            if (append) {
+                setMovies(prev => [...prev, ...data])
             } else {
-                setDisplayMovies(data)
+                setMovies(data)
             }
+
+            const newSeen = new Set(seenIds)
+            data.forEach(m => newSeen.add(m.id))
+            setSeenIds(newSeen)
         } catch (err) {
             console.error('Failed to fetch recommendations', err)
         } finally {
@@ -40,15 +37,25 @@ export default function Carousel() {
         }
     }
 
-    async function handleRegenerate() {
-        // If we have less than 3 movies left in our local 'movies' pool that haven't been shown,
-        // we should probably fetch more. 
-        // But for simplicity, let's just always fetch fresh results based on seenIds.
-        fetchRecommendations(seenIds)
-    }
+    // Infinite loading observer
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && !loading) {
+                    fetchRecommendations(true)
+                }
+            },
+            { threshold: 0.1 }
+        )
+
+        const sentinel = document.getElementById('infinite-scroll-sentinel')
+        if (sentinel) observer.observe(sentinel)
+
+        return () => observer.disconnect()
+    }, [movies, loading, seenIds])
 
     async function handleSelectMovie(movieId) {
-        const movie = movies.find(m => m.id === movieId) || displayMovies.find(m => m.id === movieId)
+        const movie = movies.find(m => m.id === movieId)
         if (!movie) return
 
         setSelectedMovieId(movieId)
@@ -90,71 +97,80 @@ export default function Carousel() {
                     </h2>
                     <div className="space-y-2">
                         <p className="text-slate-400 text-sm md:text-xl max-w-2xl mx-auto font-medium">
-                            Valitsimme sinulle kolme näkemätöntä helmeä katseluhistoriasi perusteella.
+                            Löysimme nämä elokuvat makuusi sopivaksi katseluhistoriasi perusteella. Pyyhkäise tai selaa nähdäksesi lisää.
                         </p>
                         <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/5 rounded-full">
                             <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Istunnon aikana näytetty: {seenIds.size}</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Istunnon aikana ladattu: {seenIds.size}</span>
                         </div>
                     </div>
                 </div>
 
-                {loading ? (
+                {loading && movies.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-40 gap-6">
                         <div className="w-16 h-16 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
                         <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-sm">Analysoidaan makuasi...</p>
                     </div>
                 ) : (
-                    <div className="space-y-16">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-                            {displayMovies.map((movie, idx) => (
+                    <div className="relative">
+                        {/* 
+                            Mobile: Horizontal scroll with snap-to-center
+                            Desktop: Standard 3-column grid
+                        */}
+                        <div className="flex md:grid md:grid-cols-3 gap-6 overflow-x-auto md:overflow-visible snap-x snap-mandatory no-scrollbar pb-8 -mx-4 px-4 sm:mx-0 sm:px-0">
+                            {movies.map((movie, idx) => (
                                 <div
-                                    key={movie.id}
-                                    className="group relative flex flex-col items-center bg-slate-900 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl transition-all hover:scale-[1.02] hover:border-blue-500/30 animate-in fade-in zoom-in-95 duration-700"
+                                    key={`${movie.id}-${idx}`}
+                                    onClick={() => handleSelectMovie(movie.id)}
+                                    className="group relative flex flex-col items-center bg-slate-900 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl transition-all hover:scale-[1.02] hover:border-blue-500/30 animate-in fade-in zoom-in-95 duration-700 min-w-[85vw] md:min-w-0 snap-center cursor-pointer"
                                     style={{ animationDelay: `${idx * 150}ms` }}
                                 >
                                     {/* Poster Container */}
-                                    <div className="w-full aspect-[2/3] max-h-[45vh] md:max-h-none relative overflow-hidden flex justify-center">
+                                    <div className="w-full aspect-[2/3] max-h-[55vh] md:max-h-none relative overflow-hidden flex justify-center bg-slate-950">
                                         {movie.posterPath ? (
                                             <img
                                                 src={`https://image.tmdb.org/t/p/w500${movie.posterPath}`}
                                                 alt={movie.title}
-                                                className="h-full w-auto object-contain transition-transform duration-700 group-hover:scale-110 mx-auto"
+                                                className="h-full w-full object-cover md:object-contain transition-transform duration-700 group-hover:scale-110 mx-auto"
                                             />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center bg-slate-800 text-slate-600">Ei kuvaa</div>
+                                            <div className="w-full h-full flex items-center justify-center bg-slate-800 text-slate-600 uppercase text-[10px] font-black tracking-widest">Ei kuvaa</div>
                                         )}
                                         <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-60 pointer-events-none" />
                                     </div>
 
                                     {/* Info */}
-                                    <div className="p-8 flex flex-col flex-1 justify-between gap-6">
+                                    <div className="p-8 flex flex-col flex-1 justify-between gap-6 w-full">
                                         <div className="space-y-2">
-                                            <h3 className="text-2xl font-black leading-tight group-hover:text-blue-400 transition-colors uppercase tracking-tight">{movie.title}</h3>
-                                            <p className="text-slate-500 font-bold text-sm">{movie.releaseYear}</p>
+                                            <div className="flex items-start justify-between gap-4">
+                                                <h3 className="text-2xl font-black leading-tight group-hover:text-blue-400 transition-colors uppercase tracking-tight line-clamp-2">{movie.title}</h3>
+                                                <span className="text-slate-500 font-black text-sm shrink-0">{movie.releaseYear}</span>
+                                            </div>
                                         </div>
 
-                                        <button
-                                            onClick={() => handleSelectMovie(movie.id)}
-                                            className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white font-bold hover:bg-blue-600 hover:border-blue-500 transition-all uppercase tracking-wider text-xs"
-                                        >
-                                            Lisätietoja
-                                        </button>
+                                        <div className="flex items-center gap-2 text-blue-500 font-bold text-[10px] uppercase tracking-widest">
+                                            <span>Katso tiedot</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-3 h-3">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                                            </svg>
+                                        </div>
                                     </div>
                                 </div>
                             ))}
+
+                            {/* Infinite scroll sentinel */}
+                            <div id="infinite-scroll-sentinel" className="min-w-[40vw] md:min-w-0 flex items-center justify-center">
+                                {loading && (
+                                    <div className="w-8 h-8 border-2 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
+                                )}
+                            </div>
                         </div>
 
-                        <div className="flex justify-center pt-8">
-                            <button
-                                onClick={handleRegenerate}
-                                className="group flex items-center gap-4 px-10 py-6 rounded-[2rem] bg-blue-600 hover:bg-blue-500 text-white font-black text-xl shadow-[0_20px_50px_rgba(37,99,235,0.3)] transition-all active:scale-95 border border-blue-400/20"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6 group-hover:rotate-180 transition-transform duration-500">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                                </svg>
-                                Arvo uudelleen
-                            </button>
+                        {/* Pagination indicator (Mobile only) */}
+                        <div className="flex md:hidden justify-center gap-1.5 mt-4">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-600 animate-pulse">
+                                Pyyhkäise nähdäksesi lisää
+                            </span>
                         </div>
                     </div>
                 )}
