@@ -112,7 +112,8 @@ export default async function handler(req, res) {
                 id: movie.id,
                 title: movie.title,
                 posterPath: movie.poster_path,
-                releaseYear: movie.release_date ? movie.release_date.split('-')[0] : ''
+                releaseYear: movie.release_date ? movie.release_date.split('-')[0] : '',
+                voteAverage: movie.vote_average
             }))
 
         return res.status(200).json(result)

@@ -117,7 +117,7 @@ export default function Carousel() {
                                     style={{ animationDelay: `${idx * 150}ms` }}
                                 >
                                     {/* Poster Container */}
-                                    <div className="w-full aspect-[2/3] max-h-[50dvh] md:max-h-none relative overflow-hidden flex justify-center bg-slate-950">
+                                    <div className="w-full aspect-[2/3] max-h-[48dvh] md:max-h-none relative overflow-hidden flex justify-center bg-slate-950">
                                         {movie.posterPath ? (
                                             <img
                                                 src={`https://image.tmdb.org/t/p/w500${movie.posterPath}`}
@@ -132,11 +132,17 @@ export default function Carousel() {
 
                                     {/* Info */}
                                     <div className="p-4 sm:p-8 flex flex-col flex-1 justify-between gap-2 sm:gap-6 w-full">
-                                        <div className="space-y-2">
+                                        <div className="space-y-1">
                                             <div className="flex items-start justify-between gap-4">
                                                 <h3 className="text-lg md:text-2xl font-black leading-tight group-hover:text-blue-400 transition-colors uppercase tracking-tight line-clamp-2">{movie.title}</h3>
-                                                <span className="text-slate-500 font-black text-sm shrink-0">{movie.releaseYear}</span>
+                                                <span className="text-slate-500 font-black text-xs md:text-sm shrink-0">{movie.releaseYear}</span>
                                             </div>
+                                            {movie.voteAverage > 0 && (
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className="text-amber-500 text-xs md:text-sm">★</span>
+                                                    <span className="text-slate-400 text-xs md:text-sm font-bold">{movie.voteAverage.toFixed(1)}</span>
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div className="flex items-center gap-2 text-blue-500 font-bold text-[10px] uppercase tracking-widest">
