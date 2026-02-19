@@ -117,12 +117,12 @@ export default function Carousel() {
                                     style={{ animationDelay: `${idx * 150}ms` }}
                                 >
                                     {/* Poster Container */}
-                                    <div className="w-full aspect-[2/3] max-h-[48dvh] md:max-h-none relative overflow-hidden flex justify-center bg-slate-950">
+                                    <div className="w-full aspect-[2/3] max-h-[45dvh] md:max-h-none relative overflow-hidden flex justify-center bg-slate-950">
                                         {movie.posterPath ? (
                                             <img
                                                 src={`https://image.tmdb.org/t/p/w500${movie.posterPath}`}
                                                 alt={movie.title}
-                                                className="h-full w-full object-cover md:object-contain transition-transform duration-700 group-hover:scale-110 mx-auto"
+                                                className="h-full w-full object-contain transition-transform duration-700 group-hover:scale-110 mx-auto"
                                             />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center bg-slate-800 text-slate-600 uppercase text-[10px] font-black tracking-widest">Ei kuvaa</div>
