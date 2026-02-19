@@ -79,7 +79,7 @@ export default function Carousel() {
         <main className="min-h-screen pb-20 selection:bg-blue-500/30 font-sans bg-slate-950 text-white">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
                 {/* Header */}
-                <header className="py-4 md:py-8 flex items-center justify-between border-b border-white/5 mb-4 md:mb-12">
+                <header className="py-2 md:py-6 flex items-center justify-between border-b border-white/5 mb-2 md:mb-8">
                     <div className="flex items-center gap-4">
                         <Link href="/" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-white transition-all border border-white/5 hover:bg-white/10">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
@@ -91,19 +91,10 @@ export default function Carousel() {
                 </header>
 
                 {/* Content */}
-                <div className="text-center mb-8 md:mb-16 space-y-2 md:space-y-4">
+                <div className="text-center mb-4 md:mb-8 space-y-2 md:space-y-4">
                     <h2 className="text-3xl md:text-6xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
                         Suositeltuja elokuvia
                     </h2>
-                    <div className="space-y-2">
-                        <p className="text-slate-400 text-sm md:text-xl max-w-2xl mx-auto font-medium">
-                            Löysimme nämä elokuvat makuusi sopivaksi katseluhistoriasi perusteella. Pyyhkäise tai selaa nähdäksesi lisää.
-                        </p>
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/5 rounded-full">
-                            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Istunnon aikana ladattu: {seenIds.size}</span>
-                        </div>
-                    </div>
                 </div>
 
                 {loading && movies.length === 0 ? (
