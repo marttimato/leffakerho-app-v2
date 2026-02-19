@@ -4,7 +4,7 @@ export default async function handler(req, res) {
     if (req.method === 'PUT') {
         try {
             const { id } = req.query
-            const { title, person, releaseYear, watchDate, tmdbId } = req.body
+            const { title, person, releaseYear, watchDate, tmdbId, originalTitle, alternativeTitles } = req.body
 
             if (!id || !title) return res.status(400).json({ error: 'ID and Title are required' })
 
@@ -14,9 +14,9 @@ export default async function handler(req, res) {
 
             await pool.query(
                 `UPDATE movies 
-                 SET title = $1, person = $2, release_year = $3, watched_at = $4, tmdb_id = $5, year = $6, month = $7
-                 WHERE id = $8`,
-                [title, person, releaseYear || 0, watchDate, tmdbId, year, month, id]
+                 SET title = $1, person = $2, release_year = $3, watched_at = $4, tmdb_id = $5, year = $6, month = $7, original_title = $8, alternative_titles = $9
+                 WHERE id = $10`,
+                [title, person, releaseYear || 0, watchDate, tmdbId, year, month, originalTitle, alternativeTitles || [], id]
             )
 
             return res.status(200).json({ success: true })

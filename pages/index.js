@@ -139,15 +139,30 @@ export default function Home() {
 
     // Single title - use it directly
     const selectedTitle = s.titles ? s.titles[0].title : s.title
+    const originalTitle = s.titles?.find(t => t.type === 'original')?.title || ''
+    const altTitles = s.titles?.filter(t => t.type !== 'original').map(t => t.title) || []
 
     if (isEdit) {
       setEditTitle(selectedTitle)
       setEditSuggestions([])
-      setEditingMovie(prev => ({ ...prev, title: selectedTitle, tmdbId: s.id, releaseYear: s.releaseYear }))
+      setEditingMovie(prev => ({
+        ...prev,
+        title: selectedTitle,
+        tmdbId: s.id,
+        releaseYear: s.releaseYear,
+        originalTitle: originalTitle,
+        alternativeTitles: altTitles
+      }))
     } else {
       setTitle(selectedTitle)
       setSuggestions([])
-      setPendingMovie({ title: selectedTitle, tmdbId: s.id, releaseYear: s.releaseYear })
+      setPendingMovie({
+        title: selectedTitle,
+        tmdbId: s.id,
+        releaseYear: s.releaseYear,
+        originalTitle: originalTitle,
+        alternativeTitles: altTitles
+      })
     }
   }
 
@@ -157,10 +172,27 @@ export default function Home() {
 
     if (movie.isEdit) {
       setEditTitle(selectedTitle)
-      setEditingMovie(prev => ({ ...prev, title: selectedTitle, tmdbId: movie.id, releaseYear: movie.releaseYear }))
+      const originalTitle = movie.titles?.find(t => t.type === 'original')?.title || ''
+      const altTitles = movie.titles?.filter(t => t.type !== 'original').map(t => t.title) || []
+      setEditingMovie(prev => ({
+        ...prev,
+        title: selectedTitle,
+        tmdbId: movie.id,
+        releaseYear: movie.releaseYear,
+        originalTitle: originalTitle,
+        alternativeTitles: altTitles
+      }))
     } else {
       setTitle(selectedTitle)
-      setPendingMovie({ title: selectedTitle, tmdbId: movie.id, releaseYear: movie.releaseYear })
+      const originalTitle = movie.titles?.find(t => t.type === 'original')?.title || ''
+      const altTitles = movie.titles?.filter(t => t.type !== 'original').map(t => t.title) || []
+      setPendingMovie({
+        title: selectedTitle,
+        tmdbId: movie.id,
+        releaseYear: movie.releaseYear,
+        originalTitle: originalTitle,
+        alternativeTitles: altTitles
+      })
     }
   }
 
@@ -323,6 +355,8 @@ export default function Home() {
           title: pendingMovie.title,
           releaseYear: pendingMovie.releaseYear,
           tmdbId: pendingMovie.tmdbId,
+          originalTitle: pendingMovie.originalTitle,
+          alternativeTitles: pendingMovie.alternativeTitles
         })
       })
       return
@@ -340,6 +374,8 @@ export default function Home() {
           title: match.title,
           releaseYear: match.releaseYear,
           tmdbId: match.id,
+          originalTitle: match.titles?.find(t => t.type === 'original')?.title || '',
+          alternativeTitles: match.titles?.filter(t => t.type !== 'original').map(t => t.title) || []
         })
       })
     } else if (data.results.length > 1) {
@@ -535,7 +571,14 @@ export default function Home() {
             <MovieList
               people={PEOPLE}
               movies={searchQuery.trim().length >= 3
-                ? movies.filter(m => m.title.toLowerCase().includes(searchQuery.toLowerCase()) || m.person.toLowerCase().includes(searchQuery.toLowerCase()))
+                ? movies.filter(m => {
+                  const q = searchQuery.toLowerCase();
+                  const titleMatch = m.title.toLowerCase().includes(q);
+                  const personMatch = m.person.toLowerCase().includes(q);
+                  const originalTitleMatch = (m.originalTitle || '').toLowerCase().includes(q);
+                  const altTitlesMatch = (m.alternativeTitles || []).some(t => t.toLowerCase().includes(q));
+                  return titleMatch || personMatch || originalTitleMatch || altTitlesMatch;
+                })
                 : movies}
               onDelete={handleDelete}
               onSelect={handleSelectMovie}
