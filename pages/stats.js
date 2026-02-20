@@ -12,6 +12,7 @@ export default function Stats() {
     const [loadingMetadata, setLoadingMetadata] = useState(false)
     const [selectedCountry, setSelectedCountry] = useState(null)
     const [selectedGenre, setSelectedGenre] = useState(null)
+    const [selectedDecade, setSelectedDecade] = useState(null)
 
     // 1. Fetch basic movie list
     useEffect(() => {
@@ -272,14 +273,23 @@ export default function Stats() {
         })
     }, [filteredMovies, metadata, selectedGenre])
 
+    const decadeMovies = useMemo(() => {
+        if (!selectedDecade) return []
+        const decadeStart = parseInt(selectedDecade.name)
+        return filteredMovies.filter(m => {
+            if (!m.releaseYear) return false
+            return m.releaseYear >= decadeStart && m.releaseYear < decadeStart + 10
+        })
+    }, [filteredMovies, selectedDecade])
+
     useEffect(() => {
-        if (selectedCountry || selectedGenre) {
+        if (selectedCountry || selectedGenre || selectedDecade) {
             document.body.classList.add('overflow-hidden')
         } else {
             document.body.classList.remove('overflow-hidden')
         }
         return () => document.body.classList.remove('overflow-hidden')
-    }, [selectedCountry, selectedGenre])
+    }, [selectedCountry, selectedGenre, selectedDecade])
 
 
     if (loading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-500">Ladataan tilastoja...</div>
@@ -359,7 +369,11 @@ export default function Stats() {
                             <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-6">Genret</h2>
                             <div className="w-full">
                                 {genreData.length > 0 ? (
-                                    <GenreChart data={genreData} onGenreClick={(genre) => setSelectedGenre(genre)} />
+                                    <GenreChart data={genreData} onGenreClick={(genre) => {
+                                        setSelectedCountry(null);
+                                        setSelectedDecade(null);
+                                        setSelectedGenre(genre);
+                                    }} />
                                 ) : (
                                     <div className="text-slate-600 text-sm font-bold">Ei tarpeeksi dataa</div>
                                 )}
@@ -371,7 +385,11 @@ export default function Stats() {
                             <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-6">Elokuvan alkuperämaa</h2>
                             <div>
                                 {countryData.length > 0 ? (
-                                    <CountryChart data={countryData} onCountryClick={(country) => setSelectedCountry(country)} />
+                                    <CountryChart data={countryData} onCountryClick={(country) => {
+                                        setSelectedGenre(null);
+                                        setSelectedDecade(null);
+                                        setSelectedCountry(country);
+                                    }} />
                                 ) : (
                                     <div className="text-slate-600 text-sm font-bold">Ei tarpeeksi dataa</div>
                                 )}
@@ -381,7 +399,11 @@ export default function Stats() {
                         {/* 5. Decades */}
                         <div className="p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl">
                             <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-6">Julkaisuvuodet</h2>
-                            <YearDistributionChart data={yearData} />
+                            <YearDistributionChart data={yearData} onYearClick={(decade) => {
+                                setSelectedCountry(null);
+                                setSelectedGenre(null);
+                                setSelectedDecade(decade);
+                            }} />
                         </div>
                     </div>
                 </div>
@@ -389,17 +411,17 @@ export default function Stats() {
 
             {/* Slide-over Drawer */}
             <div
-                className={`fixed inset-0 z-[100] transition-opacity duration-500 ease-in-out ${selectedCountry || selectedGenre ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                className={`fixed inset-0 z-[100] transition-opacity duration-500 ease-in-out ${selectedCountry || selectedGenre || selectedDecade ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
             >
                 {/* Backdrop */}
                 <div
                     className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
-                    onClick={() => { setSelectedCountry(null); setSelectedGenre(null); }}
+                    onClick={() => { setSelectedCountry(null); setSelectedGenre(null); setSelectedDecade(null); }}
                 />
 
                 {/* Panel */}
                 <div
-                    className={`absolute inset-y-0 right-0 w-full max-w-md bg-slate-900 shadow-2xl border-l border-white/10 transform transition-transform duration-500 ease-in-out flex flex-col ${selectedCountry || selectedGenre ? 'translate-x-0' : 'translate-x-full'}`}
+                    className={`absolute inset-y-0 right-0 w-full max-w-md bg-slate-900 shadow-2xl border-l border-white/10 transform transition-transform duration-500 ease-in-out flex flex-col ${selectedCountry || selectedGenre || selectedDecade ? 'translate-x-0' : 'translate-x-full'}`}
                 >
                     {/* Drawer Header */}
                     <div className="p-6 border-b border-white/5 flex items-center justify-between bg-slate-900/50 backdrop-blur-md sticky top-0 z-10">
@@ -423,10 +445,15 @@ export default function Stats() {
                                     <h2 className="text-xl font-black text-white tracking-tight">{selectedGenre.name}</h2>
                                     <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{genreMovies.length} elokuvaa</p>
                                 </div>
+                            ) : selectedDecade ? (
+                                <div>
+                                    <h2 className="text-xl font-black text-white tracking-tight">{selectedDecade.name}</h2>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{decadeMovies.length} elokuvaa</p>
+                                </div>
                             ) : null}
                         </div>
                         <button
-                            onClick={() => { setSelectedCountry(null); setSelectedGenre(null); }}
+                            onClick={() => { setSelectedCountry(null); setSelectedGenre(null); setSelectedDecade(null); }}
                             className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-white transition-colors border border-white/5 hover:bg-white/10"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
@@ -437,7 +464,7 @@ export default function Stats() {
 
                     {/* Movie List */}
                     <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
-                        {(selectedCountry ? countryMovies : genreMovies).map((movie, idx) => (
+                        {(selectedCountry ? countryMovies : (selectedGenre ? genreMovies : decadeMovies)).map((movie, idx) => (
                             <div
                                 key={movie.id}
                                 className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-blue-500/30 transition-all group animate-in slide-in-from-right-4 duration-300 ease-out"

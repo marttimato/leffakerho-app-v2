@@ -45,7 +45,7 @@ export function MonthlyChart({ data }) {
     );
 }
 
-export function YearDistributionChart({ data }) {
+export function YearDistributionChart({ data, onYearClick }) {
     return (
         <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -60,7 +60,14 @@ export function YearDistributionChart({ data }) {
                         tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 700 }}
                     />
                     <Tooltip content={<CustomTooltip />} cursor={{ fill: '#ffffff05' }} />
-                    <Bar dataKey="count" fill="#8b5cf6" radius={[0, 8, 8, 0]} barSize={20}>
+                    <Bar
+                        dataKey="count"
+                        fill="#8b5cf6"
+                        radius={[0, 8, 8, 0]}
+                        barSize={20}
+                        onClick={(data) => onYearClick && onYearClick(data)}
+                        style={{ cursor: onYearClick ? 'pointer' : 'default' }}
+                    >
                         <LabelList dataKey="count" position="right" fill="#94a3b8" fontSize={11} fontWeight={800} offset={10} />
                     </Bar>
                 </BarChart>
