@@ -71,4 +71,11 @@ body::before {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /* Recharts focus outline fix */
+  .recharts-wrapper:focus,
+  .recharts-surface:focus,
+  .recharts-wrapper *:focus {
+    outline: none !important;
+  }
 }

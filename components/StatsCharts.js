@@ -49,7 +49,12 @@ export function YearDistributionChart({ data, onYearClick }) {
     return (
         <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data} layout="vertical" margin={{ top: 0, right: 40, left: 40, bottom: 0 }}>
+                <BarChart
+                    data={data}
+                    layout="vertical"
+                    margin={{ top: 0, right: 40, left: 40, bottom: 0 }}
+                    style={{ outline: 'none' }}
+                >
                     <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" horizontal={false} />
                     <XAxis type="number" hide />
                     <YAxis
