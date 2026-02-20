@@ -296,7 +296,7 @@ export default function Stats() {
 
     return (
         <div className="min-h-screen bg-slate-950 pb-20 selection:bg-blue-500/30 font-sans">
-            <div className="max-w-5xl mx-auto min-h-screen relative">
+            <div className="max-w-7xl mx-auto min-h-screen relative">
                 {/* Header */}
                 <header className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-white/5 px-6 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-4">
@@ -347,12 +347,11 @@ export default function Stats() {
                     </div>
 
                     {/* Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
 
 
-                        {/* 2. Monthly */}
-                        <div className="md:row-span-2 space-y-6">
-                            {/* Pace Metric */}
+                        {/* 1. Pace Metric */}
+                        <div className="lg:col-start-1 lg:row-start-1">
                             <div className="p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl flex flex-col justify-center items-center text-center h-[200px]">
                                 <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-2">Katselutahti</h2>
                                 <div className="text-4xl md:text-5xl font-black text-white tracking-tight mb-2">
@@ -364,8 +363,18 @@ export default function Stats() {
                             </div>
                         </div>
 
+                        {/* 2. Decades */}
+                        <div className="lg:col-start-1 lg:row-start-2 p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl">
+                            <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-6">Julkaisuvuodet</h2>
+                            <YearDistributionChart data={yearData} onYearClick={(decade) => {
+                                setSelectedCountry(null);
+                                setSelectedGenre(null);
+                                setSelectedDecade(decade);
+                            }} />
+                        </div>
+
                         {/* 3. Genres */}
-                        <div className="p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl">
+                        <div className="lg:col-start-2 lg:row-start-1 p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl">
                             <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-6">Genret</h2>
                             <div className="w-full">
                                 {genreData.length > 0 ? (
@@ -381,7 +390,7 @@ export default function Stats() {
                         </div>
 
                         {/* 4. Countries */}
-                        <div className="p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl md:row-span-2">
+                        <div className="lg:col-start-3 lg:row-start-1 lg:row-span-2 p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl">
                             <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-6">Elokuvan alkuperämaa</h2>
                             <div>
                                 {countryData.length > 0 ? (
@@ -394,16 +403,6 @@ export default function Stats() {
                                     <div className="text-slate-600 text-sm font-bold">Ei tarpeeksi dataa</div>
                                 )}
                             </div>
-                        </div>
-
-                        {/* 5. Decades */}
-                        <div className="p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl">
-                            <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-6">Julkaisuvuodet</h2>
-                            <YearDistributionChart data={yearData} onYearClick={(decade) => {
-                                setSelectedCountry(null);
-                                setSelectedGenre(null);
-                                setSelectedDecade(decade);
-                            }} />
                         </div>
                     </div>
                 </div>
