@@ -78,13 +78,22 @@ body::before {
   .recharts-surface,
   .recharts-surface * {
     outline: none !important;
+    outline: transparent !important;
     box-shadow: none !important;
+    -webkit-tap-highlight-color: transparent !important;
   }
 
   .recharts-wrapper:focus,
   .recharts-surface:focus,
   .recharts-wrapper *:focus {
     outline: none !important;
+    outline: transparent !important;
     box-shadow: none !important;
+    -webkit-tap-highlight-color: transparent !important;
   }
+}
+
+/* Global Mobile Fix */
+* {
+  -webkit-tap-highlight-color: transparent;
 }

@@ -348,7 +348,7 @@ export default function Stats() {
 
                     {/* Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
-                        {/* Column 1: Pace & Decades */}
+                        {/* Column 1: Pace & Decades (Desktop) / Pace only (Mobile) */}
                         <div className="space-y-6">
                             {/* 1. Pace Metric */}
                             <div className="p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl flex flex-col justify-center items-center text-center h-[200px]">
@@ -361,8 +361,8 @@ export default function Stats() {
                                 </div>
                             </div>
 
-                            {/* 2. Decades */}
-                            <div className="p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl">
+                            {/* 2. Decades (Visible only on Desktop in this column) */}
+                            <div className="hidden lg:block p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl">
                                 <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-6">Julkaisuvuodet</h2>
                                 <YearDistributionChart data={yearData} onYearClick={(decade) => {
                                     setSelectedCountry(null);
@@ -402,6 +402,16 @@ export default function Stats() {
                                     <div className="text-slate-600 text-sm font-bold">Ei tarpeeksi dataa</div>
                                 )}
                             </div>
+                        </div>
+
+                        {/* 2. Decades (Visible only on Mobile at the bottom of the grid) */}
+                        <div className="lg:hidden p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl">
+                            <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-6">Julkaisuvuodet</h2>
+                            <YearDistributionChart data={yearData} onYearClick={(decade) => {
+                                setSelectedCountry(null);
+                                setSelectedGenre(null);
+                                setSelectedDecade(decade);
+                            }} />
                         </div>
                     </div>
                 </div>

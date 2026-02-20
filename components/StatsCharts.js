@@ -53,7 +53,12 @@ export function YearDistributionChart({ data, onYearClick }) {
                     data={data}
                     layout="vertical"
                     margin={{ top: 0, right: 40, left: 40, bottom: 0 }}
-                    style={{ outline: 'none', boxShadow: 'none' }}
+                    style={{
+                        outline: 'none',
+                        boxShadow: 'none',
+                        WebkitTapHighlightColor: 'transparent',
+                        userSelect: 'none'
+                    }}
                 >
                     <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" horizontal={false} />
                     <XAxis type="number" hide />
