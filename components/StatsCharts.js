@@ -59,7 +59,6 @@ export function YearDistributionChart({ data, onYearClick }) {
                         tickLine={false}
                         tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 700 }}
                     />
-                    <Tooltip content={<CustomTooltip />} cursor={{ fill: '#ffffff05' }} />
                     <Bar
                         dataKey="count"
                         fill="#8b5cf6"
