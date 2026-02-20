@@ -348,10 +348,9 @@ export default function Stats() {
 
                     {/* Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
-
-
-                        {/* 1. Pace Metric */}
-                        <div className="lg:col-start-1 lg:row-start-1">
+                        {/* Column 1: Pace & Decades */}
+                        <div className="space-y-6">
+                            {/* 1. Pace Metric */}
                             <div className="p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl flex flex-col justify-center items-center text-center h-[200px]">
                                 <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-2">Katselutahti</h2>
                                 <div className="text-4xl md:text-5xl font-black text-white tracking-tight mb-2">
@@ -361,20 +360,20 @@ export default function Stats() {
                                     leffaa / kk
                                 </div>
                             </div>
+
+                            {/* 2. Decades */}
+                            <div className="p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl">
+                                <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-6">Julkaisuvuodet</h2>
+                                <YearDistributionChart data={yearData} onYearClick={(decade) => {
+                                    setSelectedCountry(null);
+                                    setSelectedGenre(null);
+                                    setSelectedDecade(decade);
+                                }} />
+                            </div>
                         </div>
 
-                        {/* 2. Decades */}
-                        <div className="lg:col-start-1 lg:row-start-2 p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl">
-                            <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-6">Julkaisuvuodet</h2>
-                            <YearDistributionChart data={yearData} onYearClick={(decade) => {
-                                setSelectedCountry(null);
-                                setSelectedGenre(null);
-                                setSelectedDecade(decade);
-                            }} />
-                        </div>
-
-                        {/* 3. Genres */}
-                        <div className="lg:col-start-2 lg:row-start-1 p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl">
+                        {/* Column 2: Genres */}
+                        <div className="p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl">
                             <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-6">Genret</h2>
                             <div className="w-full">
                                 {genreData.length > 0 ? (
@@ -389,8 +388,8 @@ export default function Stats() {
                             </div>
                         </div>
 
-                        {/* 4. Countries */}
-                        <div className="lg:col-start-3 lg:row-start-1 lg:row-span-2 p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl">
+                        {/* Column 3: Countries */}
+                        <div className="p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-2xl">
                             <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-6">Elokuvan alkuperämaa</h2>
                             <div>
                                 {countryData.length > 0 ? (
