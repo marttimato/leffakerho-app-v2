@@ -73,9 +73,18 @@ body::before {
   }
 
   /* Recharts focus outline fix */
+  .recharts-wrapper,
+  .recharts-wrapper *,
+  .recharts-surface,
+  .recharts-surface * {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
   .recharts-wrapper:focus,
   .recharts-surface:focus,
   .recharts-wrapper *:focus {
     outline: none !important;
+    box-shadow: none !important;
   }
 }
