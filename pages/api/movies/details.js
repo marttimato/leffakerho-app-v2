@@ -33,7 +33,8 @@ export default async function handler(req, res) {
             voteAverage: data.vote_average,
             runtime: data.runtime,
             genres: data.genres ? data.genres.map(g => g.name) : [],
-            countries: data.production_countries || []
+            countries: data.production_countries || [],
+            originCountry: data.origin_country || []
         })
     } catch (e) {
         console.error(e)

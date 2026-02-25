@@ -52,6 +52,8 @@ export default function Stats() {
                     if (meta.countries && meta.countries.length > 0 && typeof meta.countries[0] === 'string') {
                         return true
                     }
+                    // Check for missing originCountry
+                    if (!meta.originCountry) return true
                     return false
                 })
                 .map(m => m.tmdbId)
@@ -78,7 +80,8 @@ export default function Stats() {
                             const data = await res.json()
                             newMetadata[id] = {
                                 genres: data.genres || [],
-                                countries: data.countries || [] // Now contains objects with { iso_3166_1, name }
+                                countries: data.countries || [], // Now contains objects with { iso_3166_1, name }
+                                originCountry: data.originCountry || []
                             }
                             changed = true
                         }
@@ -181,6 +184,7 @@ export default function Stats() {
 
         clubMovies.forEach(m => {
             const meta = m.tmdbId ? metadata[m.tmdbId] : null
+            const originCodes = meta?.originCountry || []
             const countries = meta?.countries || []
 
             // Prioritize Finland for co-productions
@@ -189,6 +193,12 @@ export default function Stats() {
                 const code = typeof c === 'string' ? null : c.iso_3166_1
                 return name === "Finland" || code === "FI"
             })
+
+            // Secondary: use first origin country code
+            if (!primary && originCodes.length > 0) {
+                const primaryCode = originCodes[0]
+                primary = countries.find(c => c.iso_3166_1 === primaryCode)
+            }
 
             // Fallback to first country if Finland not found
             if (!primary && countries.length > 0) {
@@ -237,6 +247,7 @@ export default function Stats() {
 
         return clubMovies.filter(m => {
             const meta = m.tmdbId ? metadata[m.tmdbId] : null
+            const originCodes = meta?.originCountry || []
             const countries = meta?.countries || []
 
             // Prioritize Finland for co-productions
@@ -245,6 +256,12 @@ export default function Stats() {
                 const code = typeof c === 'string' ? null : c.iso_3166_1
                 return name === "Finland" || code === "FI"
             })
+
+            // Secondary: use first origin country code
+            if (!primary && originCodes.length > 0) {
+                const primaryCode = originCodes[0]
+                primary = countries.find(c => c.iso_3166_1 === primaryCode)
+            }
 
             // Fallback to first country
             if (!primary && countries.length > 0) {
