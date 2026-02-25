@@ -19,7 +19,6 @@ export default async function handler(req, res) {
     // Fetch alternative titles for each result
     const resultsWithTitles = await Promise.all(
       (data.results || [])
-        .filter(r => r.release_date)
         .map(async (r) => {
           // Fetch translations to get alternative titles
           const translationsUrl = `https://api.themoviedb.org/3/movie/${r.id}/translations?api_key=${apiKey}`
@@ -68,13 +67,28 @@ export default async function handler(req, res) {
           return {
             id: r.id,
             titles: titles.length > 0 ? titles : [{ title: r.title, language: 'fi', type: 'finnish' }],
-            releaseYear: Number(r.release_date.split('-')[0]),
+            releaseYear: r.release_date ? Number(r.release_date.split('-')[0]) : null,
             overview: r.overview,
           }
         })
     )
 
-    return res.status(200).json({ results: resultsWithTitles })
+    // Sort by releaseYear desc, then by title
+    const sortedResults = resultsWithTitles.sort((a, b) => {
+      // Release year: descending
+      if (a.releaseYear === null && b.releaseYear === null) return 0
+      if (a.releaseYear === null) return 1
+      if (b.releaseYear === null) return -1
+      if (b.releaseYear !== a.releaseYear) {
+        return b.releaseYear - a.releaseYear
+      }
+      // Secondary sort: Title (from first entry in titles array)
+      const titleA = (a.titles[0]?.title || '').toLowerCase()
+      const titleB = (b.titles[0]?.title || '').toLowerCase()
+      return titleA.localeCompare(titleB)
+    })
+
+    return res.status(200).json({ results: sortedResults })
   } catch (e) {
     console.error(e)
     return res.status(200).json({ results: [] })
