@@ -9,26 +9,48 @@ export default function Carousel() {
     const [details, setDetails] = useState(null)
     const [loadingDetails, setLoadingDetails] = useState(false)
 
+    const [currentMember, setCurrentMember] = useState(null)
+    const [note, setNote] = useState(null)
+
     useEffect(() => {
-        fetchRecommendations()
+        fetchCurrentTurn()
     }, [])
+
+    async function fetchCurrentTurn() {
+        try {
+            const res = await fetch('/api/turn/current')
+            const data = await res.json()
+            setCurrentMember(data.memberId)
+        } catch (err) {
+            console.error('Failed to fetch current turn', err)
+        }
+    }
+
+    useEffect(() => {
+        if (currentMember) {
+            fetchRecommendations()
+        }
+    }, [currentMember])
 
 
     async function fetchRecommendations(append = false) {
         if (!append) setLoading(true)
         try {
             const excludeParam = Array.from(seenIds).join(',')
-            const res = await fetch(`/api/movies/recommendations?excludeIds=${excludeParam}`)
+            const res = await fetch(`/api/movies/recommendations?memberId=${currentMember}&excludeIds=${excludeParam}`)
             const data = await res.json()
 
+            const newMovies = data.results || []
+            if (data.note) setNote(data.note)
+
             if (append) {
-                setMovies(prev => [...prev, ...data])
+                setMovies(prev => [...prev, ...newMovies])
             } else {
-                setMovies(data)
+                setMovies(newMovies)
             }
 
             const newSeen = new Set(seenIds)
-            data.forEach(m => newSeen.add(m.id))
+            newMovies.forEach(m => newSeen.add(m.id))
             setSeenIds(newSeen)
         } catch (err) {
             console.error('Failed to fetch recommendations', err)
@@ -92,9 +114,16 @@ export default function Carousel() {
 
                 {/* Content */}
                 <div className="text-center mb-2 md:mb-8 space-y-2 md:space-y-4">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 mb-2">
+                        <span className="text-blue-400/60 text-[10px] md:text-xs font-black uppercase tracking-[0.2em]">Nyt on vuorossa:</span>
+                        <span className="text-blue-400 font-black text-sm md:text-lg">{currentMember || '...'}</span>
+                    </div>
                     <h2 className="text-xl md:text-6xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
                         Suositeltuja elokuvia
                     </h2>
+                    {note && (
+                        <p className="text-slate-500 text-xs md:text-sm font-bold uppercase tracking-widest animate-pulse mt-2">{note}</p>
+                    )}
                 </div>
 
                 {loading && movies.length === 0 ? (

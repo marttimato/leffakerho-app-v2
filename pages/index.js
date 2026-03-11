@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import MovieList from '../components/MovieList'
 import FinnishDatePicker from '../components/FinnishDatePicker'
+import { PEOPLE } from '../lib/constants'
 
-const PEOPLE = ['Tomi', 'Mikkis', 'Aino', 'Mari']
 
 function todayISO() {
   return new Date().toISOString().slice(0, 10)

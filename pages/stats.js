@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { YearDistributionChart, GenreChart, CountryChart } from '../components/StatsCharts'
+import { PEOPLE } from '../lib/constants'
 
-const PEOPLE = ['Tomi', 'Mikkis', 'Aino', 'Mari']
 
 export default function Stats() {
     const [movies, setMovies] = useState([])

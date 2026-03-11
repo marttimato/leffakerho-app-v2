@@ -27,6 +27,9 @@ export default async function handler(req, res) {
         IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='movies' AND column_name='tmdb_id') THEN
           ALTER TABLE movies ADD COLUMN tmdb_id INT;
         END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='movies' AND column_name='metadata') THEN
+          ALTER TABLE movies ADD COLUMN metadata JSONB;
+        END IF;
       END $$;
     `
     const result = await pool.query(query)
