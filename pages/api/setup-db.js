@@ -31,6 +31,8 @@ export default async function handler(req, res) {
           ALTER TABLE movies ADD COLUMN metadata JSONB;
         END IF;
       END $$;
+
+      ALTER TABLE movies ENABLE ROW LEVEL SECURITY;
     `
     const result = await pool.query(query)
     return res.status(200).json({ result })
