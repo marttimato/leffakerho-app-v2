@@ -122,10 +122,10 @@ export default function Stats() {
 
     // 2b. Average movies per month (Pace)
     const averagePace = useMemo(() => {
-        if (filteredMovies.length === 0) return 0
+        if (movies.length === 0) return 0
 
-        // Find min and max date
-        const dates = filteredMovies
+        // Find min and max date of all movies in the database
+        const dates = movies
             .map(m => new Date(m.watchedAt || m.watchDate))
             .filter(d => !isNaN(d.getTime()))
             .sort((a, b) => a - b)
@@ -144,8 +144,8 @@ export default function Stats() {
         // we floor the difference to at least 1 day (1 / daysPerMonth months).
         const safeMonthDiff = Math.max(1 / daysPerMonth, monthDiff)
 
-        return (filteredMovies.length / safeMonthDiff).toFixed(1)
-    }, [filteredMovies])
+        return (movies.length / safeMonthDiff).toFixed(1)
+    }, [movies])
 
     // 3. Release Year Distribution
     const yearData = useMemo(() => {
