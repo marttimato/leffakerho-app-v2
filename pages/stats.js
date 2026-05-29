@@ -133,14 +133,18 @@ export default function Stats() {
         if (dates.length === 0) return 0
 
         const start = dates[0]
-        const end = new Date() // Use current date as end to represent "pace up to now" or dates[dates.length - 1]?
-        // "Pace" usually implies consistency over the active period. 
-        // Let's use the span between first movie and now (if active) or just first and last.
-        // If we use "now", and the user hasn't watched anything in a year, the pace drops (which is correct).
-        // Let's use the span between first watched and today.
+        const end = new Date()
 
-        const monthDiff = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()) + 1
-        return (filteredMovies.length / Math.max(1, monthDiff)).toFixed(1)
+        const msPerDay = 1000 * 60 * 60 * 24
+        const daysPerMonth = 365.2425 / 12 // Average days in a Gregorian month (approx. 30.436875)
+        const msPerMonth = msPerDay * daysPerMonth
+        const monthDiff = (end.getTime() - start.getTime()) / msPerMonth
+
+        // To avoid division by zero or extremely high pace when the first watch is today,
+        // we floor the difference to at least 1 day (1 / daysPerMonth months).
+        const safeMonthDiff = Math.max(1 / daysPerMonth, monthDiff)
+
+        return (filteredMovies.length / safeMonthDiff).toFixed(1)
     }, [filteredMovies])
 
     // 3. Release Year Distribution
